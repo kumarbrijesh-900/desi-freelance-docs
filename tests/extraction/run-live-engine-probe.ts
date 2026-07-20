@@ -140,7 +140,10 @@ const CHECKS: Record<string, Check[]> = {
   ],
   F6: [
     { name: "international", fn: f => f.client.clientLocation === "international" },
-    { name: "explicit INR survives", fn: f => (f.client.clientCurrency as string) === "INR" },
+    {
+      name: "explicit INR captured (raw; intl clientCurrency stays unset by domain)",
+      fn: (_f, _hy, r) => r.normalizedExtraction.meta.currency === "INR",
+    },
     {
       name: "no false currency clarification",
       fn: (_f, _hy, r) => !r.missingFields.includes("meta.currency"),

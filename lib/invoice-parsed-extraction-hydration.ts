@@ -122,8 +122,15 @@ function getConfidence(
 ): BriefParserConfidence {
   const fields = parserResponse.confidence.fields;
   const overall = parserResponse.confidence.overall;
-  const hasExplicit = Object.prototype.hasOwnProperty.call(fields, path);
-  const field = hasExplicit ? fields[path] : undefined;
+  const prefixedPath = `normalizedExtraction.${path}`;
+  const hasExplicit =
+    Object.prototype.hasOwnProperty.call(fields, path) ||
+    Object.prototype.hasOwnProperty.call(fields, prefixedPath);
+  const field = Object.prototype.hasOwnProperty.call(fields, path)
+    ? fields[path]
+    : Object.prototype.hasOwnProperty.call(fields, prefixedPath)
+      ? fields[prefixedPath]
+      : undefined;
 
   if (hasExplicit && field === "low" && STRICT_LOW_FIELD_PATHS.has(path)) {
     return "low";
@@ -1292,6 +1299,12 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       ? { ...m, amount: Math.round((milestoneTotalBase * m.percent) / 100) }
       : m,
   );
+
+  nextFormData.milestones = (
+    nextFormData.milestones?.length
+      ? nextFormData.milestones
+      : defaultInvoiceFormData.milestones
+  ).map((m, i) => (i === 0 ? { ...m, lineItems: nextFormData.lineItems } : m));
 
   return {
     nextFormData: mergeInvoiceFormData(nextFormData),

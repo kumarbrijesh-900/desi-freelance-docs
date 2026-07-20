@@ -32,7 +32,7 @@
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": "Brand Identity Design",
+          "description": "brand identity design",
           "quantity": 1,
           "rate": 90000,
           "unit": null,
@@ -40,7 +40,7 @@
         },
         {
           "type": "Social Media Content",
-          "description": "12 Social Media Posts",
+          "description": "12 social media posts",
           "quantity": 12,
           "rate": 5000,
           "unit": "post",
@@ -52,19 +52,19 @@
           "title": "Advance Payment",
           "percent": 50,
           "amount": null,
-          "condition": "advance received",
+          "condition": "advance",
           "date": null
         },
         {
           "title": "Balance Payment",
           "percent": 50,
           "amount": null,
-          "condition": "due in 15 days",
+          "condition": "within 15 days",
           "date": null
         }
       ],
       "payment": {
-        "terms": "50% advance received, balance payment to be cleared in 15 days.",
+        "terms": "50% advance, balance within 15 days",
         "mode": "UPI",
         "accountName": "ruhnika@okhdfcbank",
         "bankName": null,
@@ -100,7 +100,27 @@
     "legacyExtraction": null,
     "confidence": {
       "overall": "high",
-      "fields": {}
+      "fields": {
+        "agency.businessName": "high",
+        "agency.gstRegistered": "high",
+        "agency.gstin": "high",
+        "agency.city": "high",
+        "agency.state": "high",
+        "client.name": "high",
+        "client.location": "high",
+        "client.gstinOrTaxId": "high",
+        "client.city": "high",
+        "client.state": "high",
+        "deliverables": "high",
+        "payment.terms": "high",
+        "payment.mode": "high",
+        "payment.accountName": "high",
+        "meta.currency": "high",
+        "meta.totalAmount": "high",
+        "taxHints.treatment": "high",
+        "taxHints.domesticOrInternational": "high",
+        "taxHints.placeOfSupply": "high"
+      }
     },
     "missingFields": [],
     "clarificationQuestions": [],
@@ -115,7 +135,7 @@
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:46:39.698Z"
+    "parsedAt": "2026-07-20T08:06:52.851Z"
   },
   "D2": {
     "normalizedExtraction": {
@@ -195,30 +215,7 @@
     "legacyExtraction": null,
     "confidence": {
       "overall": "high",
-      "fields": {
-        "agency.businessName": "high",
-        "agency.city": "high",
-        "agency.state": "high",
-        "client.name": "high",
-        "client.city": "high",
-        "client.state": "high",
-        "client.location": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].sacCode": "high",
-        "payment.terms": "high",
-        "payment.mode": "high",
-        "payment.bankName": "high",
-        "payment.accountNumber": "high",
-        "payment.ifscCode": "high",
-        "meta.invoiceDate": "high",
-        "meta.dueDate": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.placeOfSupply": "high"
-      }
+      "fields": {}
     },
     "missingFields": [],
     "clarificationQuestions": [],
@@ -233,7 +230,7 @@
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:46:53.546Z"
+    "parsedAt": "2026-07-20T08:07:07.047Z"
   },
   "D3": {
     "normalizedExtraction": {
@@ -268,7 +265,7 @@
       "deliverables": [
         {
           "type": "Infographics & Presentation Design",
-          "description": null,
+          "description": "pitch deck redesign",
           "quantity": null,
           "rate": null,
           "unit": null,
@@ -276,7 +273,7 @@
         },
         {
           "type": "Video Editing",
-          "description": null,
+          "description": "launch reel edit",
           "quantity": null,
           "rate": null,
           "unit": null,
@@ -287,7 +284,7 @@
       "payment": {
         "terms": null,
         "mode": null,
-        "accountName": null,
+        "accountName": "Priya Mohanty",
         "bankName": null,
         "bankAddress": null,
         "accountNumber": null,
@@ -310,7 +307,7 @@
         "exportMentioned": false,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": "Locations and payment terms are not specified."
+        "ambiguity": null
       },
       "license": {
         "isIncluded": null,
@@ -324,42 +321,44 @@
       "fields": {
         "agency.businessName": "high",
         "client.name": "high",
-        "deliverables[0].type": "high",
-        "deliverables[1].type": "high"
+        "deliverables": "high",
+        "deliverables[0].description": "high",
+        "deliverables[0].sacCode": "high",
+        "deliverables[1].description": "high",
+        "deliverables[1].sacCode": "high",
+        "payment.accountName": "medium",
+        "meta.totalAmount": "low",
+        "meta.currency": "low",
+        "taxHints.treatment": "low"
       }
     },
     "missingFields": [
-      "deliverables.0.description",
       "deliverables.0.rate",
-      "deliverables.1.description",
       "deliverables.1.rate"
     ],
     "clarificationQuestions": [
-      "What are the locations of Ruhnika Designs and LazyPanda?",
-      "What are the payment terms for this invoice?",
+      "What are the rates for the pitch deck redesign and launch reel edit?",
       "What is the total amount for this invoice?",
-      "What is the currency for this invoice?",
-      "What rate or total price should be used for the deliverables?",
-      "Which brief detail should be treated as final where the sources conflict?"
+      "What currency should be used for the invoice?",
+      "What is the full payment account information (e.g., UPI ID, bank name, account number, IFSC code) for Priya Mohanty?",
+      "What are the locations (city, state) for Ruhnika Designs and LazyPanda to determine tax treatment?",
+      "What is the invoice number, invoice date, and due date?",
+      "What rate or total price should be used for the deliverables?"
     ],
-    "providerUsed": "groq-llama",
-    "fallbackUsed": true,
+    "providerUsed": "gemini-flash",
+    "fallbackUsed": false,
     "fallbackPath": [
-      "gemini-flash",
-      "groq-llama",
-      "grok"
+      "gemini-flash"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "Replaced model SAC \"998314\" with canonical SAC \"998391\" for Infographics & Presentation Design.",
-      "No GSTIN or tax IDs mentioned.",
-      "No payment terms or amounts specified.",
-      "grok: GROK_API_KEY is not set.",
+      "No specific payment terms (e.g., Net 30, advance) were mentioned.",
+      "Tax treatment cannot be determined without agency and client locations.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:47:05.711Z"
+    "parsedAt": "2026-07-20T08:07:21.267Z"
   },
   "F1": {
     "normalizedExtraction": {
@@ -397,7 +396,7 @@
           "description": "Landing site build",
           "quantity": 1,
           "rate": 4500,
-          "unit": null,
+          "unit": "flat",
           "sacCode": "998314"
         },
         {
@@ -411,8 +410,8 @@
       ],
       "milestones": [],
       "payment": {
-        "terms": null,
-        "mode": "Wire Transfer",
+        "terms": "Due 5 August 2026",
+        "mode": "Wire",
         "accountName": null,
         "bankName": "ICICI Bank",
         "bankAddress": null,
@@ -434,7 +433,7 @@
         "domesticOrInternational": "international",
         "placeOfSupply": null,
         "exportMentioned": true,
-        "sezMentioned": false,
+        "sezMentioned": null,
         "lutMentioned": true,
         "ambiguity": null
       },
@@ -447,43 +446,10 @@
     "legacyExtraction": null,
     "confidence": {
       "overall": "high",
-      "fields": {
-        "agency.businessName": "high",
-        "agency.gstRegistered": "high",
-        "agency.lutEnabled": "high",
-        "agency.country": "high",
-        "client.name": "high",
-        "client.location": "high",
-        "client.country": "high",
-        "client.city": "high",
-        "deliverables[0].type": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].quantity": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].sacCode": "high",
-        "deliverables[1].type": "high",
-        "deliverables[1].description": "high",
-        "deliverables[1].rate": "high",
-        "deliverables[1].unit": "high",
-        "deliverables[1].sacCode": "high",
-        "payment.mode": "high",
-        "payment.bankName": "high",
-        "payment.swiftCode": "high",
-        "meta.invoiceNumber": "high",
-        "meta.dueDate": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "high",
-        "taxHints.rate": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.exportMentioned": "high",
-        "taxHints.lutMentioned": "high"
-      }
+      "fields": {}
     },
     "missingFields": [],
-    "clarificationQuestions": [
-      "What is the quantity for revision support?"
-    ],
+    "clarificationQuestions": [],
     "providerUsed": "gemini-flash",
     "fallbackUsed": false,
     "fallbackPath": [
@@ -492,11 +458,10 @@
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "Total amount only includes the fixed deliverable; variable 'revision support' quantity is unknown.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:47:19.928Z"
+    "parsedAt": "2026-07-20T08:07:34.678Z"
   },
   "F2": {
     "normalizedExtraction": {
@@ -561,7 +526,7 @@
         "treatment": "ZERO_RATED",
         "rate": null,
         "domesticOrInternational": "international",
-        "placeOfSupply": "Oslo",
+        "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
@@ -583,15 +548,16 @@
         "client.city": "high",
         "deliverables[0].type": "high",
         "deliverables[0].description": "high",
-        "deliverables[0].quantity": "high",
         "deliverables[0].rate": "high",
+        "deliverables[0].quantity": "high",
         "deliverables[0].sacCode": "high",
         "payment.mode": "high",
         "meta.totalAmount": "high",
+        "meta.currency": "low",
         "taxHints.treatment": "high",
         "taxHints.domesticOrInternational": "high",
         "taxHints.exportMentioned": "high",
-        "taxHints.placeOfSupply": "high"
+        "taxHints.lutMentioned": "low"
       }
     },
     "missingFields": [
@@ -600,8 +566,7 @@
     ],
     "clarificationQuestions": [
       "What is the currency for the total amount of 2,800?",
-      "Is the agency registered for GST?",
-      "Does the agency have an LUT (Letter of Undertaking) on file for zero-rated exports?",
+      "Does your agency have an LUT (Letter of Undertaking) on file for zero-rated exports?",
       "Which currency should the amounts be in (INR, USD, AED, ...)?",
       "Do you have an LUT on file for zero-rated export, or should IGST apply?"
     ],
@@ -616,7 +581,7 @@
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:47:35.091Z"
+    "parsedAt": "2026-07-20T08:07:49.471Z"
   },
   "D4": {
     "normalizedExtraction": {
@@ -651,10 +616,10 @@
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": null,
+          "description": "Full brand and website project",
           "quantity": 1,
           "rate": 300000,
-          "unit": null,
+          "unit": "project",
           "sacCode": "998391"
         }
       ],
@@ -662,22 +627,22 @@
         {
           "title": "Kickoff",
           "percent": 40,
-          "amount": null,
-          "condition": null,
+          "amount": 120000,
+          "condition": "on kickoff",
           "date": null
         },
         {
-          "title": "Design delivery",
+          "title": "Design Delivery",
           "percent": 40,
-          "amount": null,
-          "condition": null,
+          "amount": 120000,
+          "condition": "on design delivery",
           "date": null
         },
         {
-          "title": "Final handoff",
+          "title": "Final Handoff",
           "percent": 20,
-          "amount": null,
-          "condition": null,
+          "amount": 60000,
+          "condition": "on final handoff",
           "date": null
         }
       ],
@@ -700,14 +665,14 @@
         "totalAmount": 300000
       },
       "taxHints": {
-        "treatment": "CGST_SGST",
+        "treatment": null,
         "rate": null,
         "domesticOrInternational": "domestic",
         "placeOfSupply": "Maharashtra",
         "exportMentioned": false,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": null
+        "ambiguity": "Agency location not mentioned, affecting tax treatment determination."
       },
       "license": {
         "isIncluded": null,
@@ -721,33 +686,34 @@
       "fields": {
         "agency.businessName": "low",
         "agency.state": "low",
-        "taxHints.treatment": "medium"
+        "taxHints.treatment": "low"
       }
     },
-    "missingFields": [
-      "deliverables.0.description"
-    ],
+    "missingFields": [],
     "clarificationQuestions": [
-      "What is the agency's location?",
-      "What is the agency's GSTIN?",
-      "What is the client's GSTIN?",
-      "What are the payment account details?"
+      "What is the location of the agency?",
+      "Is the agency registered for GST?",
+      "What are the payment account details?",
+      "Which brief detail should be treated as final where the sources conflict?"
     ],
     "providerUsed": "groq-llama",
     "fallbackUsed": true,
     "fallbackPath": [
       "gemini-flash",
-      "groq-llama"
+      "groq-llama",
+      "grok"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
       "Replaced model SAC \"998314\" with canonical SAC \"998391\" for Branding & Identity.",
-      "Assuming the agency is also in Maharashtra for tax treatment purposes. Actual agency location may affect tax treatment.",
+      "Tax treatment cannot be determined without agency location.",
+      "GST registration status of the agency is unknown.",
+      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:47:46.303Z"
+    "parsedAt": "2026-07-20T08:08:01.476Z"
   },
   "F3": {
     "normalizedExtraction": {
@@ -763,14 +729,14 @@
         "city": null,
         "state": null,
         "pinCode": null,
-        "country": "India"
+        "country": null
       },
       "client": {
         "name": "Hafenblick Media",
         "email": null,
         "location": "international",
         "gstinOrTaxId": null,
-        "isSezUnit": false,
+        "isSezUnit": null,
         "country": "Germany",
         "addressLine1": null,
         "addressLine2": null,
@@ -812,7 +778,7 @@
         "treatment": "ZERO_RATED",
         "rate": null,
         "domesticOrInternational": "international",
-        "placeOfSupply": "Germany",
+        "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": true,
@@ -827,31 +793,7 @@
     "legacyExtraction": null,
     "confidence": {
       "overall": "high",
-      "fields": {
-        "agency.businessName": "high",
-        "agency.lutEnabled": "high",
-        "agency.country": "high",
-        "client.name": "high",
-        "client.location": "high",
-        "client.country": "high",
-        "client.city": "high",
-        "deliverables[0].type": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].quantity": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].unit": "high",
-        "deliverables[0].sacCode": "medium",
-        "payment.mode": "high",
-        "payment.ibanOrRouting": "high",
-        "meta.dueDate": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.placeOfSupply": "high",
-        "taxHints.exportMentioned": "high",
-        "taxHints.lutMentioned": "high"
-      }
+      "fields": {}
     },
     "missingFields": [],
     "clarificationQuestions": [],
@@ -866,7 +808,7 @@
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:48:02.399Z"
+    "parsedAt": "2026-07-20T08:08:17.438Z"
   },
   "F4": {
     "normalizedExtraction": {
@@ -901,7 +843,7 @@
       "deliverables": [
         {
           "type": "UI/UX Design",
-          "description": "UX consulting",
+          "description": null,
           "quantity": 40,
           "rate": 85,
           "unit": "hour",
@@ -911,7 +853,7 @@
       "milestones": [],
       "payment": {
         "terms": "Due 1 August 2026",
-        "mode": "international wire",
+        "mode": "International Wire",
         "accountName": null,
         "bankName": null,
         "bankAddress": null,
@@ -928,10 +870,10 @@
         "totalAmount": 3400
       },
       "taxHints": {
-        "treatment": "ZERO_RATED",
+        "treatment": "IGST",
         "rate": null,
         "domesticOrInternational": "international",
-        "placeOfSupply": "United Kingdom",
+        "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
@@ -947,41 +889,43 @@
     "confidence": {
       "overall": "medium",
       "fields": {
-        "agency": "low",
-        "client.name": "high",
-        "client.location": "high",
-        "client.country": "high",
-        "client.city": "high",
-        "deliverables": "high",
-        "payment.mode": "high",
-        "payment.terms": "high",
-        "meta.dueDate": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.placeOfSupply": "high"
+        "normalizedExtraction.agency.businessName": "low",
+        "normalizedExtraction.client.email": "low",
+        "normalizedExtraction.meta.invoiceNumber": "low",
+        "normalizedExtraction.meta.invoiceDate": "low",
+        "normalizedExtraction.taxHints.rate": "low",
+        "normalizedExtraction.taxHints.placeOfSupply": "low"
       }
     },
     "missingFields": [
-      "taxHints.lutStatus"
+      "deliverables.0.description"
     ],
     "clarificationQuestions": [
-      "Is an LUT (Letter of Undertaking) on file for zero-rated export of services?",
-      "Do you have an LUT on file for zero-rated export, or should IGST apply?"
+      "Is the agency registered for GST?",
+      "What is the agency's GSTIN?",
+      "What is the client's email address?",
+      "What is the invoice number?",
+      "What is the invoice date?",
+      "What is the tax rate applicable for this service?",
+      "What is the place of supply for this service?",
+      "Is LUT (Letter of Undertaking) available for export?"
     ],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "Total amount is calculated in GBP, but currency conversion might be required for Indian GST purposes.",
+      "LUT status is not mentioned, which might affect the tax treatment.",
+      "gemini-flash: Gemini returned 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:48:18.054Z"
+    "parsedAt": "2026-07-20T08:08:34.484Z"
   },
   "F5": {
     "normalizedExtraction": {
@@ -1016,10 +960,10 @@
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": null,
+          "description": "brand campaign design",
           "quantity": 1,
           "rate": 12000,
-          "unit": null,
+          "unit": "service",
           "sacCode": "998391"
         }
       ],
@@ -1050,7 +994,7 @@
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": "LUT paperwork status unclear"
+        "ambiguity": null
       },
       "license": {
         "isIncluded": null,
@@ -1060,42 +1004,43 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "low",
+      "overall": "medium",
       "fields": {
-        "normalizedExtraction.client.location": "high",
-        "normalizedExtraction.client.country": "high",
-        "normalizedExtraction.meta.currency": "high",
-        "normalizedExtraction.meta.totalAmount": "high"
+        "client.name": "high",
+        "client.location": "high",
+        "client.country": "high",
+        "client.city": "high",
+        "deliverables[0].type": "high",
+        "deliverables[0].description": "high",
+        "deliverables[0].rate": "high",
+        "deliverables[0].sacCode": "high",
+        "meta.currency": "high",
+        "meta.totalAmount": "high",
+        "taxHints.treatment": "medium",
+        "taxHints.domesticOrInternational": "high",
+        "taxHints.exportMentioned": "high",
+        "taxHints.lutMentioned": "low"
       }
     },
     "missingFields": [
-      "deliverables.0.description",
       "taxHints.lutStatus"
     ],
     "clarificationQuestions": [
-      "Is the agency registered for GST?",
-      "What is the agency's location?",
-      "Is LUT paperwork available for this export?",
-      "Do you have an LUT on file for zero-rated export, or should IGST apply?",
-      "Which brief detail should be treated as final where the sources conflict?"
+      "Is an LUT (Letter of Undertaking) on file for this export?",
+      "Do you have an LUT on file for zero-rated export, or should IGST apply?"
     ],
-    "providerUsed": "groq-llama",
-    "fallbackUsed": true,
+    "providerUsed": "gemini-flash",
+    "fallbackUsed": false,
     "fallbackPath": [
-      "gemini-flash",
-      "groq-llama",
-      "grok"
+      "gemini-flash"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "International client, ensure compliance with export regulations",
-      "LUT status unclear, may affect tax treatment",
-      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:48:31.591Z"
+    "parsedAt": "2026-07-20T08:08:41.097Z"
   },
   "F6": {
     "normalizedExtraction": {
@@ -1130,7 +1075,7 @@
       "deliverables": [
         {
           "type": "Other",
-          "description": "app redesign",
+          "description": null,
           "quantity": 1,
           "rate": 120000,
           "unit": null,
@@ -1157,14 +1102,14 @@
         "totalAmount": 120000
       },
       "taxHints": {
-        "treatment": "ZERO_RATED",
+        "treatment": "IGST",
         "rate": null,
         "domesticOrInternational": "international",
-        "placeOfSupply": "Singapore",
+        "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": null
+        "ambiguity": "LUT status for ZERO_RATED treatment"
       },
       "license": {
         "isIncluded": null,
@@ -1174,42 +1119,38 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "high",
+      "overall": "medium",
       "fields": {
-        "client.name": "high",
-        "client.location": "high",
-        "client.country": "high",
-        "deliverables[0].type": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].sacCode": "high",
-        "payment.mode": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.exportMentioned": "high",
-        "taxHints.placeOfSupply": "high",
-        "taxHints.treatment": "medium"
+        "normalizedExtraction.client.name": "high",
+        "normalizedExtraction.client.location": "high",
+        "normalizedExtraction.meta.currency": "high",
+        "normalizedExtraction.meta.totalAmount": "high"
       }
     },
     "missingFields": [
-      "taxHints.lutStatus"
+      "deliverables.0.description"
     ],
     "clarificationQuestions": [
-      "Does the agency have an LUT (Letter of Undertaking) on file for zero-rated exports?",
-      "Do you have an LUT on file for zero-rated export, or should IGST apply?"
+      "Is LUT (Letter of Undertaking) enabled for this export transaction?",
+      "What are the payment terms for this transaction?",
+      "Which brief detail should be treated as final where the sources conflict?"
     ],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama",
+      "grok"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "LUT status is not mentioned, which may affect tax treatment",
+      "Payment terms are not specified, which may cause confusion",
+      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T07:48:44.073Z"
+    "parsedAt": "2026-07-20T08:08:52.542Z"
   }
 }
