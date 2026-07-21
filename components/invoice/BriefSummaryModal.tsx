@@ -16,6 +16,7 @@ import type {
   NormalizedBriefMilestone,
   BriefParserProvider,
 } from "@/lib/brief-parser-gateway";
+import type { ParsedInvoiceHydrationResult } from "@/lib/invoice-parsed-extraction-hydration";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
@@ -54,6 +55,7 @@ interface BriefSummaryModalProps {
   isLoggedIn: boolean;
   parsedMilestones: NormalizedBriefMilestone[];
   providerUsed: BriefParserProvider | null;
+  preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
   onContinueManually: (data: InvoiceFormData) => void;
   onParseAgain: () => void;
   onSubmit: (data: InvoiceFormData, shouldSaveClient: boolean) => void;
@@ -480,6 +482,7 @@ export default function BriefSummaryModal({
   isLoggedIn,
   parsedMilestones,
   providerUsed,
+  preservedFields,
   onContinueManually,
   onParseAgain,
   onSubmit,
@@ -885,6 +888,97 @@ export default function BriefSummaryModal({
                 </p>
               </div>
             )}
+
+            {(() => {
+              const normalizeForCompare = (value?: string) =>
+                (value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+              const conflictFields = preservedFields.filter(
+                (f) =>
+                  Boolean(f.incomingValue) &&
+                  Boolean(f.currentValue) &&
+                  normalizeForCompare(f.incomingValue) !==
+                    normalizeForCompare(f.currentValue),
+              );
+              if (conflictFields.length === 0) return null;
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 px-0.5">
+                    <span className="h-2 w-2 rounded-full bg-[#c2502f]" />
+                    <h3 className="text-[13px] font-semibold text-ink">
+                      Differs from your saved profile
+                    </h3>
+                    <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                      {conflictFields.length} to confirm
+                    </span>
+                  </div>
+                  <p className="px-0.5 text-[12px] text-ink-3">
+                    Your brief and your saved profile disagree here. Pick what
+                    this invoice should use — your profile isn&apos;t changed
+                    either way.
+                  </p>
+                  <div className="space-y-2">
+                    {conflictFields.map((f) => {
+                      const active = normalizeForCompare(
+                        getExtractedValueForLabel(f.label, localData),
+                      );
+                      const briefActive =
+                        active === normalizeForCompare(f.incomingValue);
+                      const options = [
+                        {
+                          key: "brief",
+                          caption: "From brief",
+                          value: f.incomingValue ?? "",
+                          selected: briefActive,
+                        },
+                        {
+                          key: "profile",
+                          caption: "From profile",
+                          value: f.currentValue ?? "",
+                          selected: !briefActive,
+                        },
+                      ];
+                      return (
+                        <div
+                          key={f.path}
+                          className="rounded-[14px] border border-soft bg-paper p-3"
+                        >
+                          <span className="block text-[12px] font-semibold text-ink-2">
+                            {f.label}
+                          </span>
+                          <div className="mt-2 grid grid-cols-2 gap-2">
+                            {options.map((option) => (
+                              <button
+                                key={option.key}
+                                type="button"
+                                aria-pressed={option.selected}
+                                onClick={() =>
+                                  setLocalData((prev) =>
+                                    setFormDataValue(prev, f.label, option.value),
+                                  )
+                                }
+                                className={cn(
+                                  "rounded-[10px] border px-3 py-2 text-left transition-colors",
+                                  option.selected
+                                    ? "border-[#c2502f] bg-[#f7ece6]"
+                                    : "border-soft bg-white hover:bg-[#efe6d1]",
+                                )}
+                              >
+                                <span className="block text-[11px] font-medium text-ink-3">
+                                  {option.caption}
+                                </span>
+                                <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
+                                  {option.value}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {confidentFields.length > 0 &&
               (() => {

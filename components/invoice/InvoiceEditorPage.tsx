@@ -1970,6 +1970,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       isNewClient,
       parsedMilestones: parsedHydration.parsedMilestones,
       providerUsed: parserResponse.providerUsed,
+      preservedFields: parsedHydration.preservedFields,
     });
 
     return true;
@@ -3234,6 +3235,7 @@ return (
         isNewClient={briefSummaryData.isNewClient}
         parsedMilestones={briefSummaryData.parsedMilestones}
         providerUsed={briefSummaryData.providerUsed}
+        preservedFields={briefSummaryData.preservedFields}
         isLoggedIn={!isGuestMode}
         onContinueManually={handleContinueManually}
         onParseAgain={handleParseAgain}

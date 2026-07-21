@@ -5,6 +5,7 @@ import type {
   NormalizedBriefMilestone,
   BriefParserProvider,
 } from "@/lib/brief-parser-gateway";
+import type { ParsedInvoiceHydrationResult } from "@/lib/invoice-parsed-extraction-hydration";
 
 export function useInvoiceAutofill() {
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -14,6 +15,7 @@ export function useInvoiceAutofill() {
     isNewClient: boolean;
     parsedMilestones: NormalizedBriefMilestone[];
     providerUsed: BriefParserProvider | null;
+    preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
   } | null>(null);
 
   const [postSubmitActionModal, setPostSubmitActionModal] = useState<{
