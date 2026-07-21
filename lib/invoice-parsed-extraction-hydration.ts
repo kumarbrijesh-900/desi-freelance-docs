@@ -670,23 +670,36 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   const { normalizedExtraction } = params.parserResponse;
   const { agency, client, payment, meta, taxHints } = normalizedExtraction;
 
+  // Agency GST registration is only credible when the brief carries a GSTIN the
+  // agency actually owns. `agency.gstin` below is ownership-filtered via
+  // sanitizeOwnedIdentifier; without the same guard here a client's GSTIN can
+  // flip the agency to "registered" and charge GST on an invoice that carries no
+  // supplier GSTIN.
+  const agencyOwnedGstin = sanitizeOwnedIdentifier({
+    value: agency.gstin,
+    owner: "agency",
+    kind: "gstin",
+    clientGstinOrTaxId: client.gstinOrTaxId,
+  });
+  const agencyClaimsRegistered =
+    agency.gstRegistered === true && agencyOwnedGstin !== "";
+
   applyToggleField({
     ctx,
     path: "agency.gstRegistered",
     label: "GST registration status",
-    incoming:
-      agency.gstRegistered === true
-        ? "registered"
-        : agency.gstRegistered === false
-          ? "not-registered"
-          : null,
+    incoming: agencyClaimsRegistered
+      ? "registered"
+      : agency.gstRegistered === false
+        ? "not-registered"
+        : null,
     currentValue: nextFormData.agency.gstRegistrationStatus,
     originalValue: ctx.originalFormData.agency.gstRegistrationStatus,
     defaultValue: defaultInvoiceFormData.agency.gstRegistrationStatus,
     assign: (value) => {
       nextFormData.agency.gstRegistrationStatus = value;
     },
-    allowDefaultOverride: agency.gstRegistered === true,
+    allowDefaultOverride: agencyClaimsRegistered,
   });
 
   applyStringField({
@@ -707,12 +720,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     ctx,
     path: "agency.gstin",
     label: "Agency GSTIN",
-    incoming: sanitizeOwnedIdentifier({
-      value: agency.gstin,
-      owner: "agency",
-      kind: "gstin",
-      clientGstinOrTaxId: client.gstinOrTaxId,
-    }),
+    incoming: agencyOwnedGstin,
     currentValue: nextFormData.agency.gstin,
     originalValue: ctx.originalFormData.agency.gstin,
     defaultValue: defaultInvoiceFormData.agency.gstin,
