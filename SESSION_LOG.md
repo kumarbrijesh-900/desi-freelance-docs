@@ -46,6 +46,140 @@ New Claude instance? Read this block, then the most recent session entries below
 
 ---
 
+## July 21–22 — GST "Registered" hallucination traced to the provider chain; two hydration fixes shipped; grok key unset in prod
+
+**Start:** `51a33ec` · **End:** `c4eadec` · Both fixes verified byte-exact and live on prod.
+
+---
+
+## Headline
+
+The "Tax 0%" lead from the previous session closed as **not-a-bug**. Its inverse — the agency being silently flagged **GST Registered** — turned out to be real, and the cause was never in the hydrator. It is **groq hallucinating `gstRegistered: true` with `gstin: null`**, surfaced by a UI footer that misreports which provider actually served the parse.
+
+Ground truth arrived only at the end, from the raw parse response. Everything before that was inference from rendered UI, and **three consecutive diagnoses were wrong** as a result. Recorded in full below — the wrong turns are the most reusable part of this entry.
+
+---
+
+## 1. Tax 0% — CLOSED, not a bug
+
+- String traced to `components/invoice/TotalsTaxesSection.tsx:274`, fires on `computed.taxType === "exempt"`.
+- `lib/invoice-tax.ts` produces `exempt` from exactly two branches: `!isRegistered`, or `tax.isRcmEnabled`. RCM defaults `false` (`types/invoice.ts:327`) and is only written by the user toggle at `TotalsTaxesSection:323` — autofill never touches it.
+- Prod DB ground truth, `user_profiles` for `c2b2dc67-…`: `gst_registration_status: "not-registered"`, `gstin: ""`.
+- **Founder confirmed he is not GST registered; the GSTIN in the brief was a dummy belonging to the client.**
+- `sanitizeOwnedIdentifier` correctly kept the client GSTIN off `agency.gstin`. The editor's message was true. Nothing to fix.
+
+### Wrong turn 1 — queried the wrong table
+Initially ran against `public.profiles` and concluded `lib/supabase/profiles.ts` had column-name bugs (`gst_registration_status` vs `gst_registered`, `address_line1` vs `address_line_1`, all payment columns missing). **The app reads `public.user_profiles`**, whose columns match the mapper exactly. No mapper bug.
+
+**Residual finding:** a second, unused `profiles` table exists in prod (`business_name`, `gst_registered` boolean, `lut_enabled`, `address_line_1`), last written 2026-04-17, holding `gst_registered = true`. Nothing in the app queries it. Schema debris — safe to drop after a check.
+
+### Withdrawn P0 — "not-registered is a silent default"
+Claimed the field had no "unset" state and silently asserted non-registration. **`app/onboarding/page.tsx` disproves it:** `gstRegistered` starts `""`, the question is required and blocks submit (L95), it writes `""` when unanswered (L80–81), validates via `isValidGstin`, derives state + PAN from the GSTIN, and stores `.trim().toUpperCase()`. Withdrawn.
+
+---
+
+## 2. Conflict card — first live test on signed-in prod
+
+Founder populated `user_profiles` payment fields (write landed `2026-07-21T11:34:21Z` — **save path works**; atomicity per AUDIT-P0-001 still untested).
+
+Targeted brief authored (Studio Kaagaz / Meridian Labs) to hit 6 conflict rows + 1 benign suppression + controls.
+
+**Result: 2 of 6 fired** — Agency name, Agency PAN. Payment rows did not.
+
+### Root cause, verified in source
+`profileToPaymentDefaults` is called at **exactly one site**: `InvoiceEditorPage.tsx:2150`, inside `handleSelectProfile` — the manual "use my profile" button. The automatic bootstrap prefill effect (L529–538) spreads **`agency` only**:
+
+```js
+return { ...prev, agency: { ...prev.agency, ...profileToAgencyDetails(savedProfile) } };
+```
+
+So payment is never auto-prefilled, is blank at parse time, and **no payment conflict is structurally possible**. Left rail corroborates: "Payment · 3 to go" despite saved bank details. The probe's 5-payment-row forecast was measured against a synthetic populated profile — a state the real product never reaches.
+
+### Second finding — the card is a race
+A later run of the identical brief showed **no conflict card at all**, with Agency name and PAN sitting in *Extracted with confidence*. That only happens if `nextFormData.agency` was blank at hydration — i.e. `savedProfile` had not resolved when Extract was pressed. Nothing gates parsing on profile load. **The card appears or doesn't based on timing**, which undermines every conflict observation made from the UI.
+
+---
+
+## 3. `f1efc80` — ownership-filter `agency.gstRegistered`
+
+`agency.gstin` was ownership-filtered through `sanitizeOwnedIdentifier`; the boolean derived from the same number was not. Added `agencyOwnedGstin`, gated `agencyClaimsRegistered` on it, reused the const for the gstin field.
+
+Verified: true HEAD matched, 1 commit, 1 file, `+21/-13`, byte-exact vs local target, all occurrence counts clean. Deployed `dpl_DFHFsmWEe5fFuX2LJYBct1TWwPhe`.
+
+**Retest: "GST registration status · Registered" still present.**
+
+---
+
+## 4. `c4eadec` — evaluate the toggle after `agency.gstin` is written
+
+Reasoning at the time: the guard tested the *parser payload*, not the *written form value*, so a GSTIN dropped by the confidence gate could still flip the boolean. Moved `applyToggleField(agency.gstRegistered)` to after `applyStringField(agency.gstin)` and gated on `isValidGstin(nextFormData.agency.gstin)`. Added the `isValidGstin` import.
+
+Verified: true HEAD matched, 1 commit, 1 file, `+31/-25`, byte-exact, ordering assertion **L711 write → L718 gate → L722 toggle**. Deployed `dpl_P8y59mE2sVR2m8D9rbCM78zdiAS9`.
+
+**Retest: still showed "Registered".**
+
+---
+
+## 5. Wrong turns — read these before trusting a UI-derived diagnosis
+
+1. **"`applyToggleField` never routes to `preservedFields`."** False. There is a `!canHydrate && currentValue !== incoming` branch at the end of the function. Asserted after reading only to L303.
+2. **"No Agency GSTIN row in the confident list ⇒ the GSTIN wasn't written."** False. `BriefSummaryModal` L985–991 filters the confident list on `!lowConfLabels.has(f.label)` — a **medium-confidence field is written to the form and hidden from that section**. This bad premise is what motivated `c4eadec`.
+3. **GitHub API scope check returned "0 commits, 0 files"** — which was a silent **403 rate-limit** body my parser swallowed. Would have read as a clean verification. Re-ran through git. *Never parse an API response without checking the status.*
+
+**Standing rule this session earned:** the confident list is `hydration.hydratedFields` filtered to `confidence === "high"`, then filtered *again* for display. Absence from it proves nothing about what was written. Diagnose from the payload, not the screen.
+
+---
+
+## 6. Ground truth — raw parse response (`parse-brief-v2`, 2026-07-21T22:51:56Z)
+
+```
+providerUsed : "gemini-flash"
+fallbackUsed : true
+fallbackPath : [gemini-flash, groq-llama, grok]
+```
+
+- **UI footer read "Parsed by Groq Llama". It was gemini.** The provider label misattributes, and every provider-based inference this session was built on it.
+- **`grok: GROK_API_KEY is not set`** — the third provider is dead in prod. The chain is effectively one working provider behind a failing primary.
+- **groq returned `400 json_validate_failed`.** Its `failed_generation` blob is the smoking gun:
+  - `"gstRegistered": true, "gstin": null` — asserts registration with no supporting number. The brief never claims it. **This is the hallucination.**
+  - `"totalAmount": 35000 * 4 + 18000 * 2` — a JS expression where JSON needs a number. **This is why groq 400s on ordinary briefs.**
+  - deliverable `description: null` on both rows.
+- **gemini returned `gstRegistered: null, gstin: null`** — correct — and *does* return descriptions ("4 landing page designs", "2 illustration rounds"). Earlier empty description fields were groq nulls, **not** a hydrator bug.
+
+### Does `c4eadec` hold?
+Against the groq shape: `gstin: null` → `sanitizeOwnedIdentifier` returns `""` → `isValidGstin("")` false → `agencyClaimsRegistered` false → and since `gstRegistered === false` is also false, `incoming` is `null` → `applyToggleField` returns before writing. **No row, status untouched.** The fix is correct for the observed failure mode, reached via faulty reasoning.
+
+**⚠ Unconfirmed at session end:** whether the gemini-served run still displayed a GST registration row. With `gstRegistered: null` it cannot, under any version of the code. Confirm before closing.
+
+---
+
+## 7. Stale-build test incident
+
+One retest ran on `desi-freelance-docs-a2foo4rbm-*.vercel.app` — a preview deployment **not among the 20 most recent**, predating both fixes by 17+ hours, in **guest mode**, with a **different brief containing no GSTIN**. Four variables moved at once; nothing falsifiable. Test protocol going forward: prod alias `lanceinvoice.xyz`, signed in, same brief, DevTools open before Extract.
+
+---
+
+## 8. Queue
+
+**Provider chain (new, top priority — none of this is the hydrator):**
+1. `GROK_API_KEY` unset in prod — restore it or drop grok from the chain honestly
+2. groq arithmetic-expression bug — prompt rule; it is 400-ing the primary on ordinary briefs
+3. groq unsupported `gstRegistered: true` — prompt rule: never assert registration without an agency-owned GSTIN
+4. Provider label misattribution in the modal footer — actively misdirects diagnosis
+
+**Carried:**
+5. Prefill race — gate Extract on `savedProfile` resolving, so the conflict card is deterministic
+6. Payment prefill — add `profileToPaymentDefaults` to the bootstrap effect (same effect as #5)
+7. Fixture: confidence-gate-drops-GSTIN case, to make `c4eadec` permanent
+8. Confirm the gemini-served run shows no GST registration row
+9. Drop the legacy `profiles` table from prod
+10. `invoice-tax.ts:6` uses raw `gstin.length === 15`, not `isValidGstin`; hydration L~711 assigns `.toUpperCase()` with no `.trim()`
+11. Guest flow repeats Bank name / Account number / IFSC in both *Extracted with confidence* and *Needs review*, though signed-in copy promises "nothing above is repeated here"
+12. `NEXT_PUBLIC_ENABLE_IMAGE_INTAKE` / `_VOICE_INTAKE` → confirm Preview scope only
+13. P2 polish · image battery · voice wiring · Track D Playwright · deferred (a) PostgREST, (c) profile atomic save, (d) late-fee normalize
+
+---
+
 ## Guest-vs-signed-in divergence found → profile-prefill discards brief values → "Differs from your saved profile" card shipped (July 20–21, 2026)
 
 **COLD-START DELTA (read after the entry below):** Autofill live in prod. Engine v21. Intake: text only in prod; image/voice behind flags — **OPEN: confirm those two flags are Preview-scope only, prod showed Screenshot+Voice on July 21.** New instrument this session: `tests/extraction/run-signed-in-hydration-probe.ts` — offline replay, no network, run it after ANY hydration change.
