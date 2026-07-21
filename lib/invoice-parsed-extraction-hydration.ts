@@ -15,6 +15,7 @@ import {
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
+import { isValidGstin } from "@/lib/gstin-parser";
 import { inferLocationDetailsFromText } from "@/lib/location-inference";
 import {
   invoiceDefaultUnitByType,
@@ -670,36 +671,18 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   const { normalizedExtraction } = params.parserResponse;
   const { agency, client, payment, meta, taxHints } = normalizedExtraction;
 
-  // Agency GST registration is only credible when the brief carries a GSTIN the
-  // agency actually owns. `agency.gstin` below is ownership-filtered via
-  // sanitizeOwnedIdentifier; without the same guard here a client's GSTIN can
-  // flip the agency to "registered" and charge GST on an invoice that carries no
-  // supplier GSTIN.
+  // Agency GST registration is only credible when a supplier GSTIN actually
+  // lands on the invoice. sanitizeOwnedIdentifier keeps a client's GSTIN off the
+  // agency, but the confidence gate can still drop a GSTIN that WAS present in
+  // the parser payload — so the toggle is evaluated further below, after
+  // agency.gstin is written, never from the raw payload. Asserting "registered"
+  // with no supplier GSTIN yields an invoice that charges GST while carrying
+  // none (Rule 46).
   const agencyOwnedGstin = sanitizeOwnedIdentifier({
     value: agency.gstin,
     owner: "agency",
     kind: "gstin",
     clientGstinOrTaxId: client.gstinOrTaxId,
-  });
-  const agencyClaimsRegistered =
-    agency.gstRegistered === true && agencyOwnedGstin !== "";
-
-  applyToggleField({
-    ctx,
-    path: "agency.gstRegistered",
-    label: "GST registration status",
-    incoming: agencyClaimsRegistered
-      ? "registered"
-      : agency.gstRegistered === false
-        ? "not-registered"
-        : null,
-    currentValue: nextFormData.agency.gstRegistrationStatus,
-    originalValue: ctx.originalFormData.agency.gstRegistrationStatus,
-    defaultValue: defaultInvoiceFormData.agency.gstRegistrationStatus,
-    assign: (value) => {
-      nextFormData.agency.gstRegistrationStatus = value;
-    },
-    allowDefaultOverride: agencyClaimsRegistered,
   });
 
   applyStringField({
@@ -727,6 +710,29 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.agency.gstin = value.toUpperCase();
     },
+  });
+
+  // Evaluated only now, against the written value: a GSTIN that the confidence
+  // gate refused to write must not leave the agency flagged as registered.
+  const agencyClaimsRegistered =
+    agency.gstRegistered === true && isValidGstin(nextFormData.agency.gstin);
+
+  applyToggleField({
+    ctx,
+    path: "agency.gstRegistered",
+    label: "GST registration status",
+    incoming: agencyClaimsRegistered
+      ? "registered"
+      : agency.gstRegistered === false
+        ? "not-registered"
+        : null,
+    currentValue: nextFormData.agency.gstRegistrationStatus,
+    originalValue: ctx.originalFormData.agency.gstRegistrationStatus,
+    defaultValue: defaultInvoiceFormData.agency.gstRegistrationStatus,
+    assign: (value) => {
+      nextFormData.agency.gstRegistrationStatus = value;
+    },
+    allowDefaultOverride: agencyClaimsRegistered,
   });
 
   applyStringField({
