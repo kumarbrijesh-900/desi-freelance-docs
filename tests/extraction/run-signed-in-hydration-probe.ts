@@ -2,10 +2,14 @@
  * Signed-in hydration probe — offline replay, no network.
  *
  * The live probe hydrates onto a BLANK form (guest). Signed-in users start with
- * profile-prefilled payment fields, and applyStringField() discards any incoming
- * candidate whose target is already non-blank (-> preservedFields). This replays
- * the same captured parser responses onto a profile-shaped base to measure which
- * brief-stated values are lost.
+ * profile-prefilled agency AND payment fields, and applyStringField() discards any
+ * incoming candidate whose target is already non-blank (-> preservedFields).
+ *
+ * A preservation is recorded even when the two values are identical, so raw counts
+ * overstate the damage. Each loss is therefore classified with the same normaliser
+ * the "Differs from your saved profile" card uses:
+ *   REAL   -> the card will show a row
+ *   BENIGN -> suppressed, invisible to the user
  *
  * Run: npx tsx tests/extraction/run-signed-in-hydration-probe.ts
  */
@@ -21,11 +25,25 @@ const CAPTURE = join(
   "tests/extraction/live-engine-capture-2026-07-19.json",
 );
 
-/** A saved profile as profileToPaymentDefaults() would prefill it. */
+/** Must match the suppression rule in BriefSummaryModal's conflict card. */
+const normalizeForCompare = (value?: string) =>
+  (value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+
+/** A saved profile as profileToAgencyDetails + profileToPaymentDefaults prefill it. */
 function buildSignedInBase(): InvoiceFormData {
   const base = mergeInvoiceFormData();
   return mergeInvoiceFormData({
     ...base,
+    agency: {
+      ...base.agency,
+      agencyName: "Ruhnika Creative Studio",
+      addressLine1: "Plot 42, Saheed Nagar",
+      city: "Bhubaneswar",
+      pinCode: "751007",
+      agencyState: "Odisha",
+      gstin: "21AAPFR2345K1Z5",
+      pan: "AAPFR2345K",
+    },
     payment: {
       ...base.payment,
       accountName: "Ruhnika Kapoor",
@@ -69,6 +87,12 @@ const ASSERTIONS: Assertion[] = [
   },
 ];
 
+function blockOf(path: string) {
+  if (path.startsWith("payment.")) return "payment";
+  if (path.startsWith("agency.")) return "agency";
+  return "other";
+}
+
 function main() {
   let captures: Record<string, BriefParserResponse>;
   try {
@@ -84,6 +108,10 @@ function main() {
   const detail: string[] = [];
   let pass = 0;
   let total = 0;
+  let realTotal = 0;
+  let benignTotal = 0;
+  let realPayment = 0;
+  let realAgency = 0;
 
   for (const key of Object.keys(captures)) {
     const resp = captures[key];
@@ -97,19 +125,30 @@ function main() {
       parserResponse: resp,
     });
 
-    // Fields the brief supplied that the guest run wrote but the signed-in run refused.
     const guestPaths = new Set(guest.hydratedFields.map((h) => h.path));
     const lost = signedIn.preservedFields.filter((p) => guestPaths.has(p.path));
+    const real = lost.filter(
+      (l) =>
+        normalizeForCompare(l.incomingValue) !==
+        normalizeForCompare(l.currentValue),
+    );
+    const benign = lost.length - real.length;
+
+    realTotal += real.length;
+    benignTotal += benign;
+    realPayment += real.filter((l) => blockOf(l.path) === "payment").length;
+    realAgency += real.filter((l) => blockOf(l.path) === "agency").length;
 
     rows.push(
-      `| ${key} | ${guest.hydratedFields.length} | ${signedIn.hydratedFields.length} | ${signedIn.preservedFields.length} | ${lost.length} |`,
+      `| ${key} | ${guest.hydratedFields.length} | ${signedIn.hydratedFields.length} | ${lost.length} | ${benign} | **${real.length}** |`,
     );
-    if (lost.length) {
+
+    if (real.length) {
       detail.push(
-        `### ${key} — ${lost.length} brief value(s) discarded`,
-        ...lost.map(
+        `### ${key} — ${real.length} card row(s)`,
+        ...real.map(
           (l) =>
-            `- \`${l.path}\` (${l.label}) — brief said **${l.incomingValue ?? "?"}**, profile kept **${l.currentValue ?? "?"}**`,
+            `- [${blockOf(l.path)}] \`${l.path}\` (${l.label}) — brief said **${l.incomingValue ?? "?"}**, profile kept **${l.currentValue ?? "?"}**`,
         ),
         "",
       );
@@ -126,29 +165,42 @@ function main() {
       if (ok) pass += 1;
       console.log(`${key} :: ${a.name} — ${ok ? "PASS" : "FAIL"}`);
     }
+
+    console.log(
+      `${key}: lost=${lost.length} (real=${real.length}, benign=${benign})`,
+    );
   }
 
+  const scenarios = Object.keys(captures).length;
   const report = [
     "# Signed-in Hydration Report",
     "",
     "Offline replay of `live-engine-capture-2026-07-19.json` onto a profile-shaped",
-    "base form (payment prefilled as profileToPaymentDefaults would). Measures what",
-    "the signed-in path discards versus the guest path the live battery covers.",
+    "base form (agency + payment prefilled as profileToAgencyDetails and",
+    "profileToPaymentDefaults would). Measures what the signed-in path discards",
+    "versus the guest path the live battery covers.",
     "",
-    "| Scenario | Guest hydrated | Signed-in hydrated | Signed-in preserved | Brief values LOST |",
-    "|---|---|---|---|---|",
+    "BENIGN = discarded but identical after normalising case/whitespace; the conflict",
+    "card suppresses these. REAL = the card will show a row.",
+    "",
+    "| Scenario | Guest hydrated | Signed-in hydrated | Discarded | Benign | REAL |",
+    "|---|---|---|---|---|---|",
     ...rows,
     "",
+    `## CARD FORECAST: ${realTotal} row(s) across ${scenarios} scenarios — ${realPayment} payment, ${realAgency} agency`,
+    `## SUPPRESSED AS BENIGN: ${benignTotal}`,
     `## ASSERTIONS: ${pass}/${total} passed`,
     "",
-    ...(detail.length ? detail : ["No brief values were discarded.", ""]),
+    ...(detail.length ? detail : ["No real conflicts.", ""]),
   ].join("\n");
 
   writeFileSync(
     join(process.cwd(), "tests/extraction/SIGNED_IN_HYDRATION_REPORT.md"),
     report,
   );
-  console.log(`\nASSERTIONS: ${pass}/${total} — report written.`);
+  console.log(
+    `\nCARD FORECAST: ${realTotal} rows (${realPayment} payment, ${realAgency} agency) · BENIGN: ${benignTotal} · ASSERTIONS: ${pass}/${total}`,
+  );
 }
 
 main();
