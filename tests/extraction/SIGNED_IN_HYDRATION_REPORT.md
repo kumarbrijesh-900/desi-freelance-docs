@@ -20,15 +20,15 @@ the signed-in path discards versus the guest path the live battery covers.
 ## ASSERTIONS: 1/4 passed
 
 ### D1 — 1 brief value(s) discarded
-- `payment.accountName` (Beneficiary / account name) — guest wrote it; signed-in kept the profile value
+- `payment.accountName` (Beneficiary / account name) — brief said **ruhnika@okhdfcbank**, profile kept **Ruhnika Kapoor**
 
 ### D2 — 3 brief value(s) discarded
-- `payment.bankName` (Bank name) — guest wrote it; signed-in kept the profile value
-- `payment.accountNumber` (Account number) — guest wrote it; signed-in kept the profile value
-- `payment.ifscCode` (IFSC code) — guest wrote it; signed-in kept the profile value
+- `payment.bankName` (Bank name) — brief said **HDFC Bank**, profile kept **HDFC Bank**
+- `payment.accountNumber` (Account number) — brief said **50200045671234**, profile kept **99998888777766**
+- `payment.ifscCode` (IFSC code) — brief said **HDFC0001234**, profile kept **HDFC0000123**
 
 ### D3 — 1 brief value(s) discarded
-- `payment.accountName` (Beneficiary / account name) — guest wrote it; signed-in kept the profile value
+- `payment.accountName` (Beneficiary / account name) — brief said **Priya Mohanty**, profile kept **Ruhnika Kapoor**
 
 ### F1 — 1 brief value(s) discarded
-- `payment.bankName` (Bank name) — guest wrote it; signed-in kept the profile value
+- `payment.bankName` (Bank name) — brief said **ICICI Bank**, profile kept **HDFC Bank**

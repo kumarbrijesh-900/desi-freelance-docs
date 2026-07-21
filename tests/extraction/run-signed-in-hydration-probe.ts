@@ -109,7 +109,7 @@ function main() {
         `### ${key} — ${lost.length} brief value(s) discarded`,
         ...lost.map(
           (l) =>
-            `- \`${l.path}\` (${l.label}) — guest wrote it; signed-in kept the profile value`,
+            `- \`${l.path}\` (${l.label}) — brief said **${l.incomingValue ?? "?"}**, profile kept **${l.currentValue ?? "?"}**`,
         ),
         "",
       );

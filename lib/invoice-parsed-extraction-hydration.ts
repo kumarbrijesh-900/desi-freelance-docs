@@ -46,6 +46,10 @@ type HydrationField = {
   path: string;
   label: string;
   confidence: BriefParserConfidence;
+  /** Value the brief supplied. Present only on preserved (discarded) fields. */
+  incomingValue?: string;
+  /** Value already on the form that won. Present only on preserved fields. */
+  currentValue?: string;
 };
 
 export type ParsedInvoiceHydrationResult = {
@@ -152,8 +156,10 @@ function recordHydration(
   path: string,
   label: string,
   confidence: BriefParserConfidence,
+  incomingValue?: string,
+  currentValue?: string,
 ) {
-  collection.push({ path, label, confidence });
+  collection.push({ path, label, confidence, incomingValue, currentValue });
 }
 
 function applyStringField(params: {
@@ -205,6 +211,8 @@ function applyStringField(params: {
     params.path,
     params.label,
     confidence,
+    incoming,
+    params.currentValue,
   );
 }
 
