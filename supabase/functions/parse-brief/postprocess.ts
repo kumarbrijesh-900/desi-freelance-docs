@@ -567,6 +567,14 @@ export function postProcessProviderOutput(
     extraction.agency.gstRegistered = true;
   }
 
+  // Inverse guard: a registration claim with no supporting GSTIN is not credible.
+  // groq has been observed emitting gstRegistered:true with gstin:null. normalizeGstin
+  // has already reduced any absent/invalid GSTIN to null above, so this leaves the flag
+  // set only when a real agency GSTIN survived. Rule 46: no GST without a supplier GSTIN.
+  if (extraction.agency.gstRegistered === true && !extraction.agency.gstin) {
+    extraction.agency.gstRegistered = null;
+  }
+
   if (extraction.taxHints.domesticOrInternational && !extraction.client.location) {
     extraction.client.location = extraction.taxHints.domesticOrInternational;
   }
@@ -643,10 +651,4 @@ export function shouldFallbackToGroq(result: PostProcessResult) {
   );
 }
 
-export function shouldEscalateToGrok(result: PostProcessResult) {
-  return (
-    result.hardAmbiguity ||
-    !hasStrongPartialExtraction(result.extraction) ||
-    (result.confidence.overall === "low" && hasStructuralGap(result))
-  );
-}
+

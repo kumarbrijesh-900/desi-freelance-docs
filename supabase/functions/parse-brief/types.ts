@@ -1,4 +1,4 @@
-export type ProviderName = "gemini-flash" | "groq-llama" | "grok";
+export type ProviderName = "gemini-flash" | "groq-llama";
 export type Confidence = "high" | "medium" | "low";
 
 export type ParserInputContext = {

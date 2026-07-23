@@ -8,7 +8,6 @@ import type {
 
 const GEMINI_TIMEOUT_MS = 30000;
 const GROQ_TIMEOUT_MS = 30000;
-const GROK_TIMEOUT_MS = 30000;
 
 const JSON_SCHEMA_DESCRIPTION = `
 Return strict JSON with this shape. ALWAYS output the _scratchpad field first to reason through the data before filling the remaining fields!
@@ -109,6 +108,7 @@ Parse the input bundle into invoice-ready structured data. Return JSON only. You
 
 Rules:
 - Extract only grounded values. Never invent GSTIN, tax treatment, dates, or prices.
+- **Registration needs a GSTIN**: Set agency.gstRegistered = true ONLY when an agency (supplier) GSTIN is actually present. If no agency GSTIN is stated, set gstRegistered = null — NEVER true. Claiming registration with no GSTIN produces an invoice that charges GST while carrying none, which is invalid.
 - **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun. NEVER extract entire sentences or action phases (e.g., skip "doing a total of dedh lakh...").
 - **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
 - **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
@@ -131,6 +131,7 @@ Rules:
 - **Milestone Schedules (structured)**: When the brief states a split or phased payment plan ("40% advance on signing, 40% on design approval, 20% on go-live", "50% upfront rest on delivery"), populate normalizedExtraction.milestones with one entry per phase — percent OR amount, the triggering condition, and any stated date (normalize to YYYY-MM-DD). Keep payment.terms as the human-readable summary; milestones[] is the structured truth. NEVER drop stated milestone dates.
 - **Currency Discipline**: Set meta.currency ONLY when the brief states it explicitly or uses an unambiguous symbol/code (₹/Rs/INR, $/USD, €/EUR, £/GBP, AED, SGD...). If amounts have no stated currency and the client is international, leave currency null and ask a clarificationQuestion for it. NEVER default an international client to INR.
 - **totalAmount is PRE-TAX**: meta.totalAmount is always the pre-tax subtotal (before GST). If the brief gives a tax-inclusive figure with a known rate, back the tax out; if unsure, leave totalAmount null and add a warning. Never return a GST-inclusive total.
+- **Numbers must be literal**: Every numeric JSON value (quantity, rate, amount, percent, totalAmount) MUST be a single finished number such as 176000. NEVER output an arithmetic expression, formula, or string like "35000 * 4 + 18000 * 2" — do the math yourself and emit only the result. An expression is invalid JSON and fails the entire parse.
 - **Zero-rated needs LUT status**: If treatment would be ZERO_RATED but LUT is not mentioned, still hint ZERO_RATED only alongside a clarificationQuestion asking whether an LUT is on file (without LUT, export is IGST-with-refund).
 - Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
 
@@ -319,18 +320,5 @@ export function callGroqLlama(bundle: NormalizedParserBundle) {
     url: "https://api.groq.com/openai/v1/chat/completions",
     bundle,
     timeoutMs: GROQ_TIMEOUT_MS,
-  });
-}
-
-export function callGrok(bundle: NormalizedParserBundle) {
-  return callOpenAiCompatibleProvider({
-    provider: "grok",
-    apiKeyName: "GROK_API_KEY",
-    modelName: "GROK_MODEL",
-    defaultModel: "grok-4.20-reasoning",
-    url: "https://api.x.ai/v1/chat/completions",
-    bundle,
-    resolverMode: true,
-    timeoutMs: GROK_TIMEOUT_MS,
   });
 }

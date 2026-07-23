@@ -4,12 +4,10 @@ import { normalizeParserBundle } from "./normalization.ts";
 import {
   callGeminiFlash,
   callGroqLlama,
-  callGrok,
 } from "./provider-adapters.ts";
 import { persistParserResult } from "./persistence.ts";
 import {
   postProcessProviderOutput,
-  shouldEscalateToGrok,
   shouldFallbackToGroq,
 } from "./postprocess.ts";
 import type {
@@ -102,29 +100,8 @@ async function runProviderRouting(bundle: NormalizedParserBundle) {
   });
 
   if (groqAttempt.ok) {
-    const result = postProcessProviderOutput(groqAttempt.rawJson, bundle);
     selectedAttempt = groqAttempt;
-    selectedResult = result;
-
-    if (!shouldEscalateToGrok(result)) {
-      return { attempts, selectedAttempt, selectedResult };
-    }
-  }
-
-  if (selectedResult && !shouldEscalateToGrok(selectedResult)) {
-    return { attempts, selectedAttempt, selectedResult };
-  }
-
-  console.log("Brief parser provider attempt: grok");
-  const grokAttempt = await callGrok(bundle);
-  attempts.push(grokAttempt);
-  console.log("Brief parser provider result: grok", {
-    ok: grokAttempt.ok,
-  });
-
-  if (grokAttempt.ok) {
-    selectedAttempt = grokAttempt;
-    selectedResult = postProcessProviderOutput(grokAttempt.rawJson, bundle);
+    selectedResult = postProcessProviderOutput(groqAttempt.rawJson, bundle);
   }
 
   return {
