@@ -553,6 +553,28 @@ function testAbsentFieldConfidenceFloorsToMediumWhenOverallLow() {
   assert.ok(result.unresolvedFields.includes("client.email"));
 }
 
+function testParaphrasedInternationalModeMapsToForexSettlement() {
+  const base = createParserResponse();
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: {
+      ...base,
+      normalizedExtraction: {
+        ...base.normalizedExtraction,
+        payment: {
+          ...base.normalizedExtraction.payment,
+          mode: "International Transfer",
+        },
+      },
+    },
+  });
+
+  // Regression guard for live probe F2: the literal "Wise" already mapped to
+  // forex, but groq's paraphrase "International Transfer" fell through to
+  // "unknown" and never reached the settlement field.
+  assert.equal(result.nextFormData.payment.paymentSettlementType, "forex");
+}
+
 function run() {
   testHydratesEmptyInvoiceForm();
   testPreservesExistingUserEnteredData();
@@ -564,6 +586,7 @@ function run() {
   testExpandDeliverableInferencePreservesParserLineRate();
   testDerivedDueDateFromNetTerms();
   testAbsentFieldConfidenceFloorsToMediumWhenOverallLow();
+  testParaphrasedInternationalModeMapsToForexSettlement();
   console.log("Parsed extraction hydration tests passed");
 }
 

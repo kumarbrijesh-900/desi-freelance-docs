@@ -653,7 +653,18 @@ function mapPaymentSettlementType(mode?: string | null) {
   const normalized = mode?.trim().toLowerCase() ?? "";
   if (!normalized) return "";
 
-  if (/\b(wise|payoneer|paypal|wire|swift|forex|foreign)\b/.test(normalized)) {
+  // Providers paraphrase the settlement rail rather than echoing it: groq
+  // returned "International Transfer" for a brief that said "pay through Wise"
+  // (live probe F2, failed 2026-07-19 and 2026-07-23 — the literal "Wise"
+  // matched, the paraphrase did not). Only unambiguous forex indicators belong
+  // here. A bare "Bank Transfer" stays "unknown" on purpose: it is genuinely
+  // ambiguous between domestic NEFT and an international wire, and "unknown"
+  // surfaces the confirm-settlement warning instead of guessing.
+  if (
+    /\b(wise|payoneer|paypal|wire|swift|forex|foreign|international|overseas|remittance|telegraphic)\b/.test(
+      normalized,
+    )
+  ) {
     return "forex" as const;
   }
 
