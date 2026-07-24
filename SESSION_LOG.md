@@ -26,8 +26,8 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
 **4. Open follow-ups:**
-- **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead (founder dashboard action). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
-- **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); Supabase `GROK_API_KEY` secret (or declare the chain 2-tier in the manual).
+- **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** ~~P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead.~~ ✅ CLOSED July 23 — grok removed from the chain entirely (`88f3fd0`, edge fn v22); chain is now a declared 2-tier gemini → groq. Dead app-side grok references remain (see July 22–23 entry §7). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
+- **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); ~~Supabase `GROK_API_KEY` secret~~ ✅ RESOLVED July 23 — chain declared 2-tier and grok removed from code.
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
 - Component-level React ErrorBoundary still unadded (route-level pages shipped July 1).
 - **PHASE 2 COMPLETE** (2.1–2.5, see July 8–11 entry). **Campaign board:** Track A templates ✓ closed · Track C backlog ✓ closed · **Track B ✓ closed** · **Signed-in hydration workstream ✓ shipped (July 20–21: divergence found, conflict card, offline probe)** — awaiting signed-in prod verification · Track D (Playwright revival) queued — diagnostic run first, then targeted fixes.
@@ -43,6 +43,114 @@ New Claude instance? Read this block, then the most recent session entries below
 - Prod DB cleanup: delete `AUDIT DRAFT RETRY` orphan + `Test Project 1779434613`.
 
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
+
+---
+
+## July 22–23 — Provider chain hardened: grok removed, groq prompt rules + registration guard shipped; D3 exposes a latent hydration-gate bug
+
+**Start:** `7308720` · **End:** `88f3fd0` · Edge fn deployed **v22**, parity-verified against `origin/main`. Live probe **74/75 (99%)**, up from 71/75.
+
+---
+
+## Headline
+
+The §6 open item from the previous session closed **PASS against real bytes**, not a transcription. Founder pasted the live groq payload (`providerUsed: "groq-llama"`, `gstRegistered: true`, `gstin: null`) and `c4eadec` neutralised it exactly as traced.
+
+Chain is now **2-tier and honest**: gemini-flash → groq-llama. grok is gone from the code, not merely keyless.
+
+The probe's one failure (D3) turned out to be a **pre-existing hydration bug this commit exposed, not one it caused**. That is the reusable part of this entry.
+
+---
+
+## 1. §6 closed — c4eadec verified against live bytes
+
+Payload traced through the deployed gate, step by step:
+
+1. `sanitizeOwnedIdentifier(agency.gstin = null)` → `""`
+2. `applyStringField` → `!incoming`, nothing written; `agency.gstin` stays `""`
+3. `agencyClaimsRegistered = (true === true) && isValidGstin("")` → **false**
+4. toggle `incoming` → **null**
+5. `applyToggleField(null)` → restores original, returns. **No "Registered" write.**
+
+Helpers confirmed null-safe at source: `sanitizeOwnedIdentifier(null) → ""`, `isValidGstin("") → false`.
+
+Same payload also reproduced live: groq `totalAmount: 182000` vs a line-item sum of **176000** (4×35k + 2×18k). Inert — the editor computes subtotal from line items — but another groq-reliability datapoint.
+
+---
+
+## 2. grok removed (founder call)
+
+Dead 15 days across repeated flags; never once invoked with a key. `defaultModel` was `grok-4.20-reasoning`, an unverified placeholder — "restore" was never a one-step action. Founder chose **drop**.
+
+**Provably result-neutral.** `grokAttempt.ok` was always false, so `selectedResult` was already whatever gemini or groq produced. grok only ever appended a failed entry to `fallbackPath` plus a warning string. Removing it changes **provenance reporting, not extraction**.
+
+---
+
+## 3. `88f3fd0` — ten edits, four files
+
+- `types.ts` — `ProviderName` union drops `"grok"`
+- `provider-adapters.ts` — **new rule: "Registration needs a GSTIN"** (never claim `gstRegistered: true` without one); **new rule: "Numbers must be literal"** (kills the July-21 400, where groq emitted `"totalAmount": 35000 * 4 + 18000 * 2` — an arithmetic expression, invalid JSON, fails *before* postprocess and therefore ungrardable downstream); `GROK_TIMEOUT_MS` + `callGrok` deleted
+- `postprocess.ts` — **inverse registration guard** at L574: `gstRegistered === true && !gstin → null` (not `false` — "unknown" is what gemini honestly returns, and it preserves a real registration where groq merely dropped the GSTIN). Sits after `normalizeGstin` (L477), so an invalid GSTIN is already null. `shouldEscalateToGrok` deleted
+- `index.ts` — both grok imports dropped; chain collapsed, groq now terminal
+
+Belt-and-suspenders by design: postprocess cleans the **stored payload, footer and modal at source**; `c4eadec` still backstops downstream.
+
+---
+
+## 4. Deploy + parity
+
+`supabase functions deploy` — CLI absent on the founder's Mac; **`npx supabase functions deploy parse-brief --project-ref …` worked without a separate login**. "Docker is not running" is benign for deploy.
+
+Parity verified via Supabase MCP `get_edge_function`: all 8 edit markers match, grok at zero. **Drift check mattered** — the CLI deploys from the founder's *working copy*, not GitHub; 7 distinctive unchanged strings (UPI-atomic rule, milestone rule, P1-D currency backstop, team-alias guard, few-shot slang, parser version) matched 1:1, proving local was in sync.
+
+`types.ts` is absent from `get_edge_function` output — **expected**, type-only files are erased at build.
+
+---
+
+## 5. Live probe — 74/75, and a provider-mix inversion
+
+`npx tsx tests/extraction/run-live-engine-probe.ts`.
+
+**grok clean on all 10 runs** — no `fallbackPath` entry, no `GROK_API_KEY is not set` warning (baseline carried it on every groq run). Conclusive proof v22 is serving. **Registration guard: zero violations, 10/10.**
+
+Fixed vs the July-19 baseline: F2 settlement forex, D4 ×2 (total-as-item, E2E subtotal), F5 currency AED.
+
+**Provider mix inverted.** Baseline: groq answered 8/10. Now: gemini returns early on 8/10, groq only D3 + D4. Gemini's output now clears `shouldFallbackToGroq` far more often — plausibly the two new prompt rules. Net good: fewer hand-offs to the flaky provider.
+
+---
+
+## 6. D3 `payee stays payee` — latent bug, newly exposed (NOT caused by this commit)
+
+D3 went 6/6 → 5/6. **The extraction was perfect**: `payment.accountName = "Priya Mohanty"`. It was dropped in **hydration**.
+
+**Mechanism.** `getConfidence` (`lib/invoice-parsed-extraction-hydration.ts`) falls back to `confidence.overall` for any path absent from `confidence.fields`. `shouldHydrate` rejects `"low"`. So:
+
+> **groq + `overall: "low"` ⇒ every unlisted field inherits low and is silently suppressed, however cleanly it was extracted.**
+
+**Evidence.**
+- groq lists `payment.accountName` in **0 of 7** baseline runs. gemini marked it explicitly `"high"` for D3 *despite* `overall: "low"` — which is why D3 passed on July 19.
+- Today's D3 (groq): `overall: "low"`, 4 fields listed, `payment.accountName` absent.
+- Corroborating: F2 and F5 were the only other baseline runs with groq + `overall: "low"`, and both failed checks then. Today gemini answered both; both passed.
+
+Value is not destroyed — it lands in `unresolvedFields` for review, which is defensible as the confidence gate working as designed. But silent suppression of a clearly-stated value is the exact failure `recovery-strategy.md` was written against.
+
+### Wrong turn — diagnosed from scores before reading the payload
+First call was "prompt rules or model non-determinism." Both wrong. The extraction was correct all along; the loss was two layers downstream at the hydration gate. **Same lesson as the previous session: read the payload before theorising.** Ruling the grok removal out at source (§2) was the only early step that held up.
+
+### Queued fix — Option B (next session, own probe run)
+Cap the fallback: a field absent from `confidence.fields` resolves to `"medium"` instead of inheriting `overall`, **except** `STRICT_LOW_FIELD_PATHS` (gstin, gstRegistered, pan, client.location, payment.mode, meta.currency…), which keep inheriting.
+
+Rejected — **Option A, prompt rule** ("emit confidence for every populated field"): groq would likely comply by stamping `"high"` on everything, which does not merely fail to help, it **disables the gate**. B keeps the safety property in our code rather than delegating it to groq's self-assessment. B edits shared hydration logic every field flows through, so it gets its own session and its own probe run — not a bolt-on.
+
+---
+
+## 7. Residual debt from this session
+
+- **App-side grok references are dead but still present** (edge fn is clean; prompt was scoped to `supabase/functions/parse-brief/`): `lib/brief-parser-gateway.ts:8` types it, L403/412 allowlist it, `components/invoice/BriefSummaryModal.tsx:45` carries a "Grok" display label. Harmless — dead branches for a value that can no longer arrive, and the edge-fn types are not shared with the Next build. Tidy-up commit whenever convenient.
+- **AG replied with a SHA only** — no SUMMARY, no `diff --stat`, no BUILD RESULT. `deno check` was therefore never run; the deploy was the first real compile. It passed, but the reply template was not honoured.
+- Two cosmetic AG deviations: `provider-adapters.ts` lost its trailing newline; `postprocess.ts` gained a stray blank line where the function was deleted. Zero functional impact.
+- **Footer provider misattribution (#4) still unconfirmed** — not re-checked this session.
+- New capture + report were written by the probe; the pre-fix grok record in `live-engine-capture-2026-07-19.json` is overwritten.
 
 ---
 

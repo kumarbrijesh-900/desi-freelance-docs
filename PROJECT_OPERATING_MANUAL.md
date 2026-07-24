@@ -39,7 +39,7 @@ Known shape issues (tolerated, refactor incrementally): `InvoiceEditorPage.tsx` 
 🟡 **Extraction → hydration mapping** — protected by the hydration + battery suites; open defects tracked in SESSION_LOG (P1-C date junk, P1-D currency assumption, P1-E totalAmount semantics, P2-F no milestones[] structure, P2-G normalizer-dependency crash, P2-H invisible withheld suggestions).
 
 ## 6. Known reality gaps (July 2026)
-1. `GROK_API_KEY` unset in prod — provider chain is effectively 2-tier.
+1. ~~`GROK_API_KEY` unset in prod~~ — **resolved July 23**: grok removed from the code (`88f3fd0`, edge fn v22). The chain is now an intentional 2-tier gemini-flash → groq-llama, with groq terminal. Known consequence: when groq answers a vague brief with `confidence.overall: "low"`, any field absent from its sparse `confidence.fields` map is suppressed at the hydration gate — see SESSION_LOG July 22–23 §6.
 2. Backups: **Supabase Free has no verified restore path** (the April "7-day PITR" assumption was wrong — PITR is paid). Mitigation ritual: periodic logical export of all non-empty tables via Supabase MCP `json_agg` (first export taken 2026-07-07, 212 KB / 104 rows, stored by founder). Repeat before any schema migration and monthly.
 3. Cost alerts unconfigured.
 4. Parser schema cannot represent milestone schedules (P2-F) — fix ships with v1.5 schema work, same breath.
