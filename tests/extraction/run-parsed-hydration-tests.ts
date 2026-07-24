@@ -512,6 +512,47 @@ function testDerivedDueDateFromNetTerms() {
   assert.equal(result.nextFormData.meta.dueDate, "2026-04-27");
 }
 
+function testAbsentFieldConfidenceFloorsToMediumWhenOverallLow() {
+  const base = createParserResponse();
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: {
+      ...base,
+      confidence: {
+        overall: "low",
+        fields: {
+          "agency.businessName": "high",
+          "client.name": "high",
+        },
+      },
+      normalizedExtraction: {
+        ...base.normalizedExtraction,
+        client: {
+          ...base.normalizedExtraction.client,
+          email: "finance@globex.ae",
+        },
+        payment: {
+          ...base.normalizedExtraction.payment,
+          accountName: "Priya Mohanty",
+        },
+      },
+    },
+  });
+
+  // Unlisted + non-strict: floors to "medium" and hydrates.
+  // Regression guard for live probe D3 (2026-07-23), where groq's sparse
+  // confidence map suppressed a perfectly extracted payee name.
+  assert.equal(result.nextFormData.payment.accountName, "Priya Mohanty");
+
+  // Unlisted + STRICT_LOW_FIELD_PATHS: still inherits overall "low" and stays
+  // suppressed. A low-confidence parse must never write identity/tax fields.
+  assert.equal(
+    result.nextFormData.client.clientEmail,
+    defaultInvoiceFormData.client.clientEmail,
+  );
+  assert.ok(result.unresolvedFields.includes("client.email"));
+}
+
 function run() {
   testHydratesEmptyInvoiceForm();
   testPreservesExistingUserEnteredData();
@@ -522,6 +563,7 @@ function run() {
   testGatewayCoercesStringNumbersSoHydrationKeepsRate();
   testExpandDeliverableInferencePreservesParserLineRate();
   testDerivedDueDateFromNetTerms();
+  testAbsentFieldConfidenceFloorsToMediumWhenOverallLow();
   console.log("Parsed extraction hydration tests passed");
 }
 

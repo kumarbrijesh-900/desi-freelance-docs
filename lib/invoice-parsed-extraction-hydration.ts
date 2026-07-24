@@ -145,6 +145,18 @@ function getConfidence(
     return maxParserConfidence(field, overall);
   }
 
+  // Absent from confidence.fields is NOT the same as a stated "low".
+  // groq emits sparse maps — payment.accountName appeared in 0 of 7 live runs —
+  // so on a vague brief every unlisted field inherited overall:"low" and was
+  // silently suppressed by shouldHydrate even when it had been extracted
+  // perfectly (live probe D3, 2026-07-23). Floor the inherited value at
+  // "medium" for unlisted non-strict paths. An explicit "low" is real signal
+  // and is still honoured above. STRICT_LOW_FIELD_PATHS (identity/tax fields)
+  // keep inheriting overall unchanged, so a low parse still cannot write them.
+  if (!hasExplicit && !STRICT_LOW_FIELD_PATHS.has(path)) {
+    return maxParserConfidence(overall, "medium");
+  }
+
   return field ?? overall;
 }
 
