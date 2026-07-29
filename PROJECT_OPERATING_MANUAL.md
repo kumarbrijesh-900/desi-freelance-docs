@@ -26,7 +26,7 @@ Hard ceiling **₹500/month**. Paid: domain (~₹90/mo amortized) + $10 xAI prep
 ## 4. Tech stack & architecture
 Next.js 16 (App Router) · React 19 · Tailwind v4 · Supabase (Postgres/Auth/Edge Functions) · Vercel (auto-deploy on push to main) · Resend · Upstash.
 
-**Extraction engine (live since June/July 2026):** Supabase edge function `parse-brief` (v17) with provider chain **Gemini Flash → Groq Llama → Grok** (Grok tier dead until `GROK_API_KEY` secret is set). Client path: `lib/brief-parser-gateway.ts` → `lib/invoice-parsed-extraction-hydration.ts` (confidence-gated, overwrite-safe). The legacy OpenAI pipeline (~7,300 lines) is **archived** at `_archived/legacy-extraction/` with types-only husks at the original `lib/` paths; `/api/brief-extract` no longer exists. Edge functions deploy via dashboard paste (outside git) — **run a drift check (`get_edge_function` vs repo) at the start of any extraction session.**
+**Extraction engine (live since June/July 2026):** Supabase edge function `parse-brief` (**v23**) with a **2-tier** provider chain **Gemini Flash → Groq Llama** (Grok removed from the code July 23, `88f3fd0`; groq is terminal — see §6 for the Gemini daily-quota ceiling). Client path: `lib/brief-parser-gateway.ts` → `lib/invoice-parsed-extraction-hydration.ts` (confidence-gated, overwrite-safe). The legacy OpenAI pipeline (~7,300 lines) is **archived** at `_archived/legacy-extraction/` with types-only husks at the original `lib/` paths; `/api/brief-extract` no longer exists. Edge functions deploy via dashboard paste (outside git) — **run a drift check (`get_edge_function` vs repo) at the start of any extraction session.**
 
 **CI (since July 7, 2026):** `.github/workflows/ci.yml` runs on every push/PR — typecheck + GST compliance suite + hydration suite + gateway contract suite + live-battery fixtures (6 real prod parser responses). Red CI = the push failed. Do not merge around it.
 
@@ -44,6 +44,7 @@ Known shape issues (tolerated, refactor incrementally): `InvoiceEditorPage.tsx` 
 3. Cost alerts unconfigured.
 4. Parser schema cannot represent milestone schedules (P2-F) — fix ships with v1.5 schema work, same breath.
 5. Playwright E2E suite stale (~105 failures from selector drift) — revive during Phase 3 QA.
+6. **Gemini free tier = 20 requests/day** on `gemini-2.5-flash` (the PRIMARY extraction provider), confirmed July 23 via live 429s. After ~20 briefs in a day the primary is exhausted and every parse silently falls through to groq (the flaky tier). Real production capacity limit, not a test artifact — decide before launch: pay for a Gemini tier or harden groq as the effective primary. Also caps the verification strategy (the probe can't be run many times to beat provider-variance without hitting quota). Live model is `gemini-2.5-flash` via the `GEMINI_FLASH_MODEL` env, though the code `defaultModel` still reads `gemini-1.5-flash`.
 
 ## 7. Working style & AI collaboration
 **Founder:** terse bursts ("go", "ok", bare SHAs); expects momentum and conservative independent decisions; blunt feedback = pull more source data, don't theorize. Wants simple explanations on request; step-by-step for unfamiliar terrain.

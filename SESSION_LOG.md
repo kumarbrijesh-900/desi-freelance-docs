@@ -26,6 +26,7 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
 **4. Open follow-ups:**
+- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). App-side grok dead refs still to tidy (`brief-parser-gateway.ts:8`/403/412, `BriefSummaryModal.tsx:45`).
 - **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** ~~P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead.~~ ✅ CLOSED July 23 — grok removed from the chain entirely (`88f3fd0`, edge fn v22); chain is now a declared 2-tier gemini → groq. Dead app-side grok references remain (see July 22–23 entry §7). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
 - **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); ~~Supabase `GROK_API_KEY` secret~~ ✅ RESOLVED July 23 — chain declared 2-tier and grok removed from code.
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
@@ -45,6 +46,75 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## July 23 — Confidence floor (B) + F2 forex vocab + parser payee/rail rules; D3/F2 lifted, but the real find is a Gemini 20/day quota ceiling
+
+**Start:** `03cd76b` · **End:** `e70ad81` · Edge fn deployed **v23**, parity-verified (deployed==repo). Offline hydration suite 11/11. Live probe: healthy runs D3 6/6 ×3 and F2 5/5 ×3; the 5-run loop then hit an API quota wall.
+
+---
+
+### Headline
+
+Three commits, all sound. Two hydration fixes (`b6d8eff`, `e6cda8e`) verified offline with witness tests that fail when reverted. One parser-prompt change (`e70ad81`) deployed to v23. Both live-behaviour targets — D3 (payee dropped) and F2 (rail flattened) — moved the right way while the providers were healthy.
+
+The most valuable thing learned isn't a fix: **Gemini's free tier caps at 20 requests/day on `gemini-2.5-flash`.** The primary provider silently exhausts after ~20 briefs and every parse after that falls to groq. Live production capacity limit, not a test artifact.
+
+### 1. B — confidence floor (`b6d8eff`, lib-only, no deploy)
+
+Root of the prior session's D3: `getConfidence` inherited `confidence.overall` for any field ABSENT from `confidence.fields`, and `shouldHydrate` rejects "low" — so on a low-overall parse, groq's sparse map silently suppressed cleanly-extracted values.
+
+Fix is a **floor, not a cap**: a field absent from the map resolves to `maxParserConfidence(overall, "medium")`, EXCEPT `STRICT_LOW_FIELD_PATHS` (gstin, gstRegistered, pan, client.location, payment.mode, currency…) which keep inheriting overall. Crucial distinction: **absent ≠ explicit "low"** — an explicit "low" is real model signal and is still honoured (suppressed); only the absent case is floored. Cannot overwrite user input (writes only ever target blank/default fields). I first proposed "cap at medium," which would drag `high` DOWN and churn confidence display for zero safety gain — corrected to a floor.
+
+Verified: offline 11/11; witness reverts the floor branch → `actual: '' / expected: 'Priya Mohanty'` → restore → green. The 6 pre-existing cases (all `overall: "high"`) stayed green, proving no leak beyond the low-overall case.
+
+### 2. F2 — forex vocabulary (`e6cda8e`, lib-only) — and the deeper cause
+
+`mapPaymentSettlementType` mapped groq's paraphrase "International Transfer" to `"unknown"` (forex regex only knew `wise|payoneer|paypal|wire|swift|forex|foreign`). Widened with `international|overseas|remittance|telegraphic`. Deliberately LEFT `"Bank Transfer"` → `"unknown"`: genuinely ambiguous (domestic NEFT vs intl wire), and "unknown" surfaces the confirm-settlement warning instead of guessing. INR branch untouched (a wrong "inr" on an export triggers a FEMA warning — worse direction). Sweep confirmed no over-capture: 9 forex rails correct, 6 domestic unchanged, ambiguous stay unknown.
+
+**Only half-fixed F2.** Next probe still failed — gemini returned `mode: "Bank Transfer"` for a brief that said "pay through Wise." The mapper can't help; the forex signal was destroyed upstream in extraction. Forced the real fix →
+
+### 3. Parser payee + rail rules (`e70ad81`, edge fn, deployed v23)
+
+Two additive prompt rules in `provider-adapters.ts`, mirroring the UPI-atomic rule:
+- **Account-holder name captured even when plain** — the only prior accountName rule was UPI-specific; a plain payout name ("Priya Mohanty") had no capture instruction, so groq dropped it (D3's `acctName: None`).
+- **Payment rail verbatim, never paraphrased** — "Wise" stays "Wise", not "Bank Transfer"/"International Transfer" (F2).
+
+Highest-risk file (it ate the JSON schema once). Verified: byte-exact 2-line insertion, template-literal backticks balanced (20, even), schema block + interpolation intact, grok still absent. Deployed v23; parity confirmed deployed==repo (15 rules same order, both new in slots 8–9).
+
+### 4. Multi-run probe + the quota wall
+
+Agreed protocol: prompt changes aren't byte-verifiable (stochastic LLM + provider-variance-dominated probe), so verify by pass-RATE across runs, not a single green. Ran the probe 5× in a loop.
+
+- **Runs 1–3 (healthy): D3 6/6, 6/6, 6/6 · F2 5/5, 5/5, 5/5.** Run 1 a clean 75/75. Both targets clearly lifted vs the prior mostly-failing baseline. Two blips (run 2 D4, run 3 F5) are known flappers.
+- **Runs 4–5 (void): 21/75, 16/75.** The tell: nearly every failure's FIRST failed check is "provider answered" = `providerUsed: null` = no-data, not bad-data. A broken prompt gives wrong values, it doesn't silence both providers across 10 scenarios. Confirmed in warnings: **gemini 429** `generate_content_free_tier_requests, limit: 20` (daily, exhausted) and **groq 429** `TPM: Limit 12000` (per-minute, recovers in seconds). Same deployed prompt gave 75/75 in run 1 — the rules didn't break anything.
+
+**F2 confirmed on groq specifically.** In the exhausted runs, with gemini fully dead, F2 STILL passed — `providerUsed: groq-llama`. Closes the open question the console counts couldn't: the verbatim-rail rule moved groq, the exact provider that was flattening. F2 fix is genuinely done.
+
+**D3 NOT provider-isolated.** Its three passes were in the healthy runs and each run overwrote the capture, so groq-vs-gemini on those is unknown. Rate moved 6/6 ×3 — helping — but "fixed on groq" is unproven. Next-session item.
+
+### 5. Two operational discoveries (bigger than the test)
+
+- **Gemini free tier = 20 requests/day on `gemini-2.5-flash`** — the PRIMARY provider. In prod, after ~20 briefs/day every parse falls to groq (the flaky one). Decision needed: pay for a Gemini tier, or harden groq as the effective primary. Also caps the verification strategy — can't run the probe many times to beat variance without exhausting quota; the two failure modes (variance vs quota) fight each other. Fewer, spaced runs next time.
+- **Model drift from notes:** code `defaultModel` is `gemini-1.5-flash`, but `GEMINI_FLASH_MODEL` env points live to `gemini-2.5-flash`. Not a bug; live model is 2.5-flash.
+
+### 6. Process note — three score-first misreads, corrected only by the payload
+
+Diagnosed from probe SCORES three times, wrong each time: (a) "D3 fixed" after one favourable run — a provider draw, not the fix; (b) "F2 is confidence suppression" — it was `overall: medium`, a mapper vocab gap; (c) predicted D3's payee would be listed `"low"` — it was absent from extraction entirely. Each corrected only by dumping the actual capture. Same lesson as the manual's "pull source, don't theorize," three times over. The one early call that held: ruling grok removal out at SOURCE (result-neutral, provably).
+
+### 7. Next session openers (see queue)
+
+1. **Gemini quota (P0 — live prod risk).** Decide pay vs harden-groq. Gates further live-probe work.
+2. **`deliverables[0]` vs `deliverables.0` bracket/dot mismatch** — hydrator's per-line-item confidence lookups never match the parser's bracket keys, so per-item confidence always falls through to overall (post-B: to the floor). Pure lib fix, deterministic, offline-testable, no deploy, no quota. Cleanest warm-up.
+3. **Close D3 provider-isolation** — single-scenario or groq-forced probe, fresh quota.
+4. **App-side grok dead references** — `lib/brief-parser-gateway.ts:8`/403/412, `BriefSummaryModal.tsx:45`, manual §4. Harmless; tidy-up.
+5. **Strict-field silent swallow** (design) — strict fields still drop correct values on low parses; offer for review vs drop. Not urgent.
+
+### Commits this session
+- `b6d8eff` — confidence floor (B), lib
+- `e6cda8e` — F2 forex vocabulary, lib
+- `e70ad81` — parser payee + rail rules, edge fn v23
+
+Residual: the probe overwrote `live-engine-capture-2026-07-19.json` (now run 5's, quota-exhausted); pre-fix record gone, uncommitted. AG replied SHA-only on all three prompts (no BUILD/test output) — caught because the container ran the suites and the deployed-source integrity check covered the prompt file. Stray untracked `supabase/functions/deno.lock` from the deploy — delete.
 
 ## July 22–23 — Provider chain hardened: grok removed, groq prompt rules + registration guard shipped; D3 exposes a latent hydration-gate bug
 
