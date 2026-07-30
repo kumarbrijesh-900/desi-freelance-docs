@@ -37,6 +37,7 @@ import {
 import {
   defaultInvoiceFormData,
   mergeInvoiceFormData,
+  normalizeInvoiceEntities,
   type InvoiceFormData,
   type InvoiceLineItem,
   type InvoiceLineItemType,
@@ -1422,7 +1423,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   ).map((m, i) => (i === 0 ? { ...m, lineItems: nextFormData.lineItems } : m));
 
   return {
-    nextFormData: mergeInvoiceFormData(nextFormData),
+    nextFormData: normalizeInvoiceEntities(mergeInvoiceFormData(nextFormData)),
     parsedMilestones,
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,

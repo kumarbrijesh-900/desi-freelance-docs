@@ -1,15 +1,19 @@
 import assert from "node:assert";
-import { mergeInvoiceFormData, defaultInvoiceFormData } from "@/types/invoice";
+import {
+  mergeInvoiceFormData,
+  normalizeInvoiceEntities,
+  defaultInvoiceFormData,
+} from "@/types/invoice";
 
-// Characterization suite for mergeInvoiceFormData (Stage 1 of the write-path
-// cleanup). These LOCK current behaviour as a safety net before the refactor —
-// they document what the merge does today, they do not endorse it. The merge
-// currently performs hidden normalization: it derives agency/client state and
-// PAN from the GSTIN (fill-if-empty) and recomposes the address string from its
-// parts on every call. When a later stage moves this into an explicit
-// normalization step, update these assertions to the new contract.
+// Characterization suite for the merge/normalize split (Stage 2). The merge is
+// now a PURE structural merge (defaults + line-item type/unit/SAC + milestone-1
+// wrapping). Entity derivation (state/PAN from GSTIN, address recompose) moved to
+// the explicit normalizeInvoiceEntities, applied only at input boundaries. These
+// tests lock both halves of that contract.
 
-function testAgencyGstinDerivesStateAndPanWhenEmpty() {
+// --- merge is now pure: no entity derivation ---
+
+function testMergeDoesNotDeriveAgencyStateOrPan() {
   const result = mergeInvoiceFormData({
     agency: {
       ...defaultInvoiceFormData.agency,
@@ -18,11 +22,11 @@ function testAgencyGstinDerivesStateAndPanWhenEmpty() {
       pan: "",
     },
   });
-  assert.equal(result.agency.agencyState, "Maharashtra");
-  assert.equal(result.agency.pan, "ABCDE1234F");
+  assert.equal(result.agency.agencyState, "");
+  assert.equal(result.agency.pan, "");
 }
 
-function testAgencyAddressIsRecomposedFromParts() {
+function testMergePreservesCustomAddress() {
   const result = mergeInvoiceFormData({
     agency: {
       ...defaultInvoiceFormData.agency,
@@ -33,40 +37,10 @@ function testAgencyAddressIsRecomposedFromParts() {
       address: "SOME CUSTOM ADDRESS STRING",
     },
   });
-  // The custom address string is discarded; merge recomposes from the parts.
-  assert.equal(result.agency.address, "12 MG Road, Pune, Maharashtra, 411001");
+  assert.equal(result.agency.address, "SOME CUSTOM ADDRESS STRING");
 }
 
-function testMergeDoesNotOverwriteExplicitStateOrPan() {
-  const result = mergeInvoiceFormData({
-    agency: {
-      ...defaultInvoiceFormData.agency,
-      gstin: "27ABCDE1234F1Z5",
-      agencyState: "Karnataka",
-      pan: "ZZZZZ9999Z",
-    },
-  });
-  // Derivation is fill-if-empty: explicit values survive.
-  assert.equal(result.agency.agencyState, "Karnataka");
-  assert.equal(result.agency.pan, "ZZZZZ9999Z");
-}
-
-function testInternationalClientBypassesNormalization() {
-  const result = mergeInvoiceFormData({
-    client: {
-      ...defaultInvoiceFormData.client,
-      clientLocation: "international",
-      clientGstin: "27ABCDE1234F1Z5",
-      clientState: "",
-      clientCity: "London",
-    },
-  });
-  // International clients are returned as-is: no state inference, no recompose.
-  assert.equal(result.client.clientState, "");
-  assert.equal(result.client.clientCity, "London");
-}
-
-function testDomesticClientGstinDerivesState() {
+function testMergeDoesNotDeriveDomesticClientState() {
   const result = mergeInvoiceFormData({
     client: {
       ...defaultInvoiceFormData.client,
@@ -75,10 +49,12 @@ function testDomesticClientGstinDerivesState() {
       clientState: "",
     },
   });
-  assert.equal(result.client.clientState, "Karnataka");
+  assert.equal(result.client.clientState, "");
 }
 
-function testLineItemTypeUnitAndSacAreNormalized() {
+// --- merge still does structural normalization ---
+
+function testMergeNormalizesLineItemTypeUnitAndSac() {
   const result = mergeInvoiceFormData({
     lineItems: [
       {
@@ -96,7 +72,7 @@ function testLineItemTypeUnitAndSacAreNormalized() {
   assert.equal(result.lineItems[0].sacCode, "998314");
 }
 
-function testBareLineItemsAreWrappedInMilestoneOne() {
+function testMergeWrapsBareLineItemsInMilestoneOne() {
   const result = mergeInvoiceFormData({
     lineItems: [
       {
@@ -112,23 +88,104 @@ function testBareLineItemsAreWrappedInMilestoneOne() {
   assert.equal(result.milestones[0].id, "milestone-1");
 }
 
-function testEmptyInputFillsDefaults() {
+function testMergeEmptyInputFillsDefaults() {
   const result = mergeInvoiceFormData();
   assert.equal(result.agency.agencyName, "");
   assert.equal(result.lineItems.length, 1);
   assert.equal(result.milestones.length, 1);
 }
 
+// --- normalizeInvoiceEntities does the entity derivation ---
+
+function testNormalizeDerivesAgencyStateAndPan() {
+  const result = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      agency: {
+        ...defaultInvoiceFormData.agency,
+        gstin: "27ABCDE1234F1Z5",
+        agencyState: "",
+        pan: "",
+      },
+    }),
+  );
+  assert.equal(result.agency.agencyState, "Maharashtra");
+  assert.equal(result.agency.pan, "ABCDE1234F");
+}
+
+function testNormalizeRecomposesAddressFromParts() {
+  const result = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      agency: {
+        ...defaultInvoiceFormData.agency,
+        addressLine1: "12 MG Road",
+        city: "Pune",
+        agencyState: "Maharashtra",
+        pinCode: "411001",
+        address: "SOME CUSTOM ADDRESS STRING",
+      },
+    }),
+  );
+  assert.equal(result.agency.address, "12 MG Road, Pune, Maharashtra, 411001");
+}
+
+function testNormalizeDerivesDomesticClientState() {
+  const result = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      client: {
+        ...defaultInvoiceFormData.client,
+        clientLocation: "domestic",
+        clientGstin: "29XYZAB5678C1Z3",
+        clientState: "",
+      },
+    }),
+  );
+  assert.equal(result.client.clientState, "Karnataka");
+}
+
+function testNormalizeDoesNotOverwriteExplicitStateOrPan() {
+  const result = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      agency: {
+        ...defaultInvoiceFormData.agency,
+        gstin: "27ABCDE1234F1Z5",
+        agencyState: "Karnataka",
+        pan: "ZZZZZ9999Z",
+      },
+    }),
+  );
+  assert.equal(result.agency.agencyState, "Karnataka");
+  assert.equal(result.agency.pan, "ZZZZZ9999Z");
+}
+
+function testNormalizeBypassesInternationalClient() {
+  const result = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      client: {
+        ...defaultInvoiceFormData.client,
+        clientLocation: "international",
+        clientGstin: "27ABCDE1234F1Z5",
+        clientState: "",
+        clientCity: "London",
+      },
+    }),
+  );
+  assert.equal(result.client.clientState, "");
+  assert.equal(result.client.clientCity, "London");
+}
+
 function run() {
-  testAgencyGstinDerivesStateAndPanWhenEmpty();
-  testAgencyAddressIsRecomposedFromParts();
-  testMergeDoesNotOverwriteExplicitStateOrPan();
-  testInternationalClientBypassesNormalization();
-  testDomesticClientGstinDerivesState();
-  testLineItemTypeUnitAndSacAreNormalized();
-  testBareLineItemsAreWrappedInMilestoneOne();
-  testEmptyInputFillsDefaults();
-  console.log("Merge normalization characterization tests passed");
+  testMergeDoesNotDeriveAgencyStateOrPan();
+  testMergePreservesCustomAddress();
+  testMergeDoesNotDeriveDomesticClientState();
+  testMergeNormalizesLineItemTypeUnitAndSac();
+  testMergeWrapsBareLineItemsInMilestoneOne();
+  testMergeEmptyInputFillsDefaults();
+  testNormalizeDerivesAgencyStateAndPan();
+  testNormalizeRecomposesAddressFromParts();
+  testNormalizeDerivesDomesticClientState();
+  testNormalizeDoesNotOverwriteExplicitStateOrPan();
+  testNormalizeBypassesInternationalClient();
+  console.log("Merge/normalize split characterization tests passed");
 }
 
 run();

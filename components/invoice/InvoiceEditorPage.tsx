@@ -116,6 +116,7 @@ import {
 import {
   defaultInvoiceFormData,
   mergeInvoiceFormData,
+  normalizeInvoiceEntities,
   type InvoiceFormData,
   type InvoiceStepperStep,
 } from "@/types/invoice";
@@ -1746,7 +1747,7 @@ const handleLoadDemoData = () => {
   dueDateAutoManagedRef.current = demo.meta.dueDate === demoSuggestedDueDate;
   lastAutoDueDateRef.current = demoSuggestedDueDate;
 
-  setFormData(mergeInvoiceFormData(demo));
+  setFormData(normalizeInvoiceEntities(mergeInvoiceFormData(demo)));
   setShowAllValidationErrors(false);
   guideToSection("totals", { focus: true });
   setIsBriefIntakeCollapsed(true);
@@ -2025,7 +2026,7 @@ const handleModalSubmit = async (
     };
   }
 
-  setFormData(finalData);
+  setFormData(normalizeInvoiceEntities(finalData));
 
   const readyForPreview = isInvoiceReadyForPreview(finalData, hasNamedProject);
   setBriefSummaryData(null);
@@ -2082,7 +2083,7 @@ const handleContinueManually = (finalData: InvoiceFormData) => {
     return;
   }
 
-  setFormData(finalData);
+  setFormData(normalizeInvoiceEntities(finalData));
   setBriefSummaryData(null);
   setBriefIntakeResetKey(Date.now());
   setIsBriefIntakeCollapsed(true);

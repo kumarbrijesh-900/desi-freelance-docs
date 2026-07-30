@@ -424,6 +424,23 @@ function normalizeClientDetails(client: ClientDetails): ClientDetails {
   };
 }
 
+/**
+ * Applies domain normalization to the agency and client entities — derives state
+ * and PAN from the GSTIN (fill-if-empty) and recomposes the address from its
+ * parts. This used to run inside mergeInvoiceFormData on every call (reads
+ * included); it is now explicit and applied only at input boundaries (autofill
+ * output, demo, modal commit) so read and default merges no longer re-derive.
+ */
+export function normalizeInvoiceEntities(
+  formData: InvoiceFormData,
+): InvoiceFormData {
+  return {
+    ...formData,
+    agency: normalizeAgencyDetails(formData.agency),
+    client: normalizeClientDetails(formData.client),
+  };
+}
+
 export function mergeInvoiceFormData(
   value?: Partial<InvoiceFormData> | null
 ): InvoiceFormData {
@@ -452,17 +469,17 @@ export function mergeInvoiceFormData(
   };
 
   return {
-    agency: normalizeAgencyDetails({
+    agency: {
       ...defaultInvoiceFormData.agency,
       ...value?.agency,
       gstRegistrationStatus:
         value?.agency?.gstRegistrationStatus ||
         defaultInvoiceFormData.agency.gstRegistrationStatus,
-    }),
-    client: normalizeClientDetails({
+    },
+    client: {
       ...defaultInvoiceFormData.client,
       ...value?.client,
-    }),
+    },
     meta: {
       ...defaultInvoiceFormData.meta,
       ...value?.meta,
