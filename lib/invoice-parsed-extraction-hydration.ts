@@ -111,6 +111,16 @@ const STRICT_LOW_FIELD_PATHS = new Set<string>([
   "meta.currency",
 ]);
 
+// Tax-determining toggles that must never be pre-filled on a low-confidence read.
+// A silently flipped location/SEZ/LUT changes the tax treatment and is far easier
+// to miss than a filled text field — keep them dropped (the user sets them)
+// rather than surfaced-and-pre-flipped.
+const TAX_DETERMINING_TOGGLE_PATHS = new Set<string>([
+  "client.location",
+  "client.isSezUnit",
+  "agency.lutEnabled",
+]);
+
 function maxParserConfidence(
   a: BriefParserConfidence,
   b: BriefParserConfidence,
@@ -328,7 +338,14 @@ function applyToggleField<T extends string>(params: {
     params.allowDefaultOverride === true;
 
   if (!shouldHydrate(confidence)) {
-    // Low-confidence strict toggle: pre-fill into the (uncommitted) form and
+    // Tax-determining toggles (location/SEZ/LUT) must NOT be pre-flipped on a
+    // low-confidence read — a silently flipped control changes the tax treatment.
+    // Drop them; the user sets them explicitly.
+    if (TAX_DETERMINING_TOGGLE_PATHS.has(params.path)) {
+      params.ctx.unresolvedFields.push(params.path);
+      return;
+    }
+    // Other low-confidence toggles: pre-fill into the (uncommitted) form and
     // surface for review. Commits only on "Apply to invoice".
     if (canHydrate && params.currentValue !== params.incoming) {
       params.assign(params.incoming);
