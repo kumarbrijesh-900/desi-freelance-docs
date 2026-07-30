@@ -3,7 +3,11 @@ import { evaluateStateSignals } from "@/lib/invoice-address";
 import { getClientFacingTaxComplianceNote } from "@/lib/invoice-compliance";
 import { parseGstin } from "@/lib/gstin-parser";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
-import { defaultInvoiceFormData, mergeInvoiceFormData } from "@/types/invoice";
+import {
+  defaultInvoiceFormData,
+  mergeInvoiceFormData,
+  normalizeInvoiceEntities,
+} from "@/types/invoice";
 
 function testGstinParsing() {
   const parsed = parseGstin("29ABCDE1234F1Z5");
@@ -15,18 +19,22 @@ function testGstinParsing() {
 }
 
 function testGstinMergeAutoDerivation() {
-  const merged = mergeInvoiceFormData({
-    agency: {
-      ...defaultInvoiceFormData.agency,
-      gstRegistrationStatus: "registered",
-      gstin: "29ABCDE1234F1Z5",
-    },
-    client: {
-      ...defaultInvoiceFormData.client,
-      clientLocation: "domestic",
-      clientGstin: "27AAACM8899L1Z2",
-    },
-  });
+  // Derivation moved from the merge to normalizeInvoiceEntities (Stage 2); this
+  // still verifies GSTIN → state/PAN, now via the explicit normalizer.
+  const merged = normalizeInvoiceEntities(
+    mergeInvoiceFormData({
+      agency: {
+        ...defaultInvoiceFormData.agency,
+        gstRegistrationStatus: "registered",
+        gstin: "29ABCDE1234F1Z5",
+      },
+      client: {
+        ...defaultInvoiceFormData.client,
+        clientLocation: "domestic",
+        clientGstin: "27AAACM8899L1Z2",
+      },
+    }),
+  );
 
   assert.equal(
     merged.agency.agencyState,
