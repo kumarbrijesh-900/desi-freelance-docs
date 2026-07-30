@@ -26,7 +26,7 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
 **4. Open follow-ups:**
-- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). App-side grok dead refs still to tidy (`brief-parser-gateway.ts:8`/403/412, `BriefSummaryModal.tsx:45`).
+- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). ~~App-side grok dead refs still to tidy.~~ ✅ DONE July 30 (`2dc33cd`) — grok fully removed, code + types. **NEW (July 30):** strict-field surface-for-review shipped (`d06734f`); its toggle half now pre-*flips* tax-determining controls (`client.location`, `isSezUnit`) on low-confidence reads — queued fix: surface tax toggles as un-applied suggestions.
 - **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** ~~P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead.~~ ✅ CLOSED July 23 — grok removed from the chain entirely (`88f3fd0`, edge fn v22); chain is now a declared 2-tier gemini → groq. Dead app-side grok references remain (see July 22–23 entry §7). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
 - **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); ~~Supabase `GROK_API_KEY` secret~~ ✅ RESOLVED July 23 — chain declared 2-tier and grok removed from code.
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
@@ -46,6 +46,35 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## July 30 — grok fully removed (app-side); strict-field surface-for-review shipped; 2-tier accepted
+
+**Start:** `002e14d` · **End:** `d06734f` · Two commits, both `lib`/editor (Vercel build — no edge-fn deploy, no quota). Offline hydration suite 13/13, tsc clean, both new behaviours witness-proven.
+
+### 1. grok fully gone (`2dc33cd`)
+Edge fn dropped grok July 23 (v23); this removes the four dead **app-side** refs the earlier prompt was scoped away from: the `BriefParserProvider` union, two provider guards in `brief-parser-gateway.ts` (L403/412), and the "Grok" label in `BriefSummaryModal.tsx` — coupled, since `PROVIDER_LABELS` is `Record<BriefParserProvider,string>`, so the type change forces the label removal. `tsc --noEmit` clean; repo-wide `grep grok` now returns only the session logs. Retired in code and types.
+
+### 2. Strict-field surface-for-review (`d06734f`) — the real work
+**Problem, precisely.** B left `STRICT_LOW_FIELD_PATHS` unfloored, so a low-overall groq parse suppressed strict fields (GSTIN, tax ID, email, SEZ, location). Tracing the modal proved it's worse than "shown blank": `missingFieldGroups` is a scan of the **current form** (`getMissingFieldLabels(formData)`), and hydration's `unresolvedFields` is **never passed to the modal — dead output**. So an *optional* suppressed strict field (an unregistered agency's GSTIN, a tax ID) vanished with **zero trace**.
+**Fix (lib + editor, no modal change).** New `suggestedFields` bucket. The two relevant suppression sites (string + toggle; no strict field is numeric, so `applyNumberField` untouched) now pre-fill the value into the *uncommitted* form data and record to `suggestedFields` instead of dropping it. The editor routes `suggestedFields` → `lowConfidenceFieldSummaries`, where they render exactly like medium fields already do — pre-filled, editable — and commit only on "Apply to invoice."
+**Safe by construction.** Confirmed at source: `handleBriefAutofill` never calls `setFormData`; the form commits *only* in `handleModalSubmit` (the Apply click). The modal is a hard review gate, so pre-filling a low-confidence GSTIN is a suggestion shown for confirmation — strictly better than the old silent drop.
+**Verified.** tsc clean; suite 13/13; string witness (revert → `email` drops → fail) and toggle witness (revert → `isSezUnit` drops → fail) both fire.
+**AG exceeded the prompt — correctly.** It updated two tests I'd marked do-not-touch (`isSezUnit` in `testLowConfidenceToggleStaysUnresolved` + `testPerFieldLowConfidence…`). My toggle change legitimately broke them; the witnesses prove its updates track real behaviour. My prompt should have anticipated the breakage. Standing lesson: AG will step outside an explicit boundary when it judges it necessary — the diff review catches its errors *and* mine.
+
+### 3. Decisions & findings
+- **2-tier accepted.** No paid Gemini tier yet (pre-launch, founder-only volume stays under 20/day). **groq is now co-primary, not a rare fallback** — its reliability is first-class, and today's groq-hardening is load-bearing. Revisit at scale. Recorded in manual §6.
+- **Both-down UX verified — no fix.** Both providers 429 → edge fn returns 200 + `providerUsed: null`; editor guards on it (L1859) and shows a clean "try again in a moment" toast, form untouched.
+- **Bracket/dot retracted as a priority.** Common autofill wholesale-replaces line items (no per-item gate); post-floor the rare merge path only mislabels confidence, never drops data. Cosmetic.
+
+### 4. New risk — watch
+The toggle half of §2 pre-**flips** tax-determining controls (`client.location`, `isSezUnit`) on low-confidence reads, not just text boxes. The review gate catches it (uncommitted until Apply), but a control silently flipped to "International" is easier to miss than a filled field, and it drives the whole tax treatment. Queued fix: surface tax toggles as *un-applied* suggestions. Intermittent — don't chase; eyeball if hit.
+
+### 5. Debt created
+`testLowConfidenceToggleStaysUnresolved` is now misnamed (the toggle no longer "stays unresolved"). Assertions correct; rename when that file's open.
+
+### Commits
+- `2dc33cd` — remove dead app-side grok refs (`lib` + component)
+- `d06734f` — surface low-confidence strict fields for review (`lib` + editor + test)
 
 ## July 23 — Confidence floor (B) + F2 forex vocab + parser payee/rail rules; D3/F2 lifted, but the real find is a Gemini 20/day quota ceiling
 
