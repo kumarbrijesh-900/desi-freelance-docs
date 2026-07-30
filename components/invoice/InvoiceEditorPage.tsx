@@ -1869,34 +1869,40 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       hydration: ParsedInvoiceHydrationResult,
       briefText: string,
     ) => {
-      const summaries = hydration.hydratedFields.map(
-        (field): BriefAutofillFieldSummary => ({
-          label: field.label,
-          fieldPath: field.path,
-          step: field.path.startsWith("client")
-            ? "client"
-            : field.path.startsWith("payment")
-              ? "payment"
-              : field.path.startsWith("meta")
-                ? "meta"
-                : field.path.startsWith("deliverables") ||
-                    field.path.startsWith("lineItems")
-                  ? "deliverables"
-                  : "agency",
-          confidence: field.confidence,
-          source: "ai",
-          origin: "parser",
-        }),
-      );
+      const toSummary = (
+        field: ParsedInvoiceHydrationResult["hydratedFields"][number],
+      ): BriefAutofillFieldSummary => ({
+        label: field.label,
+        fieldPath: field.path,
+        step: field.path.startsWith("client")
+          ? "client"
+          : field.path.startsWith("payment")
+            ? "payment"
+            : field.path.startsWith("meta")
+              ? "meta"
+              : field.path.startsWith("deliverables") ||
+                  field.path.startsWith("lineItems")
+                ? "deliverables"
+                : "agency",
+        confidence: field.confidence,
+        source: "ai",
+        origin: "parser",
+      });
+      const summaries = hydration.hydratedFields.map(toSummary);
+      // Low-confidence strict fields the parser extracted but couldn't auto-apply
+      // (e.g. groq's sparse-map GSTIN): pre-filled into the form data and surfaced
+      // in the review bucket, applied only on the user's "Apply to invoice".
+      const suggestedSummaries = hydration.suggestedFields.map(toSummary);
       return {
         normalizedText: briefText,
         nextFormData: hydration.nextFormData,
         confidentFieldSummaries: summaries.filter(
           (summary) => summary.confidence === "high",
         ),
-        lowConfidenceFieldSummaries: summaries.filter(
-          (summary) => summary.confidence === "medium",
-        ),
+        lowConfidenceFieldSummaries: [
+          ...summaries.filter((summary) => summary.confidence === "medium"),
+          ...suggestedSummaries,
+        ],
       };
     };
 

@@ -175,8 +175,8 @@ function testLowConfidenceToggleStaysUnresolved() {
     parserResponse: response,
   });
 
-  assert.equal(result.nextFormData.client.isClientSezUnit, "");
-  assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
+  assert.equal(result.nextFormData.client.isClientSezUnit, "yes");
+  assert.ok(result.suggestedFields.some((f) => f.path === "client.isSezUnit"));
 }
 
 function testOwnershipAndPlaceholderGuardrails() {
@@ -365,8 +365,8 @@ function testPerFieldLowConfidenceDoesNotBlockScalarsWhenOverallHigh() {
   assert.equal(result.nextFormData.client.clientState, "Karnataka");
   assert.equal(result.nextFormData.client.clientPinCode, "560048");
   assert.equal(result.nextFormData.lineItems[0]?.rate, 18000);
-  assert.equal(result.nextFormData.client.isClientSezUnit, "");
-  assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
+  assert.equal(result.nextFormData.client.isClientSezUnit, "yes");
+  assert.ok(result.suggestedFields.some((f) => f.path === "client.isSezUnit"));
 }
 
 function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {
@@ -544,13 +544,11 @@ function testAbsentFieldConfidenceFloorsToMediumWhenOverallLow() {
   // confidence map suppressed a perfectly extracted payee name.
   assert.equal(result.nextFormData.payment.accountName, "Priya Mohanty");
 
-  // Unlisted + STRICT_LOW_FIELD_PATHS: still inherits overall "low" and stays
-  // suppressed. A low-confidence parse must never write identity/tax fields.
-  assert.equal(
-    result.nextFormData.client.clientEmail,
-    defaultInvoiceFormData.client.clientEmail,
-  );
-  assert.ok(result.unresolvedFields.includes("client.email"));
+  // Unlisted + STRICT_LOW_FIELD_PATHS: no longer silently dropped. The value is
+  // pre-filled into the (uncommitted) form and surfaced in suggestedFields for
+  // review; it commits only when the user clicks "Apply to invoice" in the modal.
+  assert.equal(result.nextFormData.client.clientEmail, "finance@globex.ae");
+  assert.ok(result.suggestedFields.some((f) => f.path === "client.email"));
 }
 
 function testParaphrasedInternationalModeMapsToForexSettlement() {

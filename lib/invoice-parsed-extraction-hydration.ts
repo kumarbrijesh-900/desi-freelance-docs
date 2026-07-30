@@ -58,6 +58,7 @@ export type ParsedInvoiceHydrationResult = {
   parsedMilestones: NormalizedBriefMilestone[];
   hydratedFields: HydrationField[];
   preservedFields: HydrationField[];
+  suggestedFields: HydrationField[];
   unresolvedFields: string[];
   clarificationQuestions: string[];
   missingFields: string[];
@@ -69,6 +70,7 @@ type HydrationContext = {
   parserResponse: BriefParserResponse;
   hydratedFields: HydrationField[];
   preservedFields: HydrationField[];
+  suggestedFields: HydrationField[];
   unresolvedFields: string[];
 };
 
@@ -199,7 +201,24 @@ function applyStringField(params: {
 
   const confidence = getConfidence(params.ctx.parserResponse, params.path);
   if (!shouldHydrate(confidence)) {
-    params.ctx.unresolvedFields.push(params.path);
+    // Low-confidence strict field: pre-fill into the (uncommitted) form so the
+    // value survives, and surface it for review. Nothing commits until the user
+    // clicks "Apply to invoice", so this is a suggestion, not a silent write.
+    if (
+      isDefaultOrBlank(params.originalValue, params.defaultValue) ||
+      isDefaultOrBlank(params.currentValue, params.defaultValue)
+    ) {
+      if (params.currentValue !== incoming) {
+        params.assign(incoming);
+      }
+    }
+    recordHydration(
+      params.ctx.suggestedFields,
+      params.path,
+      params.label,
+      confidence,
+      incoming,
+    );
     return;
   }
 
@@ -302,15 +321,27 @@ function applyToggleField<T extends string>(params: {
   }
 
   const confidence = getConfidence(params.ctx.parserResponse, params.path);
-  if (!shouldHydrate(confidence)) {
-    params.ctx.unresolvedFields.push(params.path);
-    return;
-  }
 
   const canHydrate =
     isUnsetToggle(params.originalValue, params.defaultValue) ||
     isUnsetToggle(params.currentValue, params.defaultValue) ||
     params.allowDefaultOverride === true;
+
+  if (!shouldHydrate(confidence)) {
+    // Low-confidence strict toggle: pre-fill into the (uncommitted) form and
+    // surface for review. Commits only on "Apply to invoice".
+    if (canHydrate && params.currentValue !== params.incoming) {
+      params.assign(params.incoming);
+    }
+    recordHydration(
+      params.ctx.suggestedFields,
+      params.path,
+      params.label,
+      confidence,
+      String(params.incoming),
+    );
+    return;
+  }
 
   if (canHydrate && params.currentValue !== params.incoming) {
     params.assign(params.incoming);
@@ -689,6 +720,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     parserResponse: params.parserResponse,
     hydratedFields: [],
     preservedFields: [],
+    suggestedFields: [],
     unresolvedFields: [...params.parserResponse.missingFields],
   };
   const { normalizedExtraction } = params.parserResponse;
@@ -1356,6 +1388,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     parsedMilestones,
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,
+    suggestedFields: ctx.suggestedFields,
     unresolvedFields: [...new Set(ctx.unresolvedFields)],
     clarificationQuestions: [
       ...new Set(params.parserResponse.clarificationQuestions),
