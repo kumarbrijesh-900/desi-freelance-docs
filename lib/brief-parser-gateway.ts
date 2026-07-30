@@ -5,7 +5,7 @@ import type {
   AiBriefTaxType,
 } from "@/lib/ai-brief-extractor";
 
-export type BriefParserProvider = "gemini-flash" | "groq-llama" | "grok";
+export type BriefParserProvider = "gemini-flash" | "groq-llama";
 export type BriefParserConfidence = AiBriefConfidence;
 
 export type BriefParserSourceMetadata = {
@@ -399,8 +399,7 @@ export function normalizeBriefParserResponse(
       : [],
     providerUsed:
       value.providerUsed === "gemini-flash" ||
-      value.providerUsed === "groq-llama" ||
-      value.providerUsed === "grok"
+      value.providerUsed === "groq-llama"
         ? value.providerUsed
         : null,
     fallbackUsed: Boolean(value.fallbackUsed),
@@ -408,8 +407,7 @@ export function normalizeBriefParserResponse(
       ? value.fallbackPath.filter(
           (provider): provider is BriefParserProvider =>
             provider === "gemini-flash" ||
-            provider === "groq-llama" ||
-            provider === "grok",
+            provider === "groq-llama",
         )
       : [],
     rawStored: Boolean(value.rawStored),

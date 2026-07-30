@@ -42,7 +42,6 @@ const formatConfidentValue = (label: string, value: string) => {
 const PROVIDER_LABELS: Record<BriefParserProvider, string> = {
   "gemini-flash": "Gemini Flash",
   "groq-llama": "Groq Llama",
-  grok: "Grok",
 };
 
 interface BriefSummaryModalProps {
