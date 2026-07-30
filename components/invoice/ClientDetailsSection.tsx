@@ -236,10 +236,26 @@ export default function ClientDetailsSection({
     key: K,
     fieldValue: ClientDetails[K],
   ) => {
-    syncClientDetails({
-      ...value,
-      [key]: fieldValue,
-    });
+    const nextValue = { ...value, [key]: fieldValue };
+    // Only re-derive when the changed field drives derivation (same rationale as
+    // the agency section). clientLocation is included because it flips the
+    // domestic/international normalization path.
+    const drivesDerivation = (
+      [
+        "clientGstin",
+        "clientPinCode",
+        "clientCity",
+        "clientAddressLine1",
+        "clientAddressLine2",
+        "clientState",
+        "clientLocation",
+      ] as (keyof ClientDetails)[]
+    ).includes(key);
+    if (drivesDerivation) {
+      syncClientDetails(nextValue);
+    } else {
+      onChange(nextValue);
+    }
   };
 
   const markTouched = (field: string) => {

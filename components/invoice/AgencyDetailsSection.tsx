@@ -120,10 +120,26 @@ export default function AgencyDetailsSection({
     key: K,
     fieldValue: AgencyDetails[K],
   ) => {
-    syncAgencyDetails({
-      ...value,
-      [key]: fieldValue,
-    });
+    const nextValue = { ...value, [key]: fieldValue };
+    // Only re-derive (state/PAN/city + address recompose) when the changed field
+    // actually drives derivation. Editing name, PAN, registration status, etc.
+    // passes straight through, so unrelated keystrokes no longer trigger the
+    // fill-if-empty inference (Stage 3: no hidden correction while typing).
+    const drivesDerivation = (
+      [
+        "gstin",
+        "pinCode",
+        "city",
+        "addressLine1",
+        "addressLine2",
+        "agencyState",
+      ] as (keyof AgencyDetails)[]
+    ).includes(key);
+    if (drivesDerivation) {
+      syncAgencyDetails(nextValue);
+    } else {
+      onChange(nextValue);
+    }
   };
 
 
