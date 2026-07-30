@@ -59,6 +59,7 @@ export type ParsedInvoiceHydrationResult = {
   hydratedFields: HydrationField[];
   preservedFields: HydrationField[];
   suggestedFields: HydrationField[];
+  pendingConfirmations: HydrationField[];
   unresolvedFields: string[];
   clarificationQuestions: string[];
   missingFields: string[];
@@ -71,6 +72,7 @@ type HydrationContext = {
   hydratedFields: HydrationField[];
   preservedFields: HydrationField[];
   suggestedFields: HydrationField[];
+  pendingConfirmations: HydrationField[];
   unresolvedFields: string[];
 };
 
@@ -115,11 +117,17 @@ const STRICT_LOW_FIELD_PATHS = new Set<string>([
 // A silently flipped location/SEZ/LUT changes the tax treatment and is far easier
 // to miss than a filled text field — keep them dropped (the user sets them)
 // rather than surfaced-and-pre-flipped.
-const TAX_DETERMINING_TOGGLE_PATHS = new Set<string>([
+// Tax-determining toggles must never be pre-flipped on a low-confidence read — a
+// silently flipped control changes the tax treatment and is easy to miss.
+// location + SEZ are wired into the review modal, so they're carried as pending
+// confirmations the user explicitly applies. LUT isn't cleanly wired there (the
+// modal's "lut" label maps to the LUT number, not availability), so it's dropped
+// and the user sets it manually.
+const PENDING_CONFIRM_TOGGLE_PATHS = new Set<string>([
   "client.location",
   "client.isSezUnit",
-  "agency.lutEnabled",
 ]);
+const DROP_ONLY_TOGGLE_PATHS = new Set<string>(["agency.lutEnabled"]);
 
 function maxParserConfidence(
   a: BriefParserConfidence,
@@ -341,7 +349,19 @@ function applyToggleField<T extends string>(params: {
     // Tax-determining toggles (location/SEZ/LUT) must NOT be pre-flipped on a
     // low-confidence read — a silently flipped control changes the tax treatment.
     // Drop them; the user sets them explicitly.
-    if (TAX_DETERMINING_TOGGLE_PATHS.has(params.path)) {
+    if (PENDING_CONFIRM_TOGGLE_PATHS.has(params.path)) {
+      // Carry the value as a pending confirmation; never pre-flip it here. The
+      // user applies it explicitly in the modal.
+      recordHydration(
+        params.ctx.pendingConfirmations,
+        params.path,
+        params.label,
+        confidence,
+        String(params.incoming),
+      );
+      return;
+    }
+    if (DROP_ONLY_TOGGLE_PATHS.has(params.path)) {
       params.ctx.unresolvedFields.push(params.path);
       return;
     }
@@ -738,6 +758,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     hydratedFields: [],
     preservedFields: [],
     suggestedFields: [],
+    pendingConfirmations: [],
     unresolvedFields: [...params.parserResponse.missingFields],
   };
   const { normalizedExtraction } = params.parserResponse;
@@ -1406,6 +1427,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,
     suggestedFields: ctx.suggestedFields,
+    pendingConfirmations: ctx.pendingConfirmations,
     unresolvedFields: [...new Set(ctx.unresolvedFields)],
     clarificationQuestions: [
       ...new Set(params.parserResponse.clarificationQuestions),

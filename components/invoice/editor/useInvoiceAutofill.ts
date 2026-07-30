@@ -16,6 +16,7 @@ export function useInvoiceAutofill() {
     parsedMilestones: NormalizedBriefMilestone[];
     providerUsed: BriefParserProvider | null;
     preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
+    pendingConfirmations: { label: string; path: string; value: string }[];
   } | null>(null);
 
   const [postSubmitActionModal, setPostSubmitActionModal] = useState<{

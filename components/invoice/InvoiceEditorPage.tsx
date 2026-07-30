@@ -1977,6 +1977,11 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       parsedMilestones: parsedHydration.parsedMilestones,
       providerUsed: parserResponse.providerUsed,
       preservedFields: parsedHydration.preservedFields,
+      pendingConfirmations: parsedHydration.pendingConfirmations.map((f) => ({
+        label: f.label,
+        path: f.path,
+        value: f.incomingValue ?? "",
+      })),
     });
 
     return true;
@@ -3242,6 +3247,7 @@ return (
         parsedMilestones={briefSummaryData.parsedMilestones}
         providerUsed={briefSummaryData.providerUsed}
         preservedFields={briefSummaryData.preservedFields}
+        pendingConfirmations={briefSummaryData.pendingConfirmations}
         isLoggedIn={!isGuestMode}
         onContinueManually={handleContinueManually}
         onParseAgain={handleParseAgain}

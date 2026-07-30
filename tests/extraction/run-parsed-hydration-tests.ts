@@ -176,7 +176,9 @@ function testLowConfidenceToggleStaysUnresolved() {
   });
 
   assert.equal(result.nextFormData.client.isClientSezUnit, "");
-  assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
+  assert.ok(
+    result.pendingConfirmations.some((f) => f.path === "client.isSezUnit"),
+  );
 }
 
 function testOwnershipAndPlaceholderGuardrails() {
@@ -366,7 +368,9 @@ function testPerFieldLowConfidenceDoesNotBlockScalarsWhenOverallHigh() {
   assert.equal(result.nextFormData.client.clientPinCode, "560048");
   assert.equal(result.nextFormData.lineItems[0]?.rate, 18000);
   assert.equal(result.nextFormData.client.isClientSezUnit, "");
-  assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
+  assert.ok(
+    result.pendingConfirmations.some((f) => f.path === "client.isSezUnit"),
+  );
 }
 
 function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {

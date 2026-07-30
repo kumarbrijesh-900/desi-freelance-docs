@@ -55,6 +55,7 @@ interface BriefSummaryModalProps {
   parsedMilestones: NormalizedBriefMilestone[];
   providerUsed: BriefParserProvider | null;
   preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
+  pendingConfirmations: { label: string; path: string; value: string }[];
   onContinueManually: (data: InvoiceFormData) => void;
   onParseAgain: () => void;
   onSubmit: (data: InvoiceFormData, shouldSaveClient: boolean) => void;
@@ -482,6 +483,7 @@ export default function BriefSummaryModal({
   parsedMilestones,
   providerUsed,
   preservedFields,
+  pendingConfirmations,
   onContinueManually,
   onParseAgain,
   onSubmit,
@@ -1029,6 +1031,68 @@ export default function BriefSummaryModal({
                   </div>
                 );
               })()}
+
+            {pendingConfirmations.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-ochre" />
+                  <h3 className="text-[13px] font-semibold text-ink">
+                    Low-confidence reads — confirm to apply
+                  </h3>
+                </div>
+                <p className="px-0.5 text-[12px] text-ink-3">
+                  We read these but weren&apos;t sure — nothing is applied unless
+                  you confirm it.
+                </p>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {pendingConfirmations.map((suggestion) => {
+                    const applied = approvedFields.has(suggestion.label);
+                    const display =
+                      suggestion.value.charAt(0).toUpperCase() +
+                      suggestion.value.slice(1);
+                    return (
+                      <div
+                        key={suggestion.path}
+                        className={cn(
+                          "flex items-center justify-between gap-3 rounded-[12px] border p-4 transition-colors",
+                          applied
+                            ? "border-[#bcd8c8] bg-acc-soft"
+                            : "border-[color:rgba(200,148,59,0.4)] bg-[#faf4e5]",
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-[13px] font-semibold text-ink">
+                            {suggestion.label}
+                          </div>
+                          <div className="text-[12px] text-ink-2">
+                            We read:{" "}
+                            <span className="font-semibold">{display}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() =>
+                            handleApproveField(
+                              suggestion.label,
+                              suggestion.value,
+                            )
+                          }
+                          disabled={applied}
+                          className={cn(
+                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[10px] border px-3 text-sm font-semibold transition-colors",
+                            applied
+                              ? "border-transparent bg-acid text-acc-ink"
+                              : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid",
+                          )}
+                        >
+                          <CheckIcon className="h-4 w-4" />
+                          {applied ? "Applied" : "Apply"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {reviewRequiredLabels.length > 0 && (
               <div className="space-y-4">
