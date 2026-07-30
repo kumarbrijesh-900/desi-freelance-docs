@@ -26,7 +26,7 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
 **4. Open follow-ups:**
-- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). ~~App-side grok dead refs still to tidy.~~ ✅ DONE July 30 (`2dc33cd`) — grok fully removed, code + types. **NEW (July 30):** strict-field surface-for-review shipped (`d06734f`); its toggle half now pre-*flips* tax-determining controls (`client.location`, `isSezUnit`) on low-confidence reads — queued fix: surface tax toggles as un-applied suggestions.
+- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). ~~App-side grok dead refs still to tidy.~~ ✅ DONE July 30 (`2dc33cd`) — grok fully removed, code + types. **NEW (July 30):** strict-field surface-for-review shipped (`d06734f`); its toggle half now pre-*flips* tax-determining controls (`client.location`, `isSezUnit`) on low-confidence reads — ✅ RESOLVED July 30–31 (`fcb321a`→`f5ca620`): location/SEZ now surface as un-applied "confirm to apply" suggestions. **Write-path cleanup Stages 1–3 shipped** (`b7f35d8`/`701ce10`/`3f46664`/`6d91f7a`): merge is now pure, derivation explicit at input boundaries + gated to driving-field edits. **Bracket/dot:** re-characterized as cosmetic post-floor — retracted as a priority.
 - **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** ~~P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead.~~ ✅ CLOSED July 23 — grok removed from the chain entirely (`88f3fd0`, edge fn v22); chain is now a declared 2-tier gemini → groq. Dead app-side grok references remain (see July 22–23 entry §7). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
 - **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); ~~Supabase `GROK_API_KEY` secret~~ ✅ RESOLVED July 23 — chain declared 2-tier and grok removed from code.
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
@@ -46,6 +46,54 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## July 30–31 — Tax-toggle review flow completed; project analysis; write-path cleanup Stages 1–3 (the core recovery item)
+
+**Start:** `1901e14` (prev log) · **End:** `6d91f7a` · 6 code commits, all `lib`/editor/tests (Vercel build, no edge-fn deploy). tsc clean; domain + extraction + compliance all green.
+
+### 1. Tax-toggle pre-flip risk — resolved (`fcb321a` → `f5ca620`)
+Closes the toggle-pre-flip risk flagged in the July 30 entry §4.
+- **`fcb321a`** (intermediate): dropped low-confidence tax toggles (location/SEZ/LUT) instead of pre-flipping. Safe, but lost the value.
+- **`f5ca620`** (full, on founder request): surface them as **un-applied "confirm to apply"** suggestions. New `pendingConfirmations` bucket in hydration carries location + SEZ values *without* pre-flipping; editor threads them; the modal shows a "Low-confidence reads — confirm to apply" section ("We read: International — [Apply]") that writes to `localData` only on the user's click. Commits only on "Apply to invoice." LUT excluded — its modal label maps to `lutNumber` not `lutAvailability` (mis-wired), so it stays dropped. Both witnesses fire.
+
+### 2. Project analysis — July reality vs the April audit docs
+Founder asked "what's pending." Reconciled the April-dated audits against current code:
+- **Architecture convergence: DONE.** No `/create` route — converged to invoice-first (dashboard/clients/projects/onboarding/share-MSA/cron all shipped). The April audit's biggest concern is resolved.
+- **P1-C (non-ISO dates → dueDate): already fixed** — hydrator gates on `/^\d{4}-\d{2}-\d{2}$/`.
+- **Hydrator license-deref: already guarded** (`if (license)` wrapper). I first reported it unguarded — a bad grep (my pattern missed the bareword guard line). Corrected by reading the block. NB: whether this is the same as the manual's "P2-G normalizer-dependency crash" is unconfirmed — left as-is.
+- **Write-path recovery: half-done** → became the session's main work (§3).
+
+### 3. Write-path cleanup — Stages 1–3 (the core recovery item)
+The recovery docs' named root cause — "the same field inferred and rewritten in too many places" — addressed end-to-end. The extraction→form half was done earlier; this session did the **editor half**.
+
+**Diagnosis.** Identical inference in two places: `normalizeAgencyDetails` (inside `mergeInvoiceFormData`, runs on every call → all 30 call sites) AND `syncAgencyDetails` (section, every keystroke), with slightly different helpers so they can disagree.
+
+**Audit (read-only, before touching).** Classified all 30 merge call sites: ~11 reads of already-normalized stored data (derivation redundant, address-recompose harmful), ~5 defaults (no-op), ~5 input boundaries (genuinely want it). Prod spot-check: **all 6 stored invoices fully normalized** (0 with GSTIN-but-missing-state/PAN/address) → making merge pure has **nil read-path impact**.
+
+**Stage 1 (`b7f35d8`):** characterization net — 8 tests locking merge's current behaviour, values observed by *running* the function. Zero behaviour change. `npm run test:domain`.
+
+**Stage 2 (`701ce10` + `3f46664`):** split `mergeInvoiceFormData` into a **pure structural merge** (defaults + line-item type/unit/SAC + milestone-1) and an explicit **`normalizeInvoiceEntities`** (state/PAN/address derivation), called only at 4 input boundaries (autofill output, demo, modal-submit, continue-manually). `701ce10` broke a compliance unit test (`testGstinMergeAutoDerivation`) that asserted the *merge* derives — fixed in `3f46664` by wrapping it in `normalizeInvoiceEntities`. **Under-audit lesson:** I checked the 30 app call sites but not the *test suites'* dependence on merge derivation — running all three suites caught it. Runtime was always safe.
+
+**Bonus:** Stage 2 alone killed the double-derivation (section derives; merge no longer re-derives on top).
+
+**Stage 3 (`6d91f7a`):** gate the section derivation to fire only when the changed field drives it (gstin/pin/city/address-parts/state). Typing name/email no longer triggers inference. Derivation logic unchanged. **Two of my framed fixes were non-issues, caught by reading source:** address is composed from separate part fields (nothing to overwrite), and the GSTIN-validity gate is already inside `parseGstin` (empty state/PAN unless the 15-char regex passes). So Stage 3 collapsed to the single driving-field gate.
+
+### 4. Process thread — "diagnose from source" (recurring, reinforced)
+Four claims from a partial read or stale framing were wrong and corrected only by reading actual source: (a) license-deref "unguarded" — bad grep; (b) bracket/dot "worth fixing" — cosmetic post-floor + skipped in the common wholesale-replace path; (c) address-recompose "spooky" — benign derived field; (d) compliance-test break — under-audited test deps. Every win came from reading before asserting.
+
+### 5. Residual / verification owed
+- **Eyeball owed (tests can't cover UI):** the tax-toggle "confirm to apply" section (`f5ca620`) and Stage 3 typing behaviour (`6d91f7a`) — a real editing session: complete GSTIN still fills state/PAN, typing name doesn't pop fields, confirm-to-apply row works.
+- Bracket/dot bug retracted as a priority (cosmetic post-floor).
+- Stray untracked `supabase/functions/deno.lock` — delete.
+- Write-path arc complete (Stages 1–3); no Stage 4.
+
+### Commits
+- `fcb321a` — drop low-confidence tax toggles
+- `f5ca620` — tax-toggle confirm-to-apply (`pendingConfirmations`)
+- `b7f35d8` — merge characterization net (Stage 1)
+- `701ce10` — merge/normalize split (Stage 2)
+- `3f46664` — compliance test fix (Stage 2)
+- `6d91f7a` — section derivation gate (Stage 3)
 
 ## July 30 — grok fully removed (app-side); strict-field surface-for-review shipped; 2-tier accepted
 

@@ -30,6 +30,8 @@ Next.js 16 (App Router) · React 19 · Tailwind v4 · Supabase (Postgres/Auth/Ed
 
 **CI (since July 7, 2026):** `.github/workflows/ci.yml` runs on every push/PR — typecheck + GST compliance suite + hydration suite + gateway contract suite + live-battery fixtures (6 real prod parser responses). Red CI = the push failed. Do not merge around it.
 
+**Invoice form merge (July 31 refactor):** `mergeInvoiceFormData` in `types/invoice.ts` is a **pure structural merge** (defaults + line-item type/unit/SAC + milestone-1 wrapping) — it no longer derives entity fields. GSTIN→state/PAN derivation + address recomposition live in the explicit **`normalizeInvoiceEntities`**, applied only at input boundaries (autofill output, demo, modal commit); section edits derive via gated `syncAgencyDetails`/`syncClientDetails` (fire only on driving-field changes). Reads and defaults no longer re-derive. **Do NOT reintroduce normalization into the merge** — it runs on all ~30 call sites. Locked by `tests/domain/run-merge-normalization-tests.ts` (`npm run test:domain`).
+
 Known shape issues (tolerated, refactor incrementally): `InvoiceEditorPage.tsx` ~3,370 lines; two profile tables (`profiles` + `user_profiles`); ~105 Playwright tests stale from UI drift; 32 hardcoded `#111118` inks remaining from the E design migration.
 
 ## 5. Critical areas (risk ranking)
