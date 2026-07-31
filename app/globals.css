@@ -188,7 +188,7 @@ h1, h2, h3 {
 
 .app-soft-field {
   border: 1px solid var(--color-soft);
-  background: #ffffff;
+  background: var(--field-bg, #ffffff);
   box-shadow: none;
   border-radius: var(--radius-box);
   transition: border-color var(--app-duration-fast) var(--app-ease-standard), box-shadow var(--app-duration-fast) var(--app-ease-standard);
@@ -219,7 +219,7 @@ input:focus, select:focus, textarea:focus {
 
 .app-soft-field-error {
   border-color: #c2502f;
-  background: #ffffff;
+  background: var(--field-bg, #ffffff);
   box-shadow: 0 0 0 3px rgba(194,80,47,0.22);
   animation: none;
 }
@@ -751,7 +751,7 @@ input:focus, select:focus, textarea:focus {
 
 input::placeholder, select::placeholder, textarea::placeholder {
   color: var(--color-ink-2);
-  opacity: 0.5;
+  opacity: 0.72;
   font-style: normal;
   text-transform: uppercase;
   font-size: 11px;
@@ -1512,6 +1512,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-ink-3:        #6b6f60;
   --color-soft:         #2a2d25;
   --color-strong:       #3a3e33;
+  --field-bg:           var(--color-paper-2);
 
   /* The scope must declare its own inherited text colour: `body { color:
      var(--color-ink) }` resolves in :root (light ink) and is NOT re-resolved
