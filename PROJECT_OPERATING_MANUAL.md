@@ -62,3 +62,6 @@ No payments table · no Razorpay · no paid SaaS suggestions (₹500 ceiling) ·
 
 ## 9. Maintenance
 Update this manual when reality contradicts it, a gate/service/critical area changes, or at minimum at the end of any session that touches §3–§6. SESSION_LOG.md carries the day-to-day truth between manual revisions.
+
+## 10. Design system (July 31 pivot)
+Canonical design direction: "Acid Ledger" — dark cockpit for freelancer surfaces via the `[data-theme="cockpit"]` scope in `app/globals.css`; light document for all client-facing routes; mobile-first (380px base) for a planned Play Store TWA. The July 31 SESSION_LOG entry is the authoritative handoff: direction, shipped commits (`8efe2b5`/`8118311`/`4ed2fb0`), phase roadmap, and the UX craft guide that all design prompts must follow. Never flip default `@theme` values globally; surfaces adopt cockpit in the same commit as their token sweep.
