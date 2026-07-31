@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
+import { Space_Grotesk, Hanken_Grotesk, Space_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/ui/AppToast";
 
-const display = Bricolage_Grotesque({
+const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["500", "600", "700", "800"]
+  weight: ["400", "500", "600", "700"]
 });
 
 const sans = Hanken_Grotesk({
@@ -38,6 +38,13 @@ export const metadata: Metadata = {
       "Describe your project. Get a perfect, tax-compliant invoice. Built for Indian freelancers.",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f2ebd8",
 };
 
 export default function RootLayout({

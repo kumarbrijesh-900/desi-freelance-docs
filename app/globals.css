@@ -88,6 +88,19 @@
   /* Brutal-border alias — now a soft hairline; was undefined, so borders using it fell back to currentColor */
   --brutal-border-color: var(--color-soft);
 
+  /* Motion tokens — Tier-1 physics (previously dangling, transitions were inert) */
+  --app-duration-fast: 90ms;
+  --app-duration-medium: 200ms;
+  --app-duration-slow: 350ms;
+  --app-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --app-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Safe-area insets — PWA/TWA notch and gesture-nav clearance */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-right: env(safe-area-inset-right);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+
   --radius-pill: 9999px;
   --radius-box:  14px;
   --radius-soft: 18px;
@@ -111,7 +124,7 @@
 }
 
 body {
-  background-color: var(--background);
+  background-color: var(--color-paper);
   background-image: radial-gradient(circle at 1px 1px, rgba(36,32,26,0.045) 1px, transparent 0);
   background-size: 22px 22px;
   color: var(--color-ink);
@@ -1483,4 +1496,80 @@ input::placeholder, select::placeholder, textarea::placeholder {
               box-shadow var(--app-duration-fast) var(--app-ease-standard),
               color var(--app-duration-fast) var(--app-ease-standard),
               transform var(--app-duration-fast) var(--app-ease-standard);
+}
+
+/* ============================================================
+   COCKPIT THEME — dark scope for freelancer-facing surfaces.
+   Applied per-surface via data-theme="cockpit" on a wrapper.
+   NOTHING opts in yet; surfaces adopt it in their own sweep
+   commits. Default (light) theme remains untouched.
+   ============================================================ */
+[data-theme="cockpit"] {
+  --color-paper:        #0e0f0c;
+  --color-paper-2:      #161813;
+  --color-ink:          #f2f4ea;
+  --color-ink-2:        #a8ac9c;
+  --color-ink-3:        #6b6f60;
+  --color-soft:         #2a2d25;
+  --color-strong:       #3a3e33;
+
+  --color-acid:         #c8f542;
+  --color-acid-2:       #b4e32e;
+  --color-acc-soft:     #1d201a;
+  --color-acc-ink:      #0e0f0c;
+  --color-ochre:        #f5c542;
+  --color-ochre-deep:   #d9a92e;
+  --color-gold:         #f5c542;
+  --color-clay:         #d9a98c;
+  --color-coral:        #ff9166;
+  --color-rose:         #2e2620;
+  --color-sky:          #8ac4e8;
+  --color-lav:          #b9a6ff;
+  --color-butter:       #f5c542;
+  --color-grass:        #4ade9a;
+  --color-overdue:      #ff6b5a;
+  --color-forest:       #2e9c74;
+  --color-plum:         #9c86a8;
+
+  --state-success-bg:   #12291f;
+  --state-success-text: #4ade9a;
+  --state-warning-bg:   #2a2410;
+  --state-warning-text: #f5c542;
+  --state-danger-bg:    #2e1512;
+  --state-danger-text:  #ff6b5a;
+
+  --color-lime-warm:    #d6f97a;
+  --color-lime-300:     #d6f97a;
+  --color-lime-400:     #c8f542;
+  --color-lime-500:     #c8f542;
+  --color-lime-600:     #b4e32e;
+  --color-lime-700:     #9ccb26;
+  --color-lime-900:     #1a2405;
+  --color-lime-50:      #1d2411;
+  --color-cream:        #161813;
+  --color-coral-400:    #ff9166;
+  --brand-indigo:       #c8f542;
+  --brand-indigo-deep:  #b4e32e;
+  --brand-indigo-light: #d6f97a;
+  --brand-indigo-muted: #a8ac9c;
+
+  --color-paper-rose:   #12130f;
+  --color-paper-sky:    #12130f;
+  --color-paper-lav:    #12130f;
+  --color-paper-butter: #12130f;
+  --color-paper-mint:   #12130f;
+
+  --elev-1: 0 6px 16px -10px rgba(0,0,0,0.55);
+  --elev-2: 0 14px 30px -16px rgba(0,0,0,0.60);
+  --elev-3: 0 22px 44px -20px rgba(0,0,0,0.65);
+  --shadow-chunk-sm:  0 8px 18px -12px rgba(0,0,0,0.55);
+  --shadow-chunk:     0 14px 30px -16px rgba(0,0,0,0.60);
+  --shadow-chunk-lg:  0 22px 44px -20px rgba(0,0,0,0.65);
+  --shadow-chunk-coral: 0 14px 30px -16px rgba(0,0,0,0.55);
+  --shadow-chunk-sky:   0 14px 30px -16px rgba(0,0,0,0.55);
+  --shadow-chunk-lav:   0 14px 30px -16px rgba(0,0,0,0.55);
+  --brutal-shadow-sm:      0 6px 16px -10px rgba(0,0,0,0.55);
+  --brutal-shadow-md:      0 14px 30px -16px rgba(0,0,0,0.60);
+  --brutal-shadow-lg:      0 22px 44px -20px rgba(0,0,0,0.65);
+  --brutal-shadow-pressed: 0 3px 10px -6px rgba(0,0,0,0.50);
 }
