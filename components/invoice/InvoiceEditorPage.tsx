@@ -2419,7 +2419,8 @@ const allowReadOnlyKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
 
 return (
   <main
-    className="relative min-h-screen w-full wf paper-rose font-sans antialiased"
+    data-theme="cockpit"
+    className="relative min-h-screen w-full wf bg-[color:var(--color-paper)] font-sans antialiased"
     data-mode={isReadOnlyMode ? "locked" : "editing"}
     suppressHydrationWarning
   >
@@ -2453,12 +2454,7 @@ return (
     </AnimatePresence>
     
 
-    {/* Editor Background Aesthetic Elements (Aura) */}
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl"></div>
-      <div className="absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl"></div>
-      <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl"></div>
-    </div>
+
 
     <AppHeader />
 
@@ -2495,7 +2491,6 @@ return (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
           <div className="mx-auto flex max-w-[1328px] items-center justify-between px-4 py-2 sm:px-6">
             <div className="flex items-center gap-2">
-              <span className="text-[14px]">✨</span>
               <p className="text-[12px] font-normal text-[color:var(--color-ink)]">
                 Complete your profile for faster invoicing.
               </p>
