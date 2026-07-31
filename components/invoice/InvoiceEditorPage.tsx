@@ -3131,7 +3131,7 @@ return (
     )}
 
     {/* Fixed Bottom Action Bar */}
-    <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-white/80 px-4 py-4 backdrop-blur-xl">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-[color:var(--dock-bg,rgba(255,255,255,0.8))] px-4 py-4 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
@@ -3146,14 +3146,14 @@ return (
           
           <div className="flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
             {isReadOnlyMode ? (
-              <span className="text-[#6B6660] truncate">
+              <span className="text-[color:var(--dock-muted,#6B6660)] truncate">
                 <span className="hidden sm:inline">This invoice is locked — {readOnlyReason}</span>
                 <span className="sm:hidden">Locked — {readOnlyReason}</span>
               </span>
             ) : invoiceReadyForPreview ? (
-              <span className="text-[#007A63] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Ready for preview</span></span>
+              <span className="text-[color:var(--dock-ok,#007A63)] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Ready for preview</span></span>
             ) : (
-              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Details to finish</span></span>
+              <span className="text-[color:var(--dock-warn,#8A4B00)] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Details to finish</span></span>
             )}
           </div>
         </div>
@@ -3213,7 +3213,7 @@ return (
                 "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                 invoiceReadyForPreview
                   ? "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)] border border-acid hover:brightness-105 active:scale-[0.97] transition-transform"
-                  : "border border-soft bg-[#FFFBE6] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
+                  : "border border-soft bg-[color:var(--cta-attention-bg,#FFFBE6)] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
               )}
             >
               <span className="hidden sm:inline">
