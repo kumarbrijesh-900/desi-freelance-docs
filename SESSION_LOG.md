@@ -48,9 +48,9 @@ New Claude instance? Read this block, then the most recent session entries below
 
 ---
 
-## July 31 — DESIGN PIVOT: "Acid Ledger" system, cockpit theme architecture, mobile-first mandate; Phases 1–2B shipped
+## July 31 — DESIGN PIVOT: "Acid Ledger" system, cockpit architecture, mobile-first mandate; Phases 1–2C + editor 3.0 shipped
 
-**Start:** `9f03e53` · **End:** `4ed2fb0` · 3 design commits, all presentation-layer (Vercel build only). This entry is a self-contained handoff: a fresh instance should be able to continue the design program from this entry alone.
+**Start:** `9f03e53` · **End:** `a5d65a6` (session ran long; 2C dashboard + editor 3.0 flip added after the original close — see §7) · 3 design commits, all presentation-layer (Vercel build only). This entry is a self-contained handoff: a fresh instance should be able to continue the design program from this entry alone.
 
 ### 1. Direction (decided with founder; do not relitigate)
 - **Audience:** Gen Z / millennial Indian creative freelancers. A Google Play Android app is planned via **TWA** (PWA wrapped; zero native code) → **mobile-first is mandatory** for all skeleton, skin, and motion work. Design at 380px base; desktop is the `md:`/`lg:` enhancement layer.
@@ -117,6 +117,45 @@ Founder shared 15 more screenshots (old light theme, captured pre-`8118311`). Fo
 **Account dropdown:** panel `bg-white` was already tokenized in `8118311`, so it adapts per theme now. Remaining: truncated email (show full on two lines or title attr); "Log Out" in rust is CORRECT usage (destructive) — keep as the reference example.
 
 **Roadmap deltas recorded:** Profile mini-spec → Phase 4 · FAQ dedupe → Phase 6 · feedback modal → Phase 5 · account-number masking → first Profile-touching prompt. Settlement drawer / invoices list / roster shots confirmed the existing punch list; nothing else new.
+
+### 7. Phase 3 execution brief — START HERE (a fresh instance should run "start 3.2" against this section alone)
+
+**Shipped after the original close (all verified byte-exact vs origin/main):**
+- `62f61aa` **Phase 2C** — dashboard leftovers. Flattened the rail selected-state (was `scale-[1.02]` + `border-y-[3px]` + `-mr-[2px]` overhang → now `bg-acc-soft` flat, ink text, `transition-colors`); stripped all `elev-*`/`brutal-shadow-*` from ActiveDrilldown (shell `p-6→p-5`, `gap-8→gap-5`, buttons de-shadowed) and ProjectInvoicesLedger card; cut dashboard content padding `p-8 md:p-10 → p-5 md:p-6`; rounded the payments-due `!` badge; remapped cockpit `--color-sky #8ac4e8→#6bbfa8` (muted teal, so no drawer label reads blue). **Dashboard is now DONE** (2A `8118311` + 2B `4ed2fb0` + 2C `62f61aa`), deploy-confirmed dark and clean by founder.
+- `a5d65a6` **Phase 3.0** — invoice editor cockpit skin flip. `components/invoice/InvoiceEditorPage.tsx` root `<main>` got `data-theme="cockpit"`, dropped light `paper-rose` tonal bg → `bg-[color:var(--color-paper)]`, removed 3 decorative radial-glow divs + the ✨ profile-prompt emoji. **Skin only — zero structural/write-path change.** Editor now renders dark but intentionally TRANSITIONAL (64px black-font poster header + Marker swash, light-skinned fields, INVOICE DETAILS right rail all still present). Deploy-confirmed dark, fields still editable.
+
+**Known loose ends (fold into the relevant phase, do not patch standalone):**
+- One `shadow-[var(--elev-1)]` remains on the VIEW-button chip in `ProjectInvoicesLedger.tsx` L~117 — last shadowed element on the dashboard; sweep it during whatever button-state pass touches ledgers.
+- Duplicate `theme-color` (manual `<meta>` in app/layout.tsx head + the `viewport` export, same value `#f2ebd8`) — harmless, clean up opportunistically.
+- Verification-harness lesson: count-checks for identifiers that legitimately recur (import + usage; `btnClass +=` builder branches; grid-class import+use) must assert the KNOWN count, not `1` — two false FAILs happened this session from asserting `==1`.
+
+**Phase 3 remaining plan (each = one verified AG prompt; ALL presentation-only over the STABILIZED write path — never touch formData writes, validation, persistence, hydration/bootstrap, orderedSteps/currentStep logic):**
+
+Target file: `components/invoice/InvoiceEditorPage.tsx` (3416 lines) unless noted. Layout classes live in `lib/layout-foundation.ts`.
+
+Structural landmarks (verified line numbers at a5d65a6 — re-grep before editing, they drift):
+- Root `<main data-theme="cockpit" …>` at ~L2420.
+- Header block (retitle target): `<h1 className="font-display text-[64px] leading-none font-black tracking-[-0.035em] …">` with `<Marker tone="sky">invoice</Marker>` at ~L2475; "STEP N OF 4 · …" eyebrow at ~L2471; second profile-prompt banner ~L2495.
+- Layout grid: `appEditorGridClass` in `lib/layout-foundation.ts` L82 — currently `xl:grid-cols-[260px_minmax(0,1fr)_320px]` (stepper · content · right-rail). Consumed at editor L2520.
+- COL 1 desktop stepper rail: `<aside … data-testid="desktop-support-rail">` ~L2528, with `.box/.cap/.display` brutalist primitives + `EDITOR PROGRESS` + `orderedSteps.map` at L2550.
+- BriefIntakeCard mount: ~L2700.
+- Section content mount: `{renderStepContent(currentStep)}` ~L2940.
+- **COL 3 right rail (INVOICE DETAILS) — CRITICAL:** ~L2960 onward. This is NOT a deletable display skeleton. It contains LIVE editable meta inputs (invoice number, invoice date, due date) gated behind `isEditingMeta`, each wired to `setFormData(prev => ({...prev, meta: {...}}))`. It also shows the TOTALS/Subtotal/Grand Total block.
+- Footer dock: ~L3314, with the "Review what's left"/"Details to finish" status + primary CTA; lock-state buttons live here too.
+
+- **3.1 — header de-escalation.** `text-[64px] font-black` + Marker swash → compact title (~text-2xl/3xl font-semibold, no swash); drop the "STEP N OF 4" eyebrow (keep numbered stepper rail as the progress source); consolidate the two "Complete your profile" prompts into one neutral line. Also de-brutalize the stepper rail's `.box/.cap/.display` + the invisible `height:6` progress bar (make it real segments or drop it). Touches editor header region + possibly `lib/typography-foundation.ts` (NOTE: that file has ZERO importers — type is raw literals per surface, so de-scale INLINE here, not there).
+
+- **3.2 — RIGHT-RAIL RE-HOME (do this BEFORE any grid change; the plan was corrected mid-session after reading source).** The right rail's meta inputs write to canonical state, so it cannot simply be deleted. Sequence: (a) move the invoice-number + invoice-date + due-date editable inputs (with their exact `setFormData` handlers, byte-identical) into the Meta step of the stage — likely into `renderStepContent`'s meta/totals section; verify the handlers are unchanged with a grep diff. (b) ONLY THEN change `appEditorGridClass` from 3-col to 2-col (drop the `320px` track → `lg:grid-cols-[260px_minmax(0,1fr)]` at both lg and xl) and delete the now-empty INVOICE DETAILS rail JSX + its TOTALS block. (c) mount the existing preview renderer (the same component `app/invoice/preview/page.tsx` consumes off `InvoiceFormData`) as a read-only floating thumbnail bound to live `formData`, bottom-right, expandable. Split into 3.2a/3.2b/3.2c sub-prompts; verify formData write paths byte-identical after each.
+
+- **3.3 — brief card → collapsed affordance.** BriefIntakeCard (~L2700) becomes a header "Autofill" chip / ⌘K overlay instead of an always-open panel. Extraction is feature-flagged OFF in prod (`ENABLE_BRIEF_EXTRACTION` unset → /api/brief-extract returns 404), so the always-on card is dead weight; collapsing it is pure win. Do not touch handleBriefAutofill logic — only its trigger surface.
+
+- **3.4 — stage density + footer CTA.** Apply the viewport-fit budget so each step fits ~700px desktop / one screen mobile (field height ~38–48px, 2-col field grids at md, optional groups collapsed, helper text on focus only); rework the footer dock (~L3314) to ONE status voice: primary CTA reads "Finish N fields" (jumps to first missing) flipping to "Preview & send" when complete; kill the rust "Details to finish" alarm → neutral "Draft · autosaved".
+
+- **3.5 — mobile-first pass.** Single column, 48px touch targets, 16px input font (iOS zoom), sticky bottom continue bar in thumb zone, brief-chip → full-screen sheet, preview thumbnail → peek bar. Uses the safe-area vars (`--safe-area-*`, defined in 8efe2b5) and `100dvh`.
+
+**Protocol (unchanged, non-negotiable):** open by `git ls-remote` for true HEAD → shallow clone/fetch → read the ACTUAL source of the target region before authoring (the 3.2 correction came from doing this) → verify every FIND anchor `count()==1` in python before writing the prompt → author one scoped AG prompt (exact paths, byte-exact FIND/REPLACE, explicit DO-NOT-TOUCH, structured reply template, no "how to verify" inside the prompt) → after AG pushes, verify vs origin/main with a count harness (old strings==0, new==1, write-path strings byte-identical) → founder screenshots the surface (desktop + 380px mobile) before the next prompt. Communication style: terse, dense, no padding; founder confirms with one-word answers and bare SHAs. See §5 for the UX craft bar every prompt must meet.
+
+**Standing non-design items (unchanged, not part of Phase 3):** P0 Gemini free-tier quota decision (20 req/day on primary → silent groq fallback) before launch; D3 payee provider-isolation probe (fresh-quota single-scenario); founder eyeball of the tax-toggle confirm-to-apply flow (`f5ca620`) + Stage-3 typing behaviour (`6d91f7a`); delete stray `supabase/functions/deno.lock`; `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope; Leaked Password Protection toggle in Supabase Auth.
 
 ## July 30–31 — Tax-toggle review flow completed; project analysis; write-path cleanup Stages 1–3 (the core recovery item)
 
