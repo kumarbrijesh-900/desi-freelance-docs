@@ -357,7 +357,7 @@ function DashboardContent() {
                 </div>
               )}
               {/* Title Section */}
-              <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-start mb-6">
+              <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-start mb-4">
                 <div>
                   <div className="flex flex-wrap gap-2 mb-3 items-center whitespace-nowrap">
                     <div className="px-3 py-1 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest border border-soft rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> LIVE</div>
@@ -375,7 +375,7 @@ function DashboardContent() {
                       );
                     })()}
                   </div>
-                  <h1 className="font-display font-bold text-[56px] leading-[1.05] tracking-tight mb-2 text-ink max-w-[800px]">
+                  <h1 className="font-display font-semibold text-2xl md:text-3xl leading-tight tracking-tight mb-1 text-ink max-w-[800px]">
                     {selectedProject.project.name}
                   </h1>
                   <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70">
@@ -392,7 +392,7 @@ function DashboardContent() {
               </div>
 
               {/* 3-card stat strip — Project total is the ink hero */}
-              <div className="flex flex-wrap gap-4 mb-7">
+              <div className="flex flex-wrap gap-3 mb-5">
                 {[
                   { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, hero: true, tone: "ink" },
                   { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => (m.status || '').toLowerCase() === 'settled').length} settled`, hero: false, tone: "green" },
@@ -401,9 +401,9 @@ function DashboardContent() {
                   const cardTone = s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : s.tone === 'green' ? 'flex-1 bg-[color:var(--color-acc-soft)] text-ink' : s.tone === 'ochre' ? 'flex-1 bg-[color:var(--state-warning-bg)] text-ink' : 'flex-1 bg-paper text-ink';
                   const valTone = s.tone === 'green' ? 'text-[color:var(--color-grass)]' : s.tone === 'ochre' ? 'text-[color:var(--color-ochre-deep)]' : '';
                   return (
-                  <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[var(--elev-1)] ${cardTone}`}>
+                  <div key={i} className={`p-4 rounded-[14px] border border-soft ${cardTone}`}>
                     <div className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.label}</div>
-                    <div className={`font-bold mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'} ${s.hero ? '' : valTone}`}>{s.val}</div>
+                    <div className={`font-bold mb-1 ${s.hero ? 'text-[28px] leading-none' : 'text-xl'} ${s.hero ? '' : valTone}`}>{s.val}</div>
                     <div className={`text-[11px] font-bold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.sub}</div>
                   </div>
                   );
@@ -428,8 +428,8 @@ function DashboardContent() {
               <ProjectInvoicesLedger project={selectedProject} />
             </div>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[16px] m-8 shadow-[var(--brutal-shadow-lg)]">
-              <div className="text-4xl font-bold mb-4 tracking-tighter">Select a project</div>
+            <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[16px] m-8">
+              <div className="text-2xl font-semibold mb-2 tracking-tight">Select a project</div>
               <p className="text-neutral-500 font-bold tracking-wide">
                 Or click + New invoice to start
               </p>
