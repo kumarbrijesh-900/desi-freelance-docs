@@ -97,6 +97,27 @@ New Claude instance? Read this block, then the most recent session entries below
 10. **Register references:** CRED/Fi/Jupiter (compliance-as-flex, dark premium), Figma (dark chrome / light canvas), Stripe invoice editor (document-first editing). Client-facing register: boring, paper, trustworthy — deliberately.
 11. **Process is part of UX quality:** read the component's actual source before proposing changes (call sites, not imports); verify anchor uniqueness; sweep with mechanical rules; verify pushes with the count harness; founder screenshot per surface before the next prompt.
 
+### 6. Late-session screenshot audit — Profile, FAQ, feedback modal, account menu (pre-pivot captures; issues + solutions)
+Founder shared 15 more screenshots (old light theme, captured pre-`8118311`). Four surfaces are net-new to the audit. Findings with prescribed solutions; each slots into an existing phase — no reordering.
+
+**Profile page (4 tabs: Agency / Banking / Contract & MSA / Compliance) — biggest uncovered surface; joins the Phase 4 surface list with this mini-spec:**
+- *Repeated warning banner:* the rust/butter "Complete your profile" banner renders on ALL FOUR tabs — worst case of the alarm-fatigue disease. **Solution:** delete the banner from Banking/Contract/Compliance; on Agency, replace with ONE neutral inline completeness line ("3 fields left for compliant invoices") or a quiet progress chip beside the page title. Rust is reserved for overdue/destructive.
+- *Third primary color:* tab pills are black-filled (green CTAs and the roster's black ADD CLIENT already conflict). **Solution:** active tab = acid/primary fill per theme; inactive = ghost. One primary color per theme, everywhere.
+- *Field skin encodes state by accident:* prefilled values render tan, empty inputs render white (Agency tab: name/city tan vs address/PIN white) — reads as disabled-vs-editable but is actually filled-vs-empty. **Solution:** apply the system skin rule (fields take ONE surface per context regardless of value); filled/empty must never differ by background.
+- *Unmasked account number in plain text* (Banking tab). **Solution:** render as `•••• 4465` with tap/click-to-reveal; full value only on focus/edit. Privacy hygiene + screen-share safety for an audience that streams. Small enough to ride along with whichever prompt touches Profile first.
+- *Floating detached "SAVE PROFILE"* bottom-right. **Solution:** standard sticky footer bar (safe-area padded on mobile) with save state ("Saved" after success), matching the editor's dock pattern.
+- *Sticky-header overlap:* on scroll the hero title slices under the fixed header. **Solution:** `scroll-padding-top` matching header height + correct sticky offsets; applies app-wide, add to the Phase 4 shell work.
+- *Unstyled native focus ring* on the GLOBAL MSA DOCUMENT collapse header (Contract tab). **Solution:** focus-visible token ring on all interactive collapse/disclosure headers — fold into the app-wide focus-visible audit (Phase 6).
+- *Full-width single-column fields throughout.* **Solution:** semantic widths + two-column grids at `md:` per the system spec.
+
+**Support/FAQ:** double heading — "Support & FAQ" hero AND a centered "Frequently Asked Questions" section title below it, with the same tagline sentence rendered twice; ~600px burned before the first question. **Solution:** one page header, tagline once, accordion starts immediately; hero scale per the compact title spec. Phase 6 sweep (P3 surface).
+
+**Feedback modal:** all-caps labels/placeholder (microcopy pass); disabled "Submit Feedback" styled in a sage mid-tone that reads neither enabled nor disabled. **Solution:** standard button states from the primitive spec — disabled = reduced-opacity ghost, enabled = primary; sentence case. Rides Phase 5 (modal/sheet pass).
+
+**Account dropdown:** panel `bg-white` was already tokenized in `8118311`, so it adapts per theme now. Remaining: truncated email (show full on two lines or title attr); "Log Out" in rust is CORRECT usage (destructive) — keep as the reference example.
+
+**Roadmap deltas recorded:** Profile mini-spec → Phase 4 · FAQ dedupe → Phase 6 · feedback modal → Phase 5 · account-number masking → first Profile-touching prompt. Settlement drawer / invoices list / roster shots confirmed the existing punch list; nothing else new.
+
 ## July 30–31 — Tax-toggle review flow completed; project analysis; write-path cleanup Stages 1–3 (the core recovery item)
 
 **Start:** `1901e14` (prev log) · **End:** `6d91f7a` · 6 code commits, all `lib`/editor/tests (Vercel build, no edge-fn deploy). tsc clean; domain + extraction + compliance all green.
