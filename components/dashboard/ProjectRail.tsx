@@ -30,13 +30,13 @@ export function ProjectRail({
 
     const msaStatus = (master.msa_status || "").toLowerCase();
 
-    // coral #FF6B5C dot if: msa_status='proposed' AND client_msa_note IS NOT NULL (revision)
-    if (msaStatus === "proposed" && master.client_msa_note) return "#D85A30";
+    // coral var(--color-coral) dot if: msa_status='proposed' AND client_msa_note IS NOT NULL (revision)
+    if (msaStatus === "proposed" && master.client_msa_note) return "var(--color-coral)";
 
-    // amber #BA7517 dot if: shared_at IS NOT NULL AND msa_status='pending' AND days_since_share > 3
+    // amber var(--color-ochre-deep) dot if: shared_at IS NOT NULL AND msa_status='pending' AND days_since_share > 3
     if (master.shared_at && msaStatus === "pending") {
       const days = (Date.now() - new Date(master.shared_at).getTime()) / 86400000;
-      if (days > 3) return "#BA7517";
+      if (days > 3) return "var(--color-ochre-deep)";
     }
 
     // coral dot if: any milestone has trigger_status='failed' OR ((status='LIVE' OR status='PENDING') AND due_date < now())
@@ -46,13 +46,13 @@ export function ProjectRail({
       const dueDate = (m as any).due_date || master.due_date;
       return (status === "LIVE" || status === "PENDING") && dueDate && new Date(dueDate).getTime() < Date.now();
     });
-    if (hasFailed || isPastDue) return "#D85A30";
+    if (hasFailed || isPastDue) return "var(--color-coral)";
 
     // gray dot if: status='draft' AND days_since_updated > 7
     if (!master.shared_at) { // Draft
       const updated = new Date(master.updated_at).getTime();
       const days = (Date.now() - updated) / 86400000;
-      if (days > 7) return "#a99e8c";
+      if (days > 7) return "var(--color-ink-3)";
     }
 
     return null;
@@ -108,7 +108,7 @@ export function ProjectRail({
 
     switch (filter) {
       case "ACTIVE": return summary.startsWith("LIVE") || summary.startsWith("DRAFT");
-      case "AT RISK": return dot === "#FF6B5C";
+      case "AT RISK": return dot === "var(--color-coral)";
       case "AWAITING CLIENT": return summary.startsWith("AWAITING") || summary.startsWith("REVISION");
       case "COMPLETE": return summary === "COMPLETE";
       default: return true;
@@ -126,13 +126,13 @@ export function ProjectRail({
   });
 
   return (
-    <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-white border-r border-soft w-full md:w-[240px] shrink-0`}>
+    <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-[color:var(--color-paper-2)] border-r border-soft w-full md:w-[240px] shrink-0`}>
       <div className="p-4 flex flex-col gap-4">
         <div className="text-[11px] uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-acid text-acc-ink border border-soft shadow-[var(--brutal-shadow-md)] font-extrabold uppercase tracking-wide py-2 active:scale-[0.97] transition-all"
+          className="w-full bg-acid text-acc-ink border border-soft shadow-[var(--brutal-shadow-md)] font-bold uppercase tracking-wide py-2 active:scale-[0.97] transition-all"
         >
           + NEW INVOICE
         </button>
@@ -160,7 +160,7 @@ export function ProjectRail({
             placeholder="Search projects..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-ink app-focus-ring"
+            className="w-full pl-8 pr-2 py-1.5 text-xs bg-[color:var(--color-paper-2)] border border-ink app-focus-ring"
           />
         </div>
       </div>
@@ -203,7 +203,7 @@ export function ProjectRail({
 
                 <div className="flex flex-col h-full justify-between pl-1">
                   <div className="mb-2">
-                    <div className={`text-[12px] font-extrabold uppercase tracking-tight truncate w-[90%] mb-1 ${isSelected ? "text-white" : "text-ink"}`} title={p.project.name}>
+                    <div className={`text-[12px] font-bold uppercase tracking-tight truncate w-[90%] mb-1 ${isSelected ? "text-[color:var(--color-acc-ink)]" : "text-ink"}`} title={p.project.name}>
                       {p.project.name}
                     </div>
                     <div className={`text-[10px] uppercase tracking-wide truncate ${isSelected ? "text-acc-ink/60" : "text-ink/70"}`} title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
@@ -212,14 +212,14 @@ export function ProjectRail({
                   </div>
                   <div className="flex items-center justify-between">
                     <div
-                      className="text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border rounded-full"
+                      className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border rounded-full"
                       style={isSelected
-                        ? { backgroundColor: "rgba(255,255,255,0.14)", color: "#f0e9d6", borderColor: "rgba(255,255,255,0.4)" }
+                        ? { backgroundColor: "rgba(255,255,255,0.14)", color: "var(--color-acc-ink)", borderColor: "rgba(255,255,255,0.4)" }
                         : { backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
                     >
                       {summary.replace(/^LIVE/, "IN PROGRESS")}
                     </div>
-                    {isSelected && <div className="text-acid font-black text-sm pr-2">→</div>}
+                    {isSelected && <div className="text-acid font-bold text-sm pr-2">→</div>}
                   </div>
                 </div>
               </Link>

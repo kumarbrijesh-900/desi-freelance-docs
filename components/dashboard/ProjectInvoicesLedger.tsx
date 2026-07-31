@@ -49,15 +49,15 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         INVOICES ({allInvoices.length})
       </div>
 
-      <div className="border border-soft rounded-[14px] bg-white shadow-[var(--elev-1)] overflow-x-auto">
+      <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] overflow-x-auto">
         <table className="w-full min-w-[520px] text-left border-collapse">
           <thead>
             <tr className="border-b border-soft bg-paper-2">
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft">Invoice</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft hidden sm:table-cell">Type</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft text-right">Amount</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft">Status</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide text-center w-24">Action</th>
+              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft">Invoice</th>
+              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft hidden sm:table-cell">Type</th>
+              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft text-right">Amount</th>
+              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft">Status</th>
+              <th className="p-3 text-[10px] uppercase font-bold tracking-wide text-center w-24">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +95,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                   <td className="p-3 border-r border-soft text-xs text-ink/70 hidden sm:table-cell">
                     {typeLabel}
                   </td>
-                  <td className="p-3 border-r border-soft text-sm font-extrabold text-right">
+                  <td className="p-3 border-r border-soft text-sm font-bold text-right">
                     {formatInr(total)}
                   </td>
                   <td className="p-3 border-r border-soft text-xs">
@@ -114,7 +114,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                       return (
                         <Link
                           href={rowHref}
-                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border border-soft rounded-md px-3 py-1 bg-white shadow-[var(--elev-1)] hover:bg-paper-2 transition-colors text-ink"
+                          className="inline-block text-[10px] uppercase font-bold tracking-wide border border-soft rounded-md px-3 py-1 bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] hover:bg-paper-2 transition-colors text-ink"
                         >
                           VIEW
                         </Link>

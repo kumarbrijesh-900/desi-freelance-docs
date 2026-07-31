@@ -38,7 +38,7 @@ export function ActiveDrilldown({
         <div className="text-[10px] uppercase tracking-widest font-bold text-ink/70 mb-3">
           Active now
         </div>
-        <div className="text-lg font-extrabold text-ink/50">
+        <div className="text-lg font-bold text-ink/50">
           No active invoice selected.
         </div>
       </div>
@@ -110,7 +110,7 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border border-soft rounded-[11px] font-extrabold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
+  let btnClass = "border border-soft rounded-[11px] font-bold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
@@ -126,7 +126,7 @@ export function ActiveDrilldown({
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onResend;
       break;
     case "finalize":
@@ -141,7 +141,7 @@ export function ActiveDrilldown({
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onPreview;
       break;
   }
@@ -173,11 +173,11 @@ export function ActiveDrilldown({
     const due = new Date(invoice.due_date);
     const shortDate = due.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
     if (dueDays > 0) {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mt-1">DUE IN {dueDays} DAYS · {shortDate}</div>;
+      countdownJSX = <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70 mt-1">DUE IN {dueDays} DAYS · {shortDate}</div>;
     } else if (dueDays === 0) {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">DUE TODAY</div>;
+      countdownJSX = <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)] mt-1">DUE TODAY</div>;
     } else {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">OVERDUE BY {Math.abs(dueDays)} DAYS</div>;
+      countdownJSX = <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)] mt-1">OVERDUE BY {Math.abs(dueDays)} DAYS</div>;
     }
   }
 
@@ -187,16 +187,16 @@ export function ActiveDrilldown({
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
-              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
+              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
             </div>
-            <h2 className="text-[28px] font-display font-black tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
-            <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
+            <h2 className="text-[28px] font-display font-bold tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
+            <h3 className="text-[10px] font-bold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onFinalize}
-              className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold uppercase text-[11px] tracking-widest transition-all text-ink"
+              className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold uppercase text-[11px] tracking-widest transition-all text-ink"
             >
               EDIT
             </button>
@@ -204,7 +204,7 @@ export function ActiveDrilldown({
               <button
                 type="button"
                 onClick={onCloseProject}
-                className="px-4 py-2 border-2 border-transparent hover:border-coral hover:bg-paper-2 font-extrabold uppercase text-[11px] tracking-widest transition-all text-coral"
+                className="px-4 py-2 border-2 border-transparent hover:border-coral hover:bg-paper-2 font-bold uppercase text-[11px] tracking-widest transition-all text-coral"
               >
                 CLOSE PROJECT
               </button>
@@ -214,7 +214,7 @@ export function ActiveDrilldown({
 
         <div className="h-px bg-ink/20 my-4" />
 
-        <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mb-3">LINE ITEMS · {items.length}</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70 mb-3">LINE ITEMS · {items.length}</div>
 
         <div className="flex flex-col gap-3">
           {items.map((item, idx) => {
@@ -229,7 +229,7 @@ export function ActiveDrilldown({
                   <div className="text-[11px] font-bold tracking-widest text-ink/70">
                     {item.qty} {item.rateUnit === 'flat' ? '' : '×'} {item.rateUnit === 'flat' ? '' : formatInr(item.rate || 0)}
                   </div>
-                  <div className="w-[90px] text-right text-[14px] font-black text-ink">
+                  <div className="w-[90px] text-right text-[14px] font-bold text-ink">
                     {formatInr(Number(item.qty || 0) * Number(item.rate || 0))}
                   </div>
                 </div>
@@ -242,10 +242,10 @@ export function ActiveDrilldown({
 
         <div className="border-t border-soft mt-auto pt-4 flex justify-between items-end">
           <div className="flex flex-col items-start gap-0.5">
-            <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70">
               {milestone ? `M${(milestone.order_index ?? 0) + 1} TOTAL` : 'TOTAL'} · {taxBreakdown.label}
             </div>
-            <div className="text-2xl font-black text-ink leading-none mt-1">
+            <div className="text-2xl font-bold text-ink leading-none mt-1">
               {formatInr(grandTotal)}
             </div>
             {countdownJSX}
@@ -258,7 +258,7 @@ export function ActiveDrilldown({
                   type="button"
                   onClick={onResend}
                   title={nudgeTooltip}
-                  className="px-4 py-2 rounded-[11px] bg-white text-ink border border-soft font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+                  className="px-4 py-2 rounded-[11px] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
                 >
                   NUDGE CLIENT
                 </button>
@@ -289,7 +289,7 @@ export function ActiveDrilldown({
 
       {/* Right: activity */}
       <div className="w-full xl:w-[280px] flex flex-col gap-3">
-        <div className="text-[11px] font-extrabold uppercase tracking-widest text-ink mb-1">ACTIVITY</div>
+        <div className="text-[11px] font-bold uppercase tracking-widest text-ink mb-1">ACTIVITY</div>
         {loadingActivities ? (
           <div className="text-xs font-bold text-ink/50 py-2">Loading...</div>
         ) : activities.length === 0 ? (
@@ -307,7 +307,7 @@ export function ActiveDrilldown({
 
             let bgClass = "bg-paper text-ink";
             if (k === "grass") bgClass = "bg-ink text-acc-ink";
-            else if (k === "coral") bgClass = "bg-[#D85A30] text-acc-ink";
+            else if (k === "coral") bgClass = "bg-[color:var(--color-coral)] text-acc-ink";
             else if (k === "sky") bgClass = "bg-paper text-ink";
             else if (k === "lav") bgClass = "bg-paper text-ink";
             else if (k === "butter") bgClass = "bg-ink text-acc-ink";
@@ -321,7 +321,7 @@ export function ActiveDrilldown({
                   <div className="text-xs font-bold text-ink leading-tight mt-0.5 truncate" title={act.title}>
                     {act.title}
                   </div>
-                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5 truncate">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-ink/50 mt-0.5 truncate">
                     {formatRelativeTime(act.created_at)}
                   </div>
                 </div>

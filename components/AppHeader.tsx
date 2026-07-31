@@ -100,7 +100,7 @@ function UserMenu({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 origin-top-right border border-soft bg-white p-1 shadow-[var(--brutal-shadow-md)] z-50">
+        <div className="absolute right-0 mt-2 w-48 origin-top-right border border-soft bg-[color:var(--color-paper-2)] p-1 shadow-[var(--brutal-shadow-md)] z-50">
           <div className="px-3 py-2 border-b-2 border-soft mb-1">
             <p className="text-[10px] font-bold text-[color:var(--color-ink-3)] uppercase tracking-[0.08em]">
               Account
@@ -138,7 +138,7 @@ function UserMenu({
 
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-coral)] hover:bg-[#f6e0d8] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-coral)] hover:bg-[color:var(--state-danger-bg)] transition-colors"
           >
             Log Out
           </button>
