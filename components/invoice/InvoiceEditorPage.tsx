@@ -2703,80 +2703,31 @@ return (
               </div>
             )}
 
-            {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
-            {/* Mobile Meta Summary Strip (Rectified for UX) */}
-            <div className={cn(
-              "mx-4 mb-2 border border-[color:var(--color-soft)] rounded-[14px] px-4 py-3 transition-all duration-300 xl:hidden",
-              isEditingMeta && !isReadOnlyMode ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-[color:var(--color-paper)]"
-            )}>
+            {/* ── Inline Meta Strip — read-only summary (hidden on xl+) ── */}
+            {/* Editing lives in the Meta step; this is display only. */}
+            <div className="mx-4 mb-2 border border-[color:var(--color-soft)] rounded-[14px] bg-[color:var(--color-paper)] px-4 py-3 xl:hidden">
               <div className="flex flex-col gap-3">
-                {/* Row 1: Invoice Number & Edit Toggle */}
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Invoice Reference</span>
-                    {isEditingMeta && !isReadOnlyMode ? (
-                      <input
-                        type="text"
-                        value={formData.meta.invoiceNumber}
-                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                        className="mt-1 w-full border-none bg-white p-0 text-[14px] font-bold text-[color:var(--color-ink)] app-focus-ring"
-                        placeholder="INV-000"
-                      />
-                    ) : (
-                      <span className="text-[14px] font-bold tracking-tight text-[color:var(--color-ink)]">
-                        {formData.meta?.invoiceNumber || '—'}
-                      </span>
-                    )}
-                  </div>
-                  {!isReadOnlyMode && (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingMeta(!isEditingMeta)}
-                      className={cn(
-                        "flex h-7 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold transition-all",
-                        isEditingMeta 
-                          ? "bg-[color:var(--brand-indigo)] text-white" 
-                          : "bg-white text-[color:var(--color-ink)] border border-[color:var(--color-soft)] shadow-sm"
-                      )}
-                    >
-                      {isEditingMeta ? 'Done' : 'Edit'}
-                    </button>
-                  )}
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Invoice Reference</span>
+                  <span className="text-[14px] font-bold tracking-tight text-[color:var(--color-ink)]">
+                    {formData.meta?.invoiceNumber || '—'}
+                  </span>
                 </div>
 
                 <div className="h-[1px] w-full bg-[color:var(--color-paper-2)]" />
 
-                {/* Row 2: Dates Grid */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Issued</span>
-                    {isEditingMeta && !isReadOnlyMode ? (
-                      <input
-                        type="date"
-                        value={formData.meta.invoiceDate}
-                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
-                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-normal text-[color:var(--color-ink)] app-focus-ring"
-                      />
-                    ) : (
-                      <span className="text-[12px] font-bold text-[color:var(--color-ink)]">
-                        {formData.meta?.invoiceDate || '—'}
-                      </span>
-                    )}
+                    <span className="text-[12px] font-bold text-[color:var(--color-ink)]">
+                      {formData.meta?.invoiceDate || '—'}
+                    </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</span>
-                    {isEditingMeta && !isReadOnlyMode ? (
-                      <input
-                        type="date"
-                        value={formData.meta.dueDate}
-                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-normal text-[color:var(--color-ochre-deep)] app-focus-ring"
-                      />
-                    ) : (
-                      <span className="text-[12px] font-bold text-[color:var(--color-ochre-deep)]">
-                        {formData.meta?.dueDate || '—'}
-                      </span>
-                    )}
+                    <span className="text-[12px] font-bold text-[color:var(--color-ochre-deep)]">
+                      {formData.meta?.dueDate || '—'}
+                    </span>
                   </div>
                 </div>
               </div>
