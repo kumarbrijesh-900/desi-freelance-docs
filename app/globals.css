@@ -1585,3 +1585,32 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --brutal-shadow-lg:      0 22px 44px -20px rgba(0,0,0,0.65);
   --brutal-shadow-pressed: 0 3px 10px -6px rgba(0,0,0,0.50);
 }
+
+/* ============================================================
+   COCKPIT SURFACE OVERRIDES
+   These rules hardcode `background: #ffffff` in the base sheet.
+   Scoped to the cockpit theme so the light/document theme (client
+   share, preview, print) is provably unaffected.
+   ============================================================ */
+[data-theme="cockpit"] .app-soft-button-secondary,
+[data-theme="cockpit"] .app-soft-step-surface[data-step-state="active"],
+[data-theme="cockpit"] .app-dropzone-surface,
+[data-theme="cockpit"] .invoice-step-card,
+[data-theme="cockpit"] .invoice-step-card[data-step-kind="support"],
+[data-theme="cockpit"] .invoice-step-card[data-step-kind="final"],
+[data-theme="cockpit"] .invoice-step-card[data-step-state="active"],
+[data-theme="cockpit"] .invoice-step-rail,
+[data-theme="cockpit"] .invoice-step-rail-index,
+[data-theme="cockpit"] .invoice-line-item-row,
+[data-theme="cockpit"] .invoice-line-item-row[data-row-tone="muted"],
+[data-theme="cockpit"] .invoice-action-dock,
+[data-theme="cockpit"] .invoice-total-summary-card,
+[data-theme="cockpit"] .invoice-final-review-panel {
+  background: var(--color-paper-2);
+}
+
+/* The selected segmented-control pill must stay distinguishable from the
+   field ground, so it takes the lighter --color-strong rather than paper-2. */
+[data-theme="cockpit"] .app-soft-choice-option-active {
+  background: var(--color-strong);
+}
