@@ -32,6 +32,7 @@ interface InvoiceMetaSectionProps {
   onFieldManualEdit?: (fieldPath: string) => void;
   msaSource?: "client" | "global" | "project" | "default";
   isReadOnly?: boolean;
+  hideDueDate?: boolean;
 }
 
 export default function InvoiceMetaSection({
@@ -44,6 +45,7 @@ export default function InvoiceMetaSection({
   onFieldManualEdit = () => {},
   msaSource = "default",
   isReadOnly = false,
+  hideDueDate = false,
 }: InvoiceMetaSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
     if (isReadOnly) return "";
@@ -247,6 +249,7 @@ export default function InvoiceMetaSection({
               ) : null}
             </div>
 
+            {!hideDueDate && (
             <div className="md:max-w-[240px]">
               <label className={appFieldLabelClass}>
                 Due Date{!isReadOnly && " *"}
@@ -290,6 +293,7 @@ export default function InvoiceMetaSection({
                 )
               )}
             </div>
+            )}
           </div>
         </div>
       </div>

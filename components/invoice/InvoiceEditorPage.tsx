@@ -226,6 +226,13 @@ function EditorContent() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedClientMsa, setSelectedClientMsa] =
     useState<SavedClient | null>(null);
+  const msaSource = formData.meta.hasAddendum
+    ? "project"
+    : selectedClientMsa
+      ? "client"
+      : (formData.agency.msaPaymentTermsDays || formData.agency.msaNotesBoilerplate)
+        ? "global"
+        : "default";
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
 
   // Autofill hook
@@ -2785,6 +2792,30 @@ return (
                   </button>
                 );
               })}
+            </div>
+
+            {/* ── Document header — invoice identity. Always visible: the "meta"
+                step is not in orderedSteps, so this is the only live editor for
+                invoice number, invoice date and PO number. Due date is owned by
+                the Payment step and suppressed here. ── */}
+            <div className="mb-4 px-4" data-testid="invoice-document-header">
+              <InvoiceMetaSection
+                key={isBootstrapped ? "hydrated" : "loading"}
+                embedded
+                hideDueDate
+                isReadOnly={isReadOnlyMode}
+                value={formData.meta}
+                msaSource={msaSource}
+                onChange={handleMetaChange}
+                errors={{
+                  invoiceNumber: fieldErrors.meta.invoiceNumber,
+                  invoiceDate: fieldErrors.meta.invoiceDate,
+                  dueDate: fieldErrors.meta.dueDate,
+                }}
+                showAllErrors={showAllValidationErrors}
+                autoFilledFields={autoFilledFields}
+                onFieldManualEdit={markFieldManual}
+              />
             </div>
 
             <div
