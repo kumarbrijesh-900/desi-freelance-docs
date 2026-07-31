@@ -1615,3 +1615,63 @@ input::placeholder, select::placeholder, textarea::placeholder {
 [data-theme="cockpit"] .app-soft-choice-option-active {
   background: var(--color-strong);
 }
+
+/* ============================================================
+   COCKPIT BANNER FAMILY OVERRIDES
+   Arbitrary hex utilities pair a pale ground with dark text.
+   Each family is remapped as a pair so contrast is preserved —
+   flipping grounds alone would make the paired text invisible.
+   Saturated fills (#c2502f, #00DCB4) are deliberately excluded.
+   ============================================================ */
+
+/* Success */
+[data-theme="cockpit"] .bg-\[\#e4f1ea\] { background-color: var(--state-success-bg); }
+[data-theme="cockpit"] .text-\[\#157a54\] { color: var(--state-success-text); }
+[data-theme="cockpit"] .border-\[\#c7e4d4\],
+[data-theme="cockpit"] .border-\[\#bcd8c8\],
+[data-theme="cockpit"] .border-\[\#157a54\] { border-color: var(--color-forest); }
+
+/* Warning / cream */
+[data-theme="cockpit"] .bg-\[\#f6ecd6\],
+[data-theme="cockpit"] .bg-\[\#efe6d1\],
+[data-theme="cockpit"] .bg-\[\#faf4e5\],
+[data-theme="cockpit"] .bg-\[\#f7f0df\],
+[data-theme="cockpit"] .bg-\[\#e8e2d3\],
+[data-theme="cockpit"] .bg-\[\#e6dcc6\],
+[data-theme="cockpit"] .bg-\[\#FFFBE6\],
+[data-theme="cockpit"] .bg-\[\#FFEBA4\] { background-color: var(--state-warning-bg); }
+[data-theme="cockpit"] .text-\[\#B45309\] { color: var(--state-warning-text); }
+[data-theme="cockpit"] .border-\[\#ecd9b0\],
+[data-theme="cockpit"] .border-\[\#e6dcc6\],
+[data-theme="cockpit"] .border-\[\#e2d8c1\] { border-color: var(--color-ochre-deep); }
+
+/* Danger */
+[data-theme="cockpit"] .bg-\[\#f7e4dc\],
+[data-theme="cockpit"] .bg-\[\#f7ece6\],
+[data-theme="cockpit"] .bg-\[\#FFF0EC\],
+[data-theme="cockpit"] .bg-\[\#FFF5F2\] { background-color: var(--state-danger-bg); }
+[data-theme="cockpit"] .border-\[\#e0b9a6\] { border-color: var(--color-overdue); }
+
+/* Neutral / disabled field treatment */
+[data-theme="cockpit"] .bg-\[\#F5F4F0\],
+[data-theme="cockpit"] .bg-\[\#F5F5F0\],
+[data-theme="cockpit"] .bg-\[\#F5F5F8\],
+[data-theme="cockpit"] .bg-\[\#F4F4F5\] { background-color: var(--color-paper-2); }
+[data-theme="cockpit"] .border-\[\#D4D2CC\] { border-color: var(--color-soft); }
+[data-theme="cockpit"] .text-\[\#6B6660\],
+[data-theme="cockpit"] .text-\[\#6E6E7A\] { color: var(--color-ink-3); }
+
+/* Info / teal */
+[data-theme="cockpit"] .bg-\[\#e3ecea\] { background-color: var(--color-acc-soft); }
+[data-theme="cockpit"] .text-\[\#3c6e63\] { color: var(--color-sky); }
+[data-theme="cockpit"] .border-\[\#cadbd6\] { border-color: var(--color-sky); }
+
+/* Lime accent */
+[data-theme="cockpit"] .bg-\[\#F7FFD6\],
+[data-theme="cockpit"] .bg-\[\#F4FFE0\] { background-color: var(--color-acc-soft); }
+[data-theme="cockpit"] .text-\[\#4A7A00\] { color: var(--color-acid); }
+
+/* Coral */
+[data-theme="cockpit"] .text-\[\#FF5C00\] { color: var(--color-coral); }
+[data-theme="cockpit"] .border-\[\#FF5C00\] { border-color: var(--color-coral); }
+
