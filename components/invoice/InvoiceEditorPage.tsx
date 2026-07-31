@@ -2897,69 +2897,32 @@ return (
                 {showSummaryInline ? (
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="space-y-4">
-                      {/* Inline Meta Card */}
+                      {/* Inline Meta Card — read-only summary */}
+                      {/* Editing lives in the Meta step; this is display only. */}
                       <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
-                        <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3 flex items-center justify-between">
+                        <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                             Invoice Details
                           </p>
-                          {!isReadOnlyMode && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-bold text-[color:var(--color-ink-2)]">Edit</span>
-                              <AppSwitch className="rounded-2xl" checked={isEditingMeta} onChange={setIsEditingMeta} />
-                            </div>
-                          )}
                         </div>
                         <div className="space-y-4">
-                          {/* Invoice Number */}
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">INV #</label>
-                            {isEditingMeta && !isReadOnlyMode ? (
-                              <input
-                                type="text"
-                                value={formData.meta.invoiceNumber}
-                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                                className="w-full border-none bg-white px-3 py-2 text-[13px] font-bold text-[color:var(--color-ink)] shadow-sm ring-1 ring-inset ring-gray-200 )] transition-all app-focus-ring"
-                                placeholder="INV-2026-000"
-                              />
-                            ) : (
-                              <p className="text-[14px] font-bold text-[color:var(--color-ink)]">{formData.meta?.invoiceNumber || '—'}</p>
-                            )}
+                            <p className="text-[14px] font-bold text-[color:var(--color-ink)]">{formData.meta?.invoiceNumber || '—'}</p>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4">
-                            {/* Invoice Date */}
                             <div className="space-y-1.5">
                               <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Issued</label>
-                              {isEditingMeta && !isReadOnlyMode ? (
-                                <input
-                                  type="date"
-                                  value={formData.meta.invoiceDate}
-                                  onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
-                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-normal text-[color:var(--color-ink)] shadow-sm ring-1 ring-inset ring-gray-200 )] transition-all app-focus-ring"
-                                />
-                              ) : (
-                                <p className="text-[13px] font-normal text-[color:var(--color-ink)]">{formData.meta?.invoiceDate || '—'}</p>
-                              )}
+                              <p className="text-[13px] font-normal text-[color:var(--color-ink)]">{formData.meta?.invoiceDate || '—'}</p>
                             </div>
 
-                            {/* Due Date */}
                             <div className="space-y-1.5">
                               <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Due</label>
-                              {isEditingMeta && !isReadOnlyMode ? (
-                                <input
-                                  type="date"
-                                  value={formData.meta.dueDate}
-                                  onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-normal text-[color:var(--color-ochre-deep)] shadow-sm ring-1 ring-inset ring-gray-200 transition-all app-focus-ring"
-                                />
-                              ) : (
-                                <p className="text-[13px] font-normal text-[color:var(--color-ochre-deep)]">{formData.meta?.dueDate || '—'}</p>
-                              )}
+                              <p className="text-[13px] font-normal text-[color:var(--color-ochre-deep)]">{formData.meta?.dueDate || '—'}</p>
                             </div>
                           </div>
 
-                          {/* PO Number */}
                           <div className="space-y-1.5 min-w-0">
                             <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
                               PO #
@@ -2967,19 +2930,9 @@ return (
                                 Purchase Order Number. Required by some enterprise clients for accounts payable matching.
                               </>} />
                             </label>
-                            {isEditingMeta && !isReadOnlyMode ? (
-                              <input
-                                type="text"
-                                value={formData.meta.poNumber || ''}
-                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, poNumber: e.target.value } }))}
-                                placeholder="Optional"
-                                className="w-full min-w-0 border-none bg-white px-3 py-2 text-[12px] font-normal text-[color:var(--color-ink)] shadow-sm ring-1 ring-inset ring-gray-200 )] transition-all app-focus-ring"
-                              />
-                            ) : (
-                              <p className="text-[13px] font-normal text-[color:var(--color-ink)] break-words">
-                                {formData.meta?.poNumber || '—'}
-                              </p>
-                            )}
+                            <p className="text-[13px] font-normal text-[color:var(--color-ink)] break-words">
+                              {formData.meta?.poNumber || '—'}
+                            </p>
                           </div>
                         </div>
                       </div>
