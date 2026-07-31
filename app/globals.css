@@ -1513,6 +1513,12 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-soft:         #2a2d25;
   --color-strong:       #3a3e33;
 
+  /* The scope must declare its own inherited text colour: `body { color:
+     var(--color-ink) }` resolves in :root (light ink) and is NOT re-resolved
+     by remapping tokens here. Without this, every descendant that does not
+     declare a colour inherits light-theme dark ink onto dark paper. */
+  color: var(--color-ink);
+
   --color-acid:         #c8f542;
   --color-acid-2:       #b4e32e;
   --color-acc-soft:     #1d201a;
