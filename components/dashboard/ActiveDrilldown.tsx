@@ -116,32 +116,32 @@ export function ActiveDrilldown({
   switch (primary_action) {
     case "send_now":
       btnLabel = "SEND NOW";
-      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:scale-[0.97]";
+      btnClass += " bg-acid text-acc-ink active:scale-[0.97]";
       handler = onSendNow;
       break;
     case "mark_settled":
       btnLabel = "MARK SETTLED";
-      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:scale-[0.97]";
+      btnClass += " bg-acid text-acc-ink active:scale-[0.97]";
       handler = onMarkSettled;
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onResend;
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:scale-[0.97]";
+      btnClass += " bg-acid text-acc-ink active:scale-[0.97]";
       handler = onFinalize;
       break;
     case "review_revision":
       btnLabel = "REVIEW REVISION";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:scale-[0.97]";
+      btnClass += " bg-acid text-acc-ink active:scale-[0.97]";
       handler = onReviewRevision;
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onPreview;
       break;
   }
@@ -182,8 +182,8 @@ export function ActiveDrilldown({
   }
 
   return (
-    <div className="flex flex-col xl:flex-row gap-8 min-h-0">
-      <div className="flex-1 bg-paper rounded-[14px] p-6 border border-soft shadow-[var(--elev-1)] flex flex-col">
+    <div className="flex flex-col xl:flex-row gap-5 min-h-0">
+      <div className="flex-1 bg-paper rounded-[14px] p-5 border border-soft flex flex-col">
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">

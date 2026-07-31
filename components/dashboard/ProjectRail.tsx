@@ -179,8 +179,8 @@ export function ProjectRail({
               <Link
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
-                className={`block min-h-[90px] p-4 pl-5 border-b border-soft relative cursor-pointer transition-all
-                  ${isSelected ? "bg-acid shadow-[var(--brutal-shadow-md)] z-10 border-y-[3px] border-acid scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-paper-2"}
+                className={`block min-h-[90px] p-4 pl-5 border-b border-soft relative cursor-pointer transition-colors
+                  ${isSelected ? "bg-acc-soft" : "bg-paper hover:bg-paper-2"}
                 `}
               >
                 {/* 10px colored left stripe */}
@@ -196,17 +196,17 @@ export function ProjectRail({
 
                 {dot && (
                   <div 
-                    className="absolute top-4 right-3 w-[10px] h-[10px] rounded-full border border-ink shadow-[var(--brutal-shadow-sm)] animate-pulse" 
+                    className="absolute top-4 right-3 w-[8px] h-[8px] rounded-full animate-pulse" 
                     style={{ backgroundColor: dot }} 
                   />
                 )}
 
                 <div className="flex flex-col h-full justify-between pl-1">
                   <div className="mb-2">
-                    <div className={`text-[12px] font-bold uppercase tracking-tight truncate w-[90%] mb-1 ${isSelected ? "text-[color:var(--color-acc-ink)]" : "text-ink"}`} title={p.project.name}>
+                    <div className={`text-[12px] font-bold uppercase tracking-tight truncate w-[90%] mb-1 text-ink`} title={p.project.name}>
                       {p.project.name}
                     </div>
-                    <div className={`text-[10px] uppercase tracking-wide truncate ${isSelected ? "text-acc-ink/60" : "text-ink/70"}`} title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
+                    <div className={`text-[10px] uppercase tracking-wide truncate text-ink/70`} title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
                       {p.project.client?.client_name || "Unknown Client"} {p.project.client?.city ? `· ${p.project.client.city}` : ""}
                     </div>
                   </div>

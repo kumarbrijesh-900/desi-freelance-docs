@@ -327,7 +327,7 @@ function DashboardContent() {
               Loading projects…
             </div>
           ) : selectedProject ? (
-            <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
+            <div className="flex flex-col min-h-full p-5 md:p-6 relative overflow-x-hidden">
               <button
                 onClick={() => router.replace('/dashboard')}
                 className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[11px] bg-[color:var(--color-paper-2)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
@@ -337,7 +337,7 @@ function DashboardContent() {
               {dueSoonAlerts.length > 0 && (
                 <div className="mb-6 rounded-[14px] border border-soft bg-acc-soft shadow-[var(--elev-1)]">
                   <div className="px-4 py-2 border-b border-soft text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
-                    <span className="w-4 h-4 flex items-center justify-center bg-[color:var(--color-coral)] text-acc-ink text-[10px] font-bold">!</span>
+                    <span className="w-4 h-4 flex items-center justify-center rounded-full bg-[color:var(--color-coral)] text-acc-ink text-[10px] font-bold">!</span>
                     PAYMENTS DUE SOON · {dueSoonAlerts.length}
                   </div>
                   <div className="divide-y divide-ink/15">
