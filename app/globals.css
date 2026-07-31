@@ -1599,6 +1599,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
 [data-theme="cockpit"] .invoice-step-card[data-step-kind="support"],
 [data-theme="cockpit"] .invoice-step-card[data-step-kind="final"],
 [data-theme="cockpit"] .invoice-step-card[data-step-state="active"],
+[data-theme="cockpit"] .invoice-step-card[data-step-state="completed"],
 [data-theme="cockpit"] .invoice-step-rail,
 [data-theme="cockpit"] .invoice-step-rail-index,
 [data-theme="cockpit"] .invoice-line-item-row,
