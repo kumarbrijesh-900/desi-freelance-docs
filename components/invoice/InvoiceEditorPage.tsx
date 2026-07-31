@@ -44,7 +44,7 @@ import { getDefaultSacCodeForType } from "@/lib/invoice-sac";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import BriefSummaryModal from "@/components/invoice/BriefSummaryModal";
-import AppSwitch from "@/components/ui/AppSwitch";
+
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
@@ -191,7 +191,7 @@ function EditorContent() {
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
   const [isXl, setIsXl] = useState(false);
-  const [isEditingMeta, setIsEditingMeta] = useState(false);
+
   useEffect(() => {
     const checkXl = () => setIsXl(window.innerWidth >= 1280);
     checkXl();
@@ -633,11 +633,6 @@ function EditorContent() {
 
     void autoCloudSave();
   }, [isBootstrapped, isReadOnlyMode]);
-
-  useEffect(() => {
-    if (!isReadOnlyMode) return;
-    setIsEditingMeta(false);
-  }, [isReadOnlyMode]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
