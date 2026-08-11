@@ -2490,23 +2490,23 @@ return (
           <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
             {formData.meta?.poNumber || "—"}
           </span>
-        </h1>
-
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-acid px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-acc-ink">
-            {isReadOnlyMode ? readOnlyStateLabel : invoiceId ? "Draft" : "New"}
-          </span>
           {!isReadOnlyMode && (
             <button
               type="button"
               onClick={() => setShowIdentityEditor((prev) => !prev)}
               aria-expanded={showIdentityEditor}
-              className="text-[12px] font-medium underline underline-offset-2 text-[color:var(--color-ink-2)] active:scale-[0.97] transition-transform"
+              className="ml-1 text-[12px] font-medium underline underline-offset-2 text-[color:var(--color-ink-2)] active:scale-[0.97] transition-transform"
             >
               {showIdentityEditor ? "Done" : "Edit"}
             </button>
           )}
-        </div>
+        </h1>
+
+        {isReadOnlyMode && (
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+            {readOnlyStateLabel}
+          </span>
+        )}
       </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
@@ -2713,6 +2713,31 @@ return (
                 Production stays unset (off) until the gate-flip criteria in SESSION_LOG are met. */}
             {process.env.NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL === "true" && (
               <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
+                {/* Identity editor — disclosed from the document bar. Renders
+                    ABOVE the brief card so the expanded fields appear adjacent
+                    to the control that opened them. */}
+                {showIdentityEditor && (
+                  <div className="mb-4" data-testid="invoice-document-header">
+                    <InvoiceMetaSection
+                      key={isBootstrapped ? "hydrated" : "loading"}
+                      embedded
+                      hideDueDate
+                      isReadOnly={isReadOnlyMode}
+                      value={formData.meta}
+                      msaSource={msaSource}
+                      onChange={handleMetaChange}
+                      errors={{
+                        invoiceNumber: fieldErrors.meta.invoiceNumber,
+                        invoiceDate: fieldErrors.meta.invoiceDate,
+                        dueDate: fieldErrors.meta.dueDate,
+                      }}
+                      showAllErrors={showAllValidationErrors}
+                      autoFilledFields={autoFilledFields}
+                      onFieldManualEdit={markFieldManual}
+                    />
+                  </div>
+                )}
+
                 <BriefIntakeCard
                   key={briefIntakeResetKey}
                   onExtract={handleBriefAutofill}
@@ -2813,31 +2838,6 @@ return (
               })}
             </div>
 
-            {/* ── Document header — invoice identity. Always visible: the "meta"
-                step is not in orderedSteps, so this is the only live editor for
-                invoice number, invoice date and PO number. Due date is owned by
-                the Payment step and suppressed here. ── */}
-            {showIdentityEditor && (
-            <div className="mb-4 px-4" data-testid="invoice-document-header">
-              <InvoiceMetaSection
-                key={isBootstrapped ? "hydrated" : "loading"}
-                embedded
-                hideDueDate
-                isReadOnly={isReadOnlyMode}
-                value={formData.meta}
-                msaSource={msaSource}
-                onChange={handleMetaChange}
-                errors={{
-                  invoiceNumber: fieldErrors.meta.invoiceNumber,
-                  invoiceDate: fieldErrors.meta.invoiceDate,
-                  dueDate: fieldErrors.meta.dueDate,
-                }}
-                showAllErrors={showAllValidationErrors}
-                autoFilledFields={autoFilledFields}
-                onFieldManualEdit={markFieldManual}
-              />
-            </div>
-            )}
 
             <div
               className="overflow-visible h-auto"
