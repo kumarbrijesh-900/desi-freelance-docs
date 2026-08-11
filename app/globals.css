@@ -1675,3 +1675,14 @@ input::placeholder, select::placeholder, textarea::placeholder {
 [data-theme="cockpit"] .text-\[\#FF5C00\] { color: var(--color-coral); }
 [data-theme="cockpit"] .border-\[\#FF5C00\] { border-color: var(--color-coral); }
 
+/* bg-white surfaces — cards, dropdowns, chips, the collapsed brief bar. */
+[data-theme="cockpit"] .bg-white { background-color: var(--color-paper-2); }
+
+/* Exception: the toggle knob is a moving indicator and must stay white. */
+[data-theme="cockpit"] .rounded-full.h-4.w-4.bg-white,
+[data-theme="cockpit"] .rounded-full.h-5.w-5.bg-white { background-color: #ffffff; }
+
+/* The collapsed brief bar pairs its label with a hardcoded slate that is
+   unreadable on the dark ground. */
+[data-theme="cockpit"] .text-\[\#6E6E7A\] { color: var(--color-ink-2); }
+
