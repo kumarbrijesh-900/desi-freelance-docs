@@ -2711,33 +2711,34 @@ return (
 
             {/* AI Brief Extraction — gated by NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL ("true" to render).
                 Production stays unset (off) until the gate-flip criteria in SESSION_LOG are met. */}
+            {/* Identity editor — disclosed from the document bar. Deliberately
+                OUTSIDE the autofill feature flag: these are the only editors for
+                invoice number, invoice date and PO number, and must work whether
+                or not brief autofill is enabled. */}
+            {showIdentityEditor && (
+              <div className="mb-4" data-testid="invoice-document-header">
+                <InvoiceMetaSection
+                  key={isBootstrapped ? "hydrated" : "loading"}
+                  embedded
+                  hideDueDate
+                  isReadOnly={isReadOnlyMode}
+                  value={formData.meta}
+                  msaSource={msaSource}
+                  onChange={handleMetaChange}
+                  errors={{
+                    invoiceNumber: fieldErrors.meta.invoiceNumber,
+                    invoiceDate: fieldErrors.meta.invoiceDate,
+                    dueDate: fieldErrors.meta.dueDate,
+                  }}
+                  showAllErrors={showAllValidationErrors}
+                  autoFilledFields={autoFilledFields}
+                  onFieldManualEdit={markFieldManual}
+                />
+              </div>
+            )}
+
             {process.env.NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL === "true" && (
               <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
-                {/* Identity editor — disclosed from the document bar. Renders
-                    ABOVE the brief card so the expanded fields appear adjacent
-                    to the control that opened them. */}
-                {showIdentityEditor && (
-                  <div className="mb-4" data-testid="invoice-document-header">
-                    <InvoiceMetaSection
-                      key={isBootstrapped ? "hydrated" : "loading"}
-                      embedded
-                      hideDueDate
-                      isReadOnly={isReadOnlyMode}
-                      value={formData.meta}
-                      msaSource={msaSource}
-                      onChange={handleMetaChange}
-                      errors={{
-                        invoiceNumber: fieldErrors.meta.invoiceNumber,
-                        invoiceDate: fieldErrors.meta.invoiceDate,
-                        dueDate: fieldErrors.meta.dueDate,
-                      }}
-                      showAllErrors={showAllValidationErrors}
-                      autoFilledFields={autoFilledFields}
-                      onFieldManualEdit={markFieldManual}
-                    />
-                  </div>
-                )}
-
                 <BriefIntakeCard
                   key={briefIntakeResetKey}
                   onExtract={handleBriefAutofill}
