@@ -2465,57 +2465,48 @@ return (
     <section
       className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[56px] pt-8 pb-32 relative z-10`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-7">
-        <div className="mb-4 sm:mb-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-2.5">
-            STEP {orderedSteps.indexOf(currentStep) + 1} OF 4 · {formData.client?.clientName ? formData.client.clientName.toUpperCase() : "UNTITLED PROJECT"}
-          </div>
-          <h1 className="font-display text-[64px] leading-none font-black tracking-[-0.035em] m-0">
-            {isReadOnlyMode ? (
-              <>Locked <Marker tone="sky">invoice</Marker></>
-            ) : invoiceId ? (
-              <>Edit <Marker tone="sky">invoice</Marker></>
-            ) : (
-              <>New <Marker tone="sky">invoice</Marker></>
-            )}
-          </h1>
-          <p className="mt-2 text-[14px] text-[color:var(--color-ink-2)] font-bold">
-            {isReadOnlyMode
-              ? `${formData.meta?.invoiceNumber || '...'} · ${readOnlyStateLabel}`
-              : invoiceId
-              ? `Editing reference ${formData.meta?.invoiceNumber || '...'}` 
-              : "Create a GST-compliant invoice in minutes."
-            }
-          </p>
-        </div>
-
-        {/* Invoice identity — document chrome. Always visible; editing is a
-            disclosure into the stage block below, which is the only editor for
-            these fields (the "meta" step is not in orderedSteps). */}
-        <div className="flex items-center gap-3 text-[12px] text-[color:var(--color-ink-2)]">
-          <span className="font-bold tabular-nums text-[color:var(--color-ink)]">
+      {/* Document bar — invoice identity as chrome. Step context is deliberately
+          omitted: the rail and the step card header both already show it. */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[color:var(--color-soft)] pb-3">
+        <h1 className="m-0 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 min-w-0 text-[13px] font-medium leading-none">
+          <span className="text-[color:var(--color-ink-2)]">
+            {isReadOnlyMode ? "Locked invoice" : invoiceId ? "Edit invoice" : "New invoice"}
+          </span>
+          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
+          <span className="text-[20px] font-medium tracking-[-0.01em] tabular-nums text-[color:var(--color-ink)]">
             {formData.meta?.invoiceNumber || "—"}
           </span>
-          <span aria-hidden="true">·</span>
-          <span className="tabular-nums">{formData.meta?.invoiceDate || "—"}</span>
-          {formData.meta?.poNumber ? (
-            <>
-              <span aria-hidden="true">·</span>
-              <span className="tabular-nums">PO {formData.meta.poNumber}</span>
-            </>
-          ) : null}
+          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+            Issued
+          </span>
+          <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
+            {formData.meta?.invoiceDate || "—"}
+          </span>
+          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+            PO
+          </span>
+          <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
+            {formData.meta?.poNumber || "—"}
+          </span>
+        </h1>
+
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-acid px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-acc-ink">
+            {isReadOnlyMode ? readOnlyStateLabel : invoiceId ? "Draft" : "New"}
+          </span>
           {!isReadOnlyMode && (
             <button
               type="button"
               onClick={() => setShowIdentityEditor((prev) => !prev)}
               aria-expanded={showIdentityEditor}
-              className="font-bold underline underline-offset-2 text-[color:var(--color-acid)] active:scale-[0.97] transition-transform"
+              className="text-[12px] font-medium underline underline-offset-2 text-[color:var(--color-ink-2)] active:scale-[0.97] transition-transform"
             >
               {showIdentityEditor ? "Done" : "Edit"}
             </button>
           )}
         </div>
-
       </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
