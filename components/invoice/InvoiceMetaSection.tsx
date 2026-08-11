@@ -132,13 +132,6 @@ export default function InvoiceMetaSection({
       <div className="space-y-10">
         {/* Section A: Identity */}
         <div>
-          <div className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
-              Identity
-            </h3>
-            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
-          </div>
-
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
               <div className="flex items-center justify-between mb-2">
@@ -215,13 +208,6 @@ export default function InvoiceMetaSection({
 
         {/* Section B: Timelines */}
         <div>
-          <div className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
-              Timelines
-            </h3>
-            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
-          </div>
-
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
               <label className={appFieldLabelClass}>

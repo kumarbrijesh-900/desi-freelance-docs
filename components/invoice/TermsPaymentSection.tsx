@@ -978,7 +978,7 @@ export default function TermsPaymentSection({
 
                       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <div className="space-y-4">
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Structured Bank Address</p>
+
                           <div className="grid grid-cols-1 gap-3">
                             <input
                               suppressHydrationWarning
@@ -1056,7 +1056,7 @@ export default function TermsPaymentSection({
                         </div>
 
                         <div className="rounded-2xl bg-[color:var(--color-paper-2)]/50 p-5 ring-1 ring-inset ring-[color:var(--color-soft)]">
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)] mb-4">Address Preview</p>
+
                           <pre className="whitespace-pre-wrap font-mono text-[11px] text-[color:var(--color-ink)] leading-relaxed">{value.bankAddress || "No address provided"}</pre>
                         </div>
                       </div>
