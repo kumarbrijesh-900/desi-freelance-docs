@@ -112,7 +112,8 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </h2>
               <button
                 onClick={onClose}
-                className="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
+                aria-label="Close feedback dialog"
+                className="inline-flex h-10 w-10 items-center justify-center text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
               >
                 <svg
                   className="h-5 w-5"

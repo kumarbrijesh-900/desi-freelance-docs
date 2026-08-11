@@ -454,6 +454,7 @@ function EditableRow({
         {fieldType !== "checkbox" && (
           <button
             onClick={handleTick}
+            aria-label="Approve this field"
             disabled={!editValue.trim() || (isApproved && !isLowConfidence)}
             className={cn(
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-colors",

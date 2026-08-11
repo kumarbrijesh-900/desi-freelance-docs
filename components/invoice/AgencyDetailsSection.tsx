@@ -605,7 +605,8 @@ export default function AgencyDetailsSection({
                       <button
                         type="button"
                         onClick={removeLogo}
-                        className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                        aria-label="Remove agency logo"
+                        className="group flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                         title="Remove Logo"
                       >
                         <svg

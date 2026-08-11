@@ -193,7 +193,8 @@ export function AppTooltip({
           {children || (
             <button
               type="button"
-              className="inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-white text-[11px] font-bold hover:bg-paper-2 transition-colors app-focus-ring"
+              aria-label="More information"
+              className="inline-flex h-[20px] p-[10px] box-content w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-white text-[11px] font-bold hover:bg-paper-2 transition-colors app-focus-ring"
             >
               {icon || "?"}
             </button>
