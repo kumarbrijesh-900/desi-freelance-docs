@@ -203,7 +203,7 @@ function EditorContent() {
   const { push } = useToast();
   
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
-  const [showAdvancedTax, setShowAdvancedTax] = useState(false);
+
   const [showIdentityEditor, setShowIdentityEditor] = useState(false);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
   const [isBriefRetry, setIsBriefRetry] = useState(false);
@@ -3088,44 +3088,7 @@ return (
         </div>
 
         {/* ── COL 3: Right Sidebar – Meta + Totals (xl+) ── */}
-        <aside
-          className={cn(
-            "hidden xl:flex flex-col gap-4",
-            appStickyTopClass,
-          )}
-          data-testid="desktop-right-sidebar"
-        >
-          {/* Expanded Totals Card */}
-          <MotionReveal preset="fade-up" delay={60}>
-            <div className="box" style={{padding: "18px 20px"}}>
-              <div className="cap cap-strong" style={{marginBottom: 12}}>TOTALS</div>
-              <TotalsTaxesSection
-                embedded
-                value={derivedTaxConfig}
-                computed={computedTotals}
-                currency={displayCurrency}
-                hasItems={hasItems}
-                defaultExpanded={true}
-                isLocked={true}
-                onChange={(tax) => {
-                  if (isReadOnlyMode) return;
-                  setFormData((prev) => ({ ...prev, tax }));
-                }}
-              />
-            </div>
-          </MotionReveal>
-          
-          {showAdvancedTax && (
-            <MotionReveal preset="fade-up" delay={80}>
-              <div className="box dashed" style={{padding: "14px 16px"}}>
-                <div className="cap cap-strong" style={{marginBottom:6}}>↗ ADVANCED TAX</div>
-                <div style={{fontSize:11, color:"var(--color-ink-2)", lineHeight:1.5}}>
-                  Switch to IGST · enable LUT · toggle RCM for B2B reverse charge.
-                </div>
-              </div>
-            </MotionReveal>
-          )}
-        </aside>
+
       </div>
     </section>
 
@@ -3222,7 +3185,20 @@ return (
             <span className="hidden sm:inline">Close</span>
           </button>
           <div className="h-4 w-px bg-[color:var(--color-soft)]" />
-          
+
+          {/* Grand total — moved here from the deleted right rail. Always
+              visible without occupying a column. */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+              Total
+            </span>
+            <span className="text-[15px] font-bold tabular-nums text-[color:var(--color-ink)]">
+              {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+            </span>
+          </div>
+
+          <div className="h-4 w-px bg-[color:var(--color-soft)]" />
+
           <div className="flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
             {isReadOnlyMode ? (
               <span className="text-[color:var(--dock-muted,#6B6660)] truncate">

@@ -85,6 +85,7 @@ export const appEditorGridClass = [
   "grid-cols-1 gap-4",
   // lg: left stepper + center wizard (no right sidebar yet)
   "lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6 lg:items-start",
-  // xl: full 3-column with right sidebar
-  "xl:grid-cols-[260px_minmax(0,1fr)_320px] xl:gap-6",
+  // xl: two columns — rail + stage. The right sidebar was removed; totals
+  // live in the action dock and tax config in the Payment step.
+  "xl:grid-cols-[260px_minmax(0,1fr)] xl:gap-8",
 ].join(" ");
