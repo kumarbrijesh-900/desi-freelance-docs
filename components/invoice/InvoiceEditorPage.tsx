@@ -2295,6 +2295,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
       );
     case "payment":
       return (
+        <>
         <TermsPaymentSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
@@ -2322,6 +2323,26 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
         />
+
+        {/* Tax configuration — set-once decision, grouped with payment terms.
+            Previously lived only in the desktop right rail, which is removed in
+            a follow-up prompt. */}
+        <div className="mt-8 border-t border-[color:var(--color-soft)] pt-6">
+          <TotalsTaxesSection
+            embedded
+            value={derivedTaxConfig}
+            computed={computedTotals}
+            currency={displayCurrency}
+            hasItems={hasItems}
+            defaultExpanded={true}
+            isLocked={true}
+            onChange={(tax) => {
+              if (isReadOnlyMode) return;
+              setFormData((prev) => ({ ...prev, tax }));
+            }}
+          />
+        </div>
+        </>
       );
     case "meta": {
       return (
