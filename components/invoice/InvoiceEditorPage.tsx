@@ -204,6 +204,7 @@ function EditorContent() {
   
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [showAdvancedTax, setShowAdvancedTax] = useState(false);
+  const [showIdentityEditor, setShowIdentityEditor] = useState(false);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
   const [isBriefRetry, setIsBriefRetry] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
@@ -2488,6 +2489,33 @@ return (
           </p>
         </div>
 
+        {/* Invoice identity — document chrome. Always visible; editing is a
+            disclosure into the stage block below, which is the only editor for
+            these fields (the "meta" step is not in orderedSteps). */}
+        <div className="flex items-center gap-3 text-[12px] text-[color:var(--color-ink-2)]">
+          <span className="font-bold tabular-nums text-[color:var(--color-ink)]">
+            {formData.meta?.invoiceNumber || "—"}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span className="tabular-nums">{formData.meta?.invoiceDate || "—"}</span>
+          {formData.meta?.poNumber ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="tabular-nums">PO {formData.meta.poNumber}</span>
+            </>
+          ) : null}
+          {!isReadOnlyMode && (
+            <button
+              type="button"
+              onClick={() => setShowIdentityEditor((prev) => !prev)}
+              aria-expanded={showIdentityEditor}
+              className="font-bold underline underline-offset-2 text-[color:var(--color-acid)] active:scale-[0.97] transition-transform"
+            >
+              {showIdentityEditor ? "Done" : "Edit"}
+            </button>
+          )}
+        </div>
+
       </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
@@ -2798,6 +2826,7 @@ return (
                 step is not in orderedSteps, so this is the only live editor for
                 invoice number, invoice date and PO number. Due date is owned by
                 the Payment step and suppressed here. ── */}
+            {showIdentityEditor && (
             <div className="mb-4 px-4" data-testid="invoice-document-header">
               <InvoiceMetaSection
                 key={isBootstrapped ? "hydrated" : "loading"}
@@ -2817,6 +2846,7 @@ return (
                 onFieldManualEdit={markFieldManual}
               />
             </div>
+            )}
 
             <div
               className="overflow-visible h-auto"
