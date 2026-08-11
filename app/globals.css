@@ -1513,6 +1513,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-soft:         #2a2d25;
   --color-strong:       #3a3e33;
   --field-bg:           var(--color-paper-2);
+  --switch-track-off:   var(--color-strong);
   --dock-bg:            rgba(22,24,19,0.85);
   --dock-muted:         var(--color-ink-2);
   --dock-ok:            var(--color-grass);
@@ -1685,4 +1686,22 @@ input::placeholder, select::placeholder, textarea::placeholder {
 /* The collapsed brief bar pairs its label with a hardcoded slate that is
    unreadable on the dark ground. */
 [data-theme="cockpit"] .text-\[\#6E6E7A\] { color: var(--color-ink-2); }
+
+/* Translucent white surfaces — distinct classes from plain .bg-white. */
+[data-theme="cockpit"] .bg-white\/60,
+[data-theme="cockpit"] .bg-white\/50,
+[data-theme="cockpit"] .bg-white\/80 { background-color: var(--color-paper-2); }
+
+/* `bg-ink` marks SELECTED segmented buttons (License Yes/No). Under cockpit
+   --color-ink is near-white, so it must invert: acid ground, dark label. */
+[data-theme="cockpit"] .bg-ink { background-color: var(--color-acid); }
+[data-theme="cockpit"] .bg-ink.text-white { color: var(--color-acc-ink); }
+
+/* Pale indigo grounds and the dead --brand-indigo-deep var. */
+[data-theme="cockpit"] .bg-\[\#EEF2FF\],
+[data-theme="cockpit"] .bg-\[\#F0EAFF\],
+[data-theme="cockpit"] .bg-\[\#F5F5F8\] { background-color: var(--color-acc-soft); }
+
+/* Near-black borders are invisible on the dark ground. */
+[data-theme="cockpit"] .border-\[\#111\] { border-color: var(--color-strong); }
 
