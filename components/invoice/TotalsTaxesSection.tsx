@@ -45,6 +45,7 @@ type TotalsTaxesSectionProps = {
   onChange: (value: TaxConfig) => void;
   hasItems?: boolean;
   defaultExpanded?: boolean;
+  hideSummary?: boolean;
 };
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
@@ -83,6 +84,7 @@ export default function TotalsTaxesSection({
   onChange,
   hasItems = false,
   defaultExpanded = false,
+  hideSummary = false,
 }: TotalsTaxesSectionProps) {
   const [showAdvanced, setShowAdvanced] = useState(defaultExpanded);
   const subtotal = computed.subtotal;
@@ -213,7 +215,8 @@ export default function TotalsTaxesSection({
       </div>
       <div className="w-full">
         <div className="space-y-6">
-          {/* Summary Rows */}
+          {/* Summary Rows — hidden when the dock owns the money display. */}
+          {!hideSummary && (
           <div className="space-y-4">
             <div className="flex items-center justify-between text-[14px]">
               <dt className="text-[color:var(--color-ink-2)]">Subtotal</dt>
@@ -267,6 +270,7 @@ export default function TotalsTaxesSection({
               </p>
             )}
           </div>
+          )}
 
           {/* Tax Explanation */}
           <div className="mt-6 pt-4 border-t border-[color:var(--color-soft)]">

@@ -2336,6 +2336,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
             hasItems={hasItems}
             defaultExpanded={true}
             isLocked={true}
+            hideSummary
             onChange={(tax) => {
               if (isReadOnlyMode) return;
               setFormData((prev) => ({ ...prev, tax }));
@@ -3176,6 +3177,22 @@ return (
 
           {/* Grand total — moved here from the deleted right rail. Always
               visible without occupying a column. */}
+          <div className="hidden items-baseline gap-2 sm:flex">
+            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+              Subtotal
+            </span>
+            <span className="text-[12px] tabular-nums text-[color:var(--dock-muted,#6B6660)]">
+              {formatCurrency(computedTotals.subtotal, displayCurrency)}
+            </span>
+            <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+              Tax
+            </span>
+            <span className="text-[12px] tabular-nums text-[color:var(--dock-muted,#6B6660)]">
+              {formatCurrency(computedTotals.taxAmount, displayCurrency)}
+            </span>
+          </div>
+
           <div className="flex items-baseline gap-2">
             <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
               Total
@@ -3196,7 +3213,7 @@ return (
             ) : invoiceReadyForPreview ? (
               <span className="text-[color:var(--dock-ok,#007A63)] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Ready for preview</span></span>
             ) : (
-              <span className="text-[color:var(--dock-warn,#8A4B00)] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Details to finish</span></span>
+              <span className="text-[color:var(--dock-warn,#8A4B00)] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Invoice details pending</span></span>
             )}
           </div>
         </div>
