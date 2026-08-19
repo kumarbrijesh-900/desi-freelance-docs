@@ -2594,7 +2594,7 @@ return (
                   const isCompleted = displayStepValidityByStep[step] && !isActive;
                   const isIncomplete = !displayStepValidityByStep[step];
                   const stepState = isActive ? "active" : isCompleted ? "completed" : "pending";
-                  const railStatus = isReadOnlyMode ? "view" : step === "totals" && !invoiceReadyForPreview ? "Pending" : isActive ? missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} to go` : missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isCompleted ? missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isIncomplete && missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} to go` : firstInvalidStep === step ? "Up next" : "Pending";
+                  const railStatus = isReadOnlyMode ? "view" : step === "totals" && !invoiceReadyForPreview ? "Pending" : isActive ? missingFieldCountByStep[step] > 0 ? "In progress" : missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isCompleted ? missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isIncomplete && missingFieldCountByStep[step] > 0 ? "Pending" : firstInvalidStep === step ? "Up next" : "Pending";
                   
                   return (
                     <button
