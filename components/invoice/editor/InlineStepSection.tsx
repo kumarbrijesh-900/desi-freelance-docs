@@ -76,7 +76,7 @@ export function InlineStepSection({
       )}
     >
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
+        <div className="flex flex-row items-center justify-between gap-3 mb-2">
           <button
             type="button"
             onClick={onActivate}
@@ -104,12 +104,12 @@ export function InlineStepSection({
             <div className="flex shrink-0 items-center">
               <span
                 className={cn(
-                  "pill",
+                  "whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em]",
                   statusLabel.toLowerCase().includes("ready")
-                    ? "success"
+                    ? "border-[color:var(--color-forest)] text-[color:var(--state-success-text)]"
                     : statusLabel.toLowerCase().includes("to go")
-                      ? "alert"
-                      : "ghost"
+                      ? "border-[color:var(--color-ochre-deep)] text-[color:var(--state-warning-text)]"
+                      : "border-[color:var(--color-soft)] text-[color:var(--color-ink-2)]"
                 )}
               >
                 {statusLabel}
