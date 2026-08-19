@@ -6,11 +6,11 @@ New Claude instance? Read this block, then the most recent session entries below
 
 **Product.** Lance (lanceinvoice.xyz) - GST-compliant, milestone-driven invoicing + MSA-enforcement for Indian creative freelancers. "Delivery tracker first, finance second." Stack: Next.js (App Router) + React 19 + Supabase + Vercel + Resend + Tailwind v4 + framer-motion 12 + lucide-react. Repo `kumarbrijesh-900/desi-freelance-docs` (public, `main`, auto-deploys to Vercel).
 
-**How work ships (read carefully).** Claude does NOT push code. Claude authors *exact* Antigravity (AG) prompts - precise FIND/REPLACE blocks, explicit do-not-touch, "stage only these files." The founder runs them in AG (Gemini Flash: fast, auto-pushes, but hallucinates "done" and silently drops files) and pastes back the SHA. Claude then verifies byte-exact on `origin/main` before the next step. For risky/multi-file changes, double-check with Codex (rg-based). DB reads/migrations via the Supabase MCP; deploy checks via the Vercel MCP. Prod anchors (Supabase/Vercel project IDs, user id) live in Claude's memory - deliberately NOT committed (public repo).
+**How work ships (read carefully).** Claude does NOT push code. Claude authors *exact* Antigravity (AG) prompts - precise FIND/REPLACE blocks, explicit do-not-touch, "stage only these files." The founder runs them in AG (Gemini Flash: fast, auto-pushes, but hallucinates "done" and silently drops files) and pastes back the SHA. Claude then verifies byte-exact on `origin/main` before the next step. DB reads/migrations via the Supabase MCP; deploy checks via the Vercel MCP. Prod anchors (Supabase/Vercel project IDs, user id) live in Claude's memory - deliberately NOT committed (public repo).
 
-**Verification discipline (every SHA).** `git fetch` + hard reset to `origin/main` + `git diff --stat HEAD~1 HEAD` scope check (catches AG `git add .` strays), then byte-exact: apply the prompt's FIND->REPLACE to the commit's parent and assert `== HEAD` per file (robust when files move across commits). Prove JSX structure with a tag-skeleton check + brace/paren/bracket/backtick balance. Generate AG prompts from the verified local diff, then re-parse the prompt's fenced blocks and re-apply to a fresh `git show HEAD:` copy to confirm they reproduce the expected file. For broad sweeps, run a residual scan proving zero offenders remain on deployed `origin/main`. Show a mockup (real E tokens) before pushing any visual/aesthetic change.
+**Verification discipline (every SHA).** `git fetch` + hard reset to `origin/main` + `git diff --stat HEAD~1 HEAD` scope check (catches AG `git add .` strays), then byte-exact: apply the prompt's FIND->REPLACE to the commit's parent and assert `== HEAD` per file (robust when files move across commits). Prove JSX structure with a tag-skeleton check + brace/paren/bracket/backtick balance. Generate AG prompts from the verified local diff, then re-parse the prompt's fenced blocks and re-apply to a fresh `git show HEAD:` copy to confirm they reproduce the expected file. For broad sweeps, run a residual scan proving zero offenders remain on deployed `origin/main`. Show a mockup (real E tokens) before pushing any visual/aesthetic change. Before deleting any UI, prove the capability exists elsewhere *and is reachable*. After any relocation, assert what the moved block is now nested inside. Never state an expected count you have not just executed against the current SHA.
 
-**Design system - "E".** Tokens in `app/globals.css` `@theme`; plan in project file `lance-E-migration-plan.md`. Cream paper + bottle-green primary (`--color-acid` `#3a6e59`) + ochre/ink; fonts Bricolage Grotesque (display) / Hanken Grotesk (UI) / Space Mono (mono). Radius (consistent app-wide as of June 24): cards/dropdowns `rounded-[14px]`, modals/empty-states `rounded-[16px]`, inputs/buttons `rounded-[11px]`, chips/icon-boxes `rounded-md`, pills/progress `rounded-full`. Status palette: settled emerald `#157a54` (`bg-grass`), awaiting ochre `#c8943b`, revision/alert rust `#c2502f`, overdue `#a32d2d`, info muted-teal. Money: `tabular-nums`.
+**Design system - "E".** Tokens in `app/globals.css` `@theme`; plan in project file `lance-E-migration-plan.md`. The cream/bottle-green "E" palette (bottle-green primary `--color-acid` `#3a6e59`) applies to the light *document* theme (`/share/[token]`, preview, print). The cockpit theme is the live design language for freelancer-facing surfaces — dark ground `#0e0f0c`, paper-2 `#161813`, ink `#f2f4ea`, soft `#2a2d25`, strong `#3a3e33`, and acid lime primary `--color-acid` `#c8f542`. Note that `.box`, `.cap`, `.cap-strong`, and `.display` are undefined in shipped CSS; they are no-op class hooks from wireframe prototypes, so plans to edit them must define/replace them at call sites. Fonts Space Grotesk (display, June 28) / Hanken Grotesk (UI) / Space Mono (mono). Radius (consistent app-wide as of June 24): cards/dropdowns `rounded-[14px]`, modals/empty-states `rounded-[16px]`, inputs/buttons `rounded-[11px]`, chips/icon-boxes `rounded-md`, pills/progress `rounded-full`. Status palette: settled emerald `#157a54` (`bg-grass`), awaiting ochre `#c8943b`, revision/alert rust `#c2502f`, overdue `#ff6b5a` / `#a32d2d`, info muted-teal. Money: `tabular-nums`.
 
 **Founder comms.** Terse, momentum-driven ("go", "run it", SHA-only, filename-only = "do this surface"). Strong design eye. Judges by deployed visible effect (sends screenshots). Lead with the simpler/safer fix; split risky logic from safe copy/CSS; when consistency is the goal be thorough and run completeness scans - don't ship partial passes.
 ### Current queue (next up)
@@ -45,6 +45,179 @@ New Claude instance? Read this block, then the most recent session entries below
 - Prod DB cleanup: delete `AUDIT DRAFT RETRY` orphan + `Test Project 1779434613`.
 
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
+
+---
+
+## July 31 — August 11, 2026 — Cockpit legibility sweeps, invoice identity IA, and grid collapse; Phase 3.0b–3.2b shipped
+
+**Start:** `a5d65a6` · **End:** `79a1e3d` · 19 presentation-layer and layout commits.
+
+### Summary
+
+Started as "3.2b" (collapse the editor grid, delete the right rail). Became two
+workstreams: **cockpit legibility** (the editor was substantially unreadable in
+production) and **invoice-identity information architecture**. Both closed. The
+original grid work shipped last, correctly sequenced behind a reachability check.
+
+**19 commits, all verified byte-exact against `origin/main`. HEAD = `79a1e3d`.**
+
+---
+
+### Commits (oldest → newest)
+
+#### Write-path integrity — invoice meta
+
+| SHA | What |
+|---|---|
+| `faf7585` | Deleted the rail's INVOICE DETAILS meta card |
+| `70f74e8` | Mobile meta strip → read-only |
+| `8ab28ad` | Inline summary card → read-only |
+| `28ae3a4` | Removed dead `isEditingMeta` state, unused import, orphan effect |
+
+**Why:** four write paths called `setFormData` directly, bypassing `handleMetaChange` —
+the only code that clears `dueDateAutoManagedRef`. A due date edited from any of them
+was silently reverted by the due-date effect on the next animation frame.
+Non-deterministic from the user's seat, depending on whether they'd previously edited
+via the Meta step. **All four are gone; meta now has exactly one write path.**
+
+#### Cockpit legibility
+
+| SHA | What |
+|---|---|
+| `ea3d67e` | `color: var(--color-ink)` declared on the cockpit scope |
+| `5c79966` | `--field-bg` token + placeholder opacity 0.5 → 0.72 |
+| `effa1e2` | Action dock adopts cockpit (5 tokens) |
+| `f180784` | 14 named surface classes overridden |
+| `28a5ec4` | Completed step card (rgba white, missed by hex scan) |
+| `1f5a2e3` | 34 paired banner-family utilities |
+| `be8e43d` | `bg-white` sweep + toggle-knob exception |
+| `45e68fd` | `AppSwitch` off-track tokenised |
+| `77495a5` | `bg-white/60`, `bg-ink` inversion, indigo grounds, `border-[#111]` |
+
+**Root cause of the whole class:** `body { color: var(--color-ink) }` resolves in
+`:root` (light ink). `[data-theme="cockpit"]` remapped the *variables* but never
+declared `color` on itself — custom-property remapping does not re-resolve a
+declaration computed on an ancestor outside the scope. Every descendant without its
+own colour inherited dark ink onto dark paper.
+
+**Technique that worked:** cockpit-scoped override blocks appended to `globals.css`,
+consuming tokens with inline fallbacks (`var(--field-bg, #ffffff)`). Selector requires
+`[data-theme="cockpit"]`, so the light/document theme (client share, preview, print) is
+*structurally* unable to be affected. Zero `.tsx` edits for ~90% of the sweep.
+
+**Trap avoided twice:** blanket background overrides would have *created* invisibility.
+`bg-white` includes the `AppSwitch` knob (white is load-bearing); paired banners like
+`bg-[#e4f1ea]` + `text-[#157a54]` need both halves flipped together or the dark text
+lands on a dark ground.
+
+#### Information architecture
+
+| SHA | What |
+|---|---|
+| `fc99b59` | `InvoiceMetaSection` mounted as stage block + `hideDueDate` prop |
+| `94c25aa` | Identity summary into the page header |
+| `ce85d9e` | 130px header band → 46px single-row document bar |
+| `50ef547` | Removed acid pill; `Edit` moved beside its fields; disclosure above brief card |
+| `f80b1ca` | Identity editor hoisted outside the autofill feature flag |
+| `8e6e323` | `Edit` became a bordered chip with pencil glyph + `aria-label` |
+| `bfd39d0` | 4 redundant section headers removed |
+
+#### Accessibility
+
+| SHA | What |
+|---|---|
+| `920d95d` | 4 icon controls: `aria-label` + 32→40px, 20→40px hit areas |
+
+#### Structure (the original 3.2b)
+
+| SHA | What |
+|---|---|
+| `4182321` | Tax controls mounted in the Payment step (capability first) |
+| `79a1e3d` | Grand total → dock; rail deleted; grid 3-col → 2-col; dead `showAdvancedTax` removed |
+
+---
+
+### Regressions introduced and fixed (read this section)
+
+**1. Invoice number / date / PO became uneditable app-wide.** `28ae3a4` deleted the
+right-rail meta card. Claude had verified those fields existed in `InvoiceMetaSection`
+with better handlers — but never checked that `"meta"` is **not in `orderedSteps`**, so
+that step is unreachable and the rail was the only live editor. `SESSION_LOG` §7 had
+warned "NOT a deletable display skeleton"; Claude overrode the warning on a partial
+verification. Fixed `fc99b59` → `f80b1ca`.
+
+**2. Identity editor gated behind the autofill flag.** `50ef547` anchored the
+relocation on `<BriefIntakeCard`, which lives inside
+`NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL === "true"`. AG followed the instruction exactly;
+the instruction was wrong. Latent (prod has the flag on) but would have broken on flip.
+Fixed `f80b1ca`.
+
+**Both share one root cause:** verifying *what was asked for* rather than *what the
+user ends up with*. The harness passed both commits.
+
+---
+
+### Verification lessons (hard-won, apply these)
+
+- **Check reachability before deleting any UI.** `orderedSteps` is
+  `["agency","client","deliverables","payment"]`. `"meta"` and `"totals"` are in the
+  `InvoiceStepperStep` union and have `renderStepContent` cases, but are **unreachable** —
+  `currentStep` is gated by `orderedSteps.includes(...)` on query param and draft restore.
+  Code existing ≠ code reachable.
+- **Check containment after every relocation.** Not "did it move" but "what is it nested
+  inside now." Assert positional order in the harness (`src.index(a) < src.index(b)`).
+- **Case-sensitive greps give false all-clears.** `grep "isEditingMeta"` misses
+  `setIsEditingMeta` (capital I). A dead-symbol sweep must be case-insensitive and name
+  the setter explicitly. AG caught a consumer Claude's grep had missed.
+- **Widen notation scans.** A `#ffffff` scan missed `rgba(255,255,255,0.92)` and
+  `background: white`. Scan all notations.
+- **Never assert a count you haven't just run.** Claude produced ~8 wrong expected-counts
+  this session (`AppSwitch` and `Marker` appear twice on their own import line;
+  `onChange={handleMetaChange}` legitimately became 2 after a second mount). None were
+  code defects — all were sloppy assertions that cost review time.
+- **AG will breach an explicit DO-NOT to keep the build green.** It did so three times,
+  correctly each time: added a component-scope `msaSource` (the existing one was
+  function-scoped), and deleted an orphaned `useEffect`. Useful, but do not rely on it.
+
+---
+
+### Open items
+
+**P0 — verify `79a1e3d` visually.** Shipped but not screenshot-confirmed. Check at 1440
+and 380: grand total renders in the dock and updates when line items change; Payment step
+tax controls (RCM toggle) work; stage is wider with no empty third column.
+
+**P1 — `AppTooltip` padding blast radius.** `920d95d` added `p-[10px] box-content` for a
+40px hit area. That tooltip renders **28 times** across the invoice tree, always inline
+beside field labels. Unverified visually. If it disrupts tight rows (Payment especially),
+switch to an `::after` pseudo-element hit area — same a11y outcome, zero layout cost.
+
+**P1 — 16 icon buttons still lack `aria-label`,** including `AppIconButton.tsx` itself.
+Fixing the primitive covers several call sites at once. Do that first.
+
+**P2 — `bg-ink` now inverts to acid** under cockpit (`77495a5`), making the selected
+License Yes/No button an acid chip. Fixes contrast but puts acid on a *selection* state,
+stretching the act-or-live-money rule. Alternative: `--color-strong` ground + ink-white
+text. One line.
+
+**P2 — remaining header reduction.** 4 cut. Agency/Client/Payment headers each scope 3+
+fields, so cutting them is a real design tradeoff, not duplication removal. Needs
+screenshots, not a grep. (Claude's original "29 headers" count was inflated — the regex
+swept in button labels, status chips, and summary-table column headers. Real redundancy
+was ~7, of which 2 turned out to be `<label>` elements and were correctly spared.)
+
+**P3 — cosmetic residue.** AG blanks lines rather than deleting them: stray empty lines
+at `InvoiceEditorPage.tsx` L47/L194 (`28ae3a4`) and `TermsPaymentSection.tsx` L981/L1059
+(`bfd39d0`). Also the `AI Brief Extraction — gated by…` comment now sits above the
+identity block rather than the thing it describes.
+
+**P3 — `guideToSection("totals")`** scrolls to `#live-totals-footer`, which only exists
+inside the `!isXl` block — so at xl+ that call silently does nothing. Pre-existing.
+
+**Deferred queue unchanged:** PostgREST `invoices→clients` FK rewrite (AUDIT-P0-002),
+C2 settlement drawer polish, Profile + Global MSA atomic save (AUDIT-P0-001), late-fee
+unit normalisation, template placeholder suppression, trigger date edge case, orphan
+invoice backfill.
 
 ---
 
