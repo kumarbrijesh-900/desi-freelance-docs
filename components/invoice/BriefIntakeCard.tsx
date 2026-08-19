@@ -149,7 +149,7 @@ export default function BriefIntakeCard({
             className="flex h-12 items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-warm)] border border-soft text-[12px] font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-acid)] border border-soft text-[12px] font-bold text-[color:var(--color-acc-ink)]">
                 ✨
               </span>
               <div className="flex flex-col min-w-0">

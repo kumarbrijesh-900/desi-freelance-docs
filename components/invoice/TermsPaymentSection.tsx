@@ -308,12 +308,12 @@ export default function TermsPaymentSection({
                   </span>
                   <div className={cn(
                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-                    isAddendumMode ? "bg-[color:var(--brand-indigo-deep)]" : "bg-gray-200 group-hover:bg-gray-300"
+                    isAddendumMode ? "bg-[color:var(--color-acid)]" : "bg-[color:var(--color-strong)] group-hover:bg-[color:var(--color-ink-3)]"
                   )}>
                     <span
                       className={cn(
-                        "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
-                        isAddendumMode ? "translate-x-4" : "translate-x-0"
+                        "pointer-events-none inline-block h-4 w-4 transform rounded-full shadow-sm ring-0 transition duration-200 ease-in-out",
+                        isAddendumMode ? "translate-x-4 bg-[color:var(--color-acc-ink)]" : "translate-x-0 bg-[color:var(--color-paper)]"
                       )}
                     ></span>
                   </div>
@@ -448,8 +448,8 @@ export default function TermsPaymentSection({
                                 className={cn(
                                   "border-2 px-2.5 py-0.5 text-[10px] font-bold transition-all",
                                   meta.paymentTerms === days
-                                    ? "bg-[#111] border-[#111] text-white shadow-sm"
-                                    : "bg-white border-soft text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
+                                    ? "bg-[color:var(--color-acid)] border-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-sm"
+                                    : "bg-[color:var(--color-paper-2)] border-soft text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
                                   isReadOnly && "opacity-50 cursor-not-allowed"
                                 )}
                               >

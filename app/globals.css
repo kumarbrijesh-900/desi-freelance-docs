@@ -1614,7 +1614,11 @@ input::placeholder, select::placeholder, textarea::placeholder {
 /* The selected segmented-control pill must stay distinguishable from the
    field ground, so it takes the lighter --color-strong rather than paper-2. */
 [data-theme="cockpit"] .app-soft-choice-option-active {
-  background: var(--color-strong);
+  background: var(--color-acid);
+  color: var(--color-acc-ink);
+}
+[data-theme="cockpit"] .app-soft-choice-option-active * {
+  color: var(--color-acc-ink);
 }
 
 /* ============================================================

@@ -31,8 +31,8 @@ export default function AppSwitch({
     >
       <span
         className={cn(
-          "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-          checked ? "translate-x-4" : "translate-x-0.5",
+          "pointer-events-none block h-4 w-4 rounded-full shadow ring-0 transition duration-200 ease-in-out",
+          checked ? "translate-x-4 bg-[color:var(--color-acc-ink)]" : "translate-x-0.5 bg-[color:var(--color-paper)]",
         )}
       />
     </button>
