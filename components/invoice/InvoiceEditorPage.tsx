@@ -2623,20 +2623,8 @@ return (
                 })}
               </div>
             </MotionReveal>
-            
-            <MotionReveal preset="fade-up" delay={80}>
-              {nextBlockingGroup && !isReadOnlyMode ? (
-                <div className="box" style={{padding:"14px 16px", background:"#FBF3DD", borderColor:"var(--color-soft)"}}>
-                  <div className="cap cap-strong" style={{color:"var(--color-ochre-deep)", marginBottom: 4}}>UP NEXT</div>
-                  <div style={{fontSize: 11, color:"var(--color-ink-2)", lineHeight:1.5}}>
-                    {nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
-                      ? "Name your project to continue."
-                      : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 3).join(", ")}${nextBlockingFields.length > 3 ? ` +${nextBlockingFields.length - 3} more` : ""}.`}
-                  </div>
-                </div>
-              ) : null}
-            </MotionReveal>
-            
+
+
             {invoiceReadyForPreview && !isReadOnlyMode ? (
                <MotionReveal preset="fade-up" delay={80}>
                  <div className="box" style={{padding:"14px 16px"}}>
