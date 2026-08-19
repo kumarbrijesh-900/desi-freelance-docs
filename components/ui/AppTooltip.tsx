@@ -194,7 +194,7 @@ export function AppTooltip({
             <button
               type="button"
               aria-label="More information"
-              className="inline-flex h-[20px] p-[10px] box-content w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-white text-[11px] font-bold hover:bg-paper-2 transition-colors app-focus-ring"
+              className="relative inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-white text-[11px] font-bold hover:bg-paper-2 transition-colors app-focus-ring after:absolute after:left-1/2 after:top-1/2 after:h-[40px] after:w-[40px] after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
             >
               {icon || "?"}
             </button>
