@@ -2499,7 +2499,7 @@ return (
             {formData.meta?.invoiceNumber || "—"}
           </span>
           <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+          <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)] sm:inline">
             Issued
           </span>
           <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
@@ -2765,35 +2765,6 @@ return (
               </div>
             )}
 
-            {/* ── Inline Meta Strip — read-only summary (hidden on xl+) ── */}
-            {/* Editing lives in the Meta step; this is display only. */}
-            <div className="mx-4 mb-2 border border-[color:var(--color-soft)] rounded-[14px] bg-[color:var(--color-paper)] px-4 py-3 xl:hidden">
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Invoice Reference</span>
-                  <span className="text-[14px] font-bold tracking-tight text-[color:var(--color-ink)]">
-                    {formData.meta?.invoiceNumber || '—'}
-                  </span>
-                </div>
-
-                <div className="h-[1px] w-full bg-[color:var(--color-paper-2)]" />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Issued</span>
-                    <span className="text-[12px] font-bold text-[color:var(--color-ink)]">
-                      {formData.meta?.invoiceDate || '—'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</span>
-                    <span className="text-[12px] font-bold text-[color:var(--color-ochre-deep)]">
-                      {formData.meta?.dueDate || '—'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <div className="mb-3 px-4 lg:hidden">
               <WorkbenchReadinessPanel
@@ -2839,10 +2810,10 @@ return (
                     className={cn(
                       "flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-[12px] font-bold transition-all duration-200 active:scale-95",
                       isActive
-                        ? "bg-gray-900 text-white shadow-md ring-2 ring-gray-900/10"
+                        ? "bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-md"
                         : isCompleted
-                          ? "bg-green-50 text-green-800 border border-green-200"
-                          : "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] border border-transparent hover:bg-gray-200"
+                          ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] border border-[color:var(--color-forest)]"
+                          : "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] border border-transparent hover:border-[color:var(--color-soft)]"
                     )}
                   >
                     <span className="opacity-80">
@@ -3013,6 +2984,7 @@ return (
                           hasItems={hasItems}
                           defaultExpanded={true}
                           isLocked={true}
+                          hideSummary
                           onChange={(tax) => {
                             if (isReadOnlyMode) return;
                             setFormData((prev) => ({ ...prev, tax }));

@@ -272,8 +272,8 @@ export default function TotalsTaxesSection({
           </div>
           )}
 
-          {/* Tax Explanation */}
-          <div className="mt-6 pt-4 border-t border-[color:var(--color-soft)]">
+          {/* Tax Explanation — no top rule when it is the first block. */}
+          <div className={hideSummary ? "" : "mt-6 pt-4 border-t border-[color:var(--color-soft)]"}>
             <p className="text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
               {complianceMessage || (computed.taxType === "exempt" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
             </p>
