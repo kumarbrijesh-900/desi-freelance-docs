@@ -214,7 +214,7 @@ export function ProjectRail({
                     <div
                       className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border rounded-full"
                       style={isSelected
-                        ? { backgroundColor: "rgba(0,0,0,0.22)", color: "#0e0f0c", borderColor: "rgba(0,0,0,0.35)" }
+                        ? { backgroundColor: "rgba(255,255,255,0.10)", color: "#f2f4ea", borderColor: "rgba(255,255,255,0.30)" }
                         : { backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
                     >
                       {summary.replace(/^LIVE/, "IN PROGRESS")}

@@ -4,6 +4,8 @@ import { cn } from "@/lib/ui-foundation";
 export interface AppIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "subtle";
   size?: "sm" | "md" | "lg";
+  /** Required: icon-only buttons have no text, so they need an accessible name. */
+  "aria-label": string;
 }
 
 export const AppIconButton = React.forwardRef<HTMLButtonElement, AppIconButtonProps>(
