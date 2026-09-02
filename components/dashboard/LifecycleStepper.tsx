@@ -167,16 +167,16 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
               )}
               <div className={dotClass}>
                 <span className="text-[12px] font-bold font-display">{dotContent}</span>
-              </div>
-              <div className="flex-1 min-w-0 pt-1">
                 {stop.state === "live" && onSettleLive && (
                   <button
                     type="button"
                     onClick={onSettleLive}
                     aria-label={`Settle ${stop.name}`}
-                    className="absolute inset-0 z-10 cursor-pointer rounded-full"
+                    className="absolute inset-0 z-20 cursor-pointer rounded-full transition-transform hover:scale-105 active:scale-95 after:absolute after:left-1/2 after:top-1/2 after:h-[40px] after:w-[40px] after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
                   />
                 )}
+              </div>
+              <div className="flex-1 min-w-0 pt-1">
                 {stop.state === "live" && (
                   <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-bold font-mono uppercase rounded-sm">NOW</span>
                 )}
