@@ -16,7 +16,7 @@ interface StopDef {
   originalIndex?: number;
 }
 
-export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) {
+export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWithInvoices; onSettleLive?: () => void }) {
   const milestones = [...project.milestones].filter(m =>
     project.invoices.find(inv => inv.id === m.invoice_id && !(inv as any).parent_invoice_id)
   ).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
@@ -169,6 +169,14 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                 <span className="text-[12px] font-bold font-display">{dotContent}</span>
               </div>
               <div className="flex-1 min-w-0 pt-1">
+                {stop.state === "live" && onSettleLive && (
+                  <button
+                    type="button"
+                    onClick={onSettleLive}
+                    aria-label={`Settle ${stop.name}`}
+                    className="absolute inset-0 z-10 cursor-pointer rounded-full"
+                  />
+                )}
                 {stop.state === "live" && (
                   <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-bold font-mono uppercase rounded-sm">NOW</span>
                 )}

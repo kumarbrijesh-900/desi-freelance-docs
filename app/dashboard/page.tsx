@@ -411,7 +411,10 @@ function DashboardContent() {
               </div>
 
               {/* Vertical layout per spec */}
-              <LifecycleStepper project={selectedProject} />
+              <LifecycleStepper
+                project={selectedProject}
+                onSettleLive={() => handleMarkSettled(drilldownState)}
+              />
 
               <ActiveDrilldown
                 state={drilldownState}
