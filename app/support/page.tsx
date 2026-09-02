@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function SupportPage() {
   return (
-    <main className={appPageShellClass}>
+    <main data-theme="cockpit" className="relative min-h-screen w-full bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
       <AppHeader />
 
       <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
@@ -39,7 +39,7 @@ export default function SupportPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t-2 border-soft mt-12 bg-white">
+      <footer className="border-t-2 border-soft mt-12 bg-[color:var(--color-paper-2)]">
         <div
           className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
         >

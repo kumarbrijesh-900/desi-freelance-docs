@@ -362,7 +362,7 @@ export default function ClientDetailPage() {
 
   if (isLoading) {
     return (
-      <main className={appPageShellClass}>
+      <main data-theme="cockpit" className="relative min-h-screen w-full bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
           <p className="text-[color:var(--color-ink-2)]">Loading…</p>
@@ -373,7 +373,7 @@ export default function ClientDetailPage() {
 
   if (!client) {
     return (
-      <main className={appPageShellClass}>
+      <main data-theme="cockpit" className="relative min-h-screen w-full bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
           <p className="text-[color:var(--color-ink-2)]">Client not found.</p>
@@ -389,7 +389,7 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <main className={appPageShellClass}>
+    <main data-theme="cockpit" className="relative min-h-screen w-full bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
       <AppHeader
         rightSlot={
           <MotionButton
