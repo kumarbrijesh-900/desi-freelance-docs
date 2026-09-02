@@ -251,7 +251,7 @@ export async function fireMilestoneInvoice(
 
     await supabase.from("notifications").insert({
       user_id: parent.user_id,
-      type: "invoice_sent",
+      type: "milestone_requested",
       title: `Milestone ${nextMilestoneIndex + 1} invoice sent`,
       message: `Milestone ${nextMilestoneIndex + 1} invoice was automatically sent to ${clientEmail}.`,
       invoice_id: childInvoice.id,

@@ -157,7 +157,7 @@ export async function GET(request: Request) {
           await supabaseAdmin.from("notifications").insert({
             user_id: inv.user_id,
             invoice_id: inv.id,
-            type: "invoice_sent",
+            type: "payment_reminder",
             title: "Due date reminder sent",
             message: `Reminder sent for invoice ${inv.invoice_number} (due today).`,
             is_read: false,

@@ -135,8 +135,8 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin.from("notifications").insert({
       user_id: invoice.user_id,
       invoice_id: invoice.id,
-      type: "invoice_sent",
-      title: "Payment Reminder Sent",
+      type: "payment_reminder",
+      title: "Payment reminder sent",
       message: `Nudge sent to ${clientEmail} for invoice ${invoiceNumber}.`,
       is_read: false,
     });
