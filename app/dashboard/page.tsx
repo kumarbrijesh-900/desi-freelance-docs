@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
+import { supabase } from "@/lib/supabase/client";
 import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
@@ -100,6 +101,7 @@ function DashboardContent() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [projectClosureData, setProjectClosureData] = useState<{ projectName: string; cost: string } | null>(null);
   const [closeProjectFor, setCloseProjectFor] = useState<{ id: string; name: string } | null>(null);
+  const [drawerActivity, setDrawerActivity] = useState<Array<{ title: string; type: string; count: number; latest: string }>>([]);
   const [settlementChoice, setSettlementChoice] = useState<SettlementChoice | null>(null);
 
   const loadProjects = useCallback(async () => {
@@ -195,6 +197,34 @@ function DashboardContent() {
       tdsPercent: 0,
     });
   };
+
+  useEffect(() => {
+    if (!settlementChoice || !selectedProject) {
+      setDrawerActivity([]);
+      return;
+    }
+    let active = true;
+    (async () => {
+      const ids = selectedProject.invoices.map(i => i.id);
+      if (ids.length === 0) return;
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("type,title,created_at")
+        .in("invoice_id", ids)
+        .order("created_at", { ascending: false })
+        .limit(40);
+      if (!active || error || !data) return;
+      const grouped = new Map<string, { title: string; type: string; count: number; latest: string }>();
+      for (const row of data as Array<{ type: string; title: string; created_at: string }>) {
+        const key = `${row.type}|${row.title}`;
+        const seen = grouped.get(key);
+        if (seen) seen.count += 1;
+        else grouped.set(key, { title: row.title, type: row.type, count: 1, latest: row.created_at });
+      }
+      setDrawerActivity(Array.from(grouped.values()).slice(0, 6));
+    })();
+    return () => { active = false; };
+  }, [settlementChoice, selectedProject]);
 
   const confirmSettlement = async () => {
     if (!settlementChoice) return;
@@ -664,6 +694,38 @@ function DashboardContent() {
                     </div>
                   )}
                 </section>
+
+                {drawerActivity.length > 0 && (
+                  <div className="rounded-[14px] border border-soft bg-[color:var(--color-paper-2)] p-4 mb-4">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-3">
+                      Activity
+                    </div>
+                    <div className="flex flex-col gap-2.5">
+                      {drawerActivity.map(item => {
+                        const glyph =
+                          item.type === "payment_reminder" ? "!" :
+                          item.type === "milestone_requested" ? "→" :
+                          item.type === "msa_accepted" ? "§" :
+                          item.type === "invoice_settled" || item.type === "milestone_settled" ? "✓" : "✉";
+                        return (
+                          <div key={`${item.type}|${item.title}`} className="flex items-start gap-2.5">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-soft bg-[color:var(--color-acc-soft)] text-[11px] font-bold text-[color:var(--color-ink)]">
+                              {glyph}
+                            </span>
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-[12px] font-bold text-[color:var(--color-ink)]">
+                                {item.title}{item.count > 1 ? ` ×${item.count}` : ""}
+                              </span>
+                              <span className="block text-[11px] text-[color:var(--color-ink-2)]">
+                                {item.count > 1 ? "Most recent " : ""}{new Date(item.latest).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                              </span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <fieldset className="mt-5 rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-4 shadow-[var(--brutal-shadow-sm)]">
                   <legend className="px-2 text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
