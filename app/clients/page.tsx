@@ -840,8 +840,8 @@ export default function ClientsPage() {
         <div className="flex justify-between items-end mb-7">
           <div>
             <div className="flex gap-2 mb-3 items-center">
-              <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
-              <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
+              <div className="px-3 py-1 bg-grass text-[color:var(--color-acc-ink)] text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
+              <div className="px-3 py-1 bg-sky text-[color:var(--color-acc-ink)] text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
               <div className="px-3 py-1 bg-butter text-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
             </div>
             <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">

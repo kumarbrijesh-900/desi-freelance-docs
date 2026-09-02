@@ -87,7 +87,7 @@ export function CloseProjectModal({
               value={r}
               checked={selected === r}
               onChange={() => setSelected(r)}
-              className="accent-coral"
+              className="h-4 w-4 shrink-0 appearance-none rounded-full border-2 border-[color:var(--color-ink-3)] bg-transparent checked:border-[color:var(--color-coral)] checked:bg-[color:var(--color-coral)] checked:shadow-[inset_0_0_0_3px_var(--color-paper)] transition-colors"
             />
             <span className="text-sm font-bold text-ink">{r}</span>
           </label>
@@ -133,7 +133,7 @@ export function CloseProjectModal({
           type="button"
           onClick={handleConfirm}
           disabled={!canSubmit}
-          className="px-5 py-2.5 rounded-[10px] font-extrabold uppercase text-[11px] tracking-widest text-white bg-coral transition-all hover:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-[10px] font-extrabold uppercase text-[11px] tracking-widest text-[color:var(--color-paper)] bg-coral transition-all hover:brightness-95 disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed"
         >
           {submitting ? "Closing…" : "Close project"}
         </button>
