@@ -377,9 +377,11 @@ function DashboardContent() {
                         : a.dueDays === 0 ? 'DUE TODAY'
                         : `DUE IN ${a.dueDays} DAY${a.dueDays === 1 ? '' : 'S'}`;
                       return (
-                        <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 hover:bg-paper-2 transition-colors flex items-center justify-between gap-3">
-                          <span className="text-[12px] font-bold text-ink truncate">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)] shrink-0">{timing} · NUDGE AVAILABLE</span>
+                        <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 hover:bg-paper-2 transition-colors flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-ink">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
+                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)]">
+                            {timing}<span className="hidden sm:inline"> · NUDGE AVAILABLE</span>
+                          </span>
                         </button>
                       );
                     })}
