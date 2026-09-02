@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatProjectedDate, nextMilestoneStartLabel } from "@/lib/lifecycle/timing";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
@@ -18,6 +18,7 @@ interface StopDef {
 }
 
 export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWithInvoices; onSettleLive?: () => void }) {
+  const [listOpen, setListOpen] = useState(false);
   const milestones = [...project.milestones].filter(m =>
     project.invoices.find(inv => inv.id === m.invoice_id && !(inv as any).parent_invoice_id)
   ).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
@@ -95,6 +96,8 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
   });
 
   const total = stops.length;
+  const settledCount = stops.filter(s => s.type === "milestone" && s.state === "done").length;
+  const milestoneCount = stops.filter(s => s.type === "milestone").length;
   const focusStop = stops.find(s => s.state === "live" && s.type !== "start" && s.type !== "complete") || null;
   const focusLabel = focusStop ? ((focusStop as any).label || (focusStop.originalIndex !== undefined ? `M${focusStop.originalIndex + 1}` : focusStop.kicker) || "") : "";
   const focusInvoice = focusStop
@@ -160,33 +163,27 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
 
   return (
     <div className="mb-6">
-      <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:items-center mb-3">
-        <div className="text-[11px] font-bold uppercase tracking-widest text-ink font-mono">
-          MILESTONE TIMELINE
-        </div>
-        <div className="flex gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-grass" />
-            <div className="text-[10px] font-bold uppercase tracking-widest text-ink font-mono">SETTLED</div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-acid shadow-[0_0_0_2px_var(--color-acc-soft)]" />
-            <div className="text-[10px] font-bold uppercase tracking-widest text-ink font-mono">LIVE</div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-paper border-[1.5px] border-[color:var(--color-strong)] border-dashed" />
-            <div className="text-[10px] font-bold uppercase tracking-widest text-ink font-mono">PENDING</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile vertical timeline */}
       {focusData && (
-        <div className="md:hidden mb-4">
+        <div className="mb-4">
           <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
         </div>
       )}
-      <div className="md:hidden bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4">
+
+      <button
+        type="button"
+        onClick={() => setListOpen(open => !open)}
+        aria-expanded={listOpen}
+        className="mb-3 flex w-full items-center justify-between gap-3 text-left"
+      >
+        <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
+          All milestones · {settledCount} of {milestoneCount} settled
+        </span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
+          {listOpen ? "Hide" : "Show"}
+        </span>
+      </button>
+
+      <div className={`${listOpen ? "block" : "hidden"} bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
           const segSolid = idx < liveStopIndex;
@@ -240,11 +237,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
           );
         })}
       </div>
-      {focusData && (
-        <div className="hidden md:block mb-4">
-          <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
-        </div>
-      )}
+
       <div className="bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4 overflow-x-auto no-scrollbar relative hidden md:block">
         <div className="relative min-w-[800px] py-2">
           
