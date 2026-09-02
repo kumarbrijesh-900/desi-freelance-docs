@@ -1622,6 +1622,43 @@ input::placeholder, select::placeholder, textarea::placeholder {
 }
 
 /* ============================================================
+   COCKPIT TAILWIND PALETTE FAMILIES
+   Pale ground + dark text pairs from the default Tailwind scale.
+   Remapped as pairs so contrast is preserved. Mid-grey text
+   (gray-300/400) is excluded — it reads fine on a dark ground.
+   ============================================================ */
+
+/* Warning / amber */
+[data-theme="cockpit"] .bg-amber-50,
+[data-theme="cockpit"] .bg-amber-100 { background-color: var(--state-warning-bg); }
+[data-theme="cockpit"] .text-amber-600,
+[data-theme="cockpit"] .text-amber-700,
+[data-theme="cockpit"] .text-amber-800,
+[data-theme="cockpit"] .text-amber-900 { color: var(--state-warning-text); }
+[data-theme="cockpit"] .border-amber-200 { border-color: var(--color-ochre-deep); }
+
+/* Success / green */
+[data-theme="cockpit"] .bg-green-50,
+[data-theme="cockpit"] .bg-green-100 { background-color: var(--state-success-bg); }
+[data-theme="cockpit"] .text-green-600,
+[data-theme="cockpit"] .text-green-700 { color: var(--state-success-text); }
+[data-theme="cockpit"] .border-green-200 { border-color: var(--color-forest); }
+
+/* Info / blue — no blue in this palette; maps to muted teal */
+[data-theme="cockpit"] .bg-blue-50 { background-color: var(--color-acc-soft); }
+[data-theme="cockpit"] .text-blue-700 { color: var(--color-sky); }
+[data-theme="cockpit"] .border-blue-200 { border-color: var(--color-sky); }
+
+/* Danger / red */
+[data-theme="cockpit"] .bg-red-50 { background-color: var(--state-danger-bg); }
+
+/* Neutral */
+[data-theme="cockpit"] .bg-neutral-100 { background-color: var(--color-paper-2); }
+[data-theme="cockpit"] .text-neutral-600,
+[data-theme="cockpit"] .text-neutral-700 { color: var(--color-ink-2); }
+[data-theme="cockpit"] .border-neutral-300 { border-color: var(--color-soft); }
+
+/* ============================================================
    COCKPIT BANNER FAMILY OVERRIDES
    Arbitrary hex utilities pair a pale ground with dark text.
    Each family is remapped as a pair so contrast is preserved —
