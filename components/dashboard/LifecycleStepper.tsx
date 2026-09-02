@@ -176,7 +176,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
         type="button"
         onClick={() => setListOpen(open => !open)}
         aria-expanded={listOpen}
-        className="mb-3 flex w-full max-w-[760px] items-center justify-between gap-3 text-left"
+        className="mb-3 flex w-full max-w-[1100px] items-center justify-between gap-3 text-left"
       >
         <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
           All milestones · {settledCount} of {milestoneCount} settled
@@ -186,7 +186,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
         </span>
       </button>
 
-      <div className={`${listOpen ? "block" : "hidden"} max-w-[760px] bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
+      <div className={`${listOpen ? "block" : "hidden"} max-w-[1100px] bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
           const segSolid = idx < liveStopIndex;
