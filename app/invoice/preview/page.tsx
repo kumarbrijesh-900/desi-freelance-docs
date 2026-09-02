@@ -881,7 +881,7 @@ function PreviewContent() {
   }
 
   return (
-    <>
+    <div data-theme="lance-light">
       <style>{`
         @media print {
           @page {
@@ -1301,6 +1301,6 @@ function PreviewContent() {
       />
 
       
-    </>
+    </div>
   );
 }

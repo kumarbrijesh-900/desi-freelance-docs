@@ -1504,6 +1504,21 @@ input::placeholder, select::placeholder, textarea::placeholder {
    NOTHING opts in yet; surfaces adopt it in their own sweep
    commits. Default (light) theme remains untouched.
    ============================================================ */
+/* Client-facing document surfaces opt back out of the dark default.
+   Values mirror the light :root palette. */
+[data-theme="lance-light"] {
+  --color-paper:        #f2ebd8;
+  --color-paper-2:      #fbf6e8;
+  --color-ink:          #211c16;
+  --color-ink-2:        #5f574a;
+  --color-ink-3:        #988e7c;
+  --color-soft:         #ddd3bd;
+  --color-acid:         #3a6e59;
+  --color-acc-ink:      #f0e9d6;
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+}
+
 [data-theme="cockpit"] {
   --color-paper:        #0e0f0c;
   --color-paper-2:      #161813;

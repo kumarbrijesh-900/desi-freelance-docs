@@ -242,7 +242,7 @@ export default function PublicInvoiceSharePage({
   }
 
   return (
-    <>
+    <div data-theme="lance-light">
       <SharedMsaPreviewContent
         invoice={{
           id: invoiceId,
@@ -286,6 +286,6 @@ export default function PublicInvoiceSharePage({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

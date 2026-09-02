@@ -59,9 +59,9 @@ export default function RootLayout({
         className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
       >
       <head>
-        <meta name="theme-color" content="#f2ebd8" />
+        <meta name="theme-color" content="#0e0f0c" />
       </head>
-      <body className="min-h-full flex flex-col relative">
+      <body data-theme="cockpit" className="min-h-full flex flex-col relative bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
         <ToastProvider>
           {/* Global Aesthetic Background */}
           <div className="relative z-10 flex min-h-screen flex-col">

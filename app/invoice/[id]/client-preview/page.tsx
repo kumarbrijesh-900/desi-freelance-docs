@@ -66,23 +66,25 @@ export default async function ClientPreviewPage({
   const formData = mergeInvoiceFormData(invoice.form_data);
   
   return (
-    <SharedMsaPreviewContent
-      invoice={{
-        id: invoice.id,
-        formData,
-        templateId: invoice.template_id || "classic",
-        invoiceNumber: invoice.invoice_number || "",
-        isChildInvoice,
-        parentMsaAcceptedOn,
-        msaStatus,
-        msaResponse,
-      }}
-      msaTerms={msaData}
-      addendum={{
-        paymentTerms: formData.meta?.paymentTerms ? `Net ${formData.meta.paymentTerms}` : undefined,
-        notes: formData.payment?.notes
-      }}
-      mode="agency-preview"
-    />
+    <div data-theme="lance-light">
+      <SharedMsaPreviewContent
+        invoice={{
+          id: invoice.id,
+          formData,
+          templateId: invoice.template_id || "classic",
+          invoiceNumber: invoice.invoice_number || "",
+          isChildInvoice,
+          parentMsaAcceptedOn,
+          msaStatus,
+          msaResponse,
+        }}
+        msaTerms={msaData}
+        addendum={{
+          paymentTerms: formData.meta?.paymentTerms ? `Net ${formData.meta.paymentTerms}` : undefined,
+          notes: formData.payment?.notes
+        }}
+        mode="agency-preview"
+      />
+    </div>
   );
 }
