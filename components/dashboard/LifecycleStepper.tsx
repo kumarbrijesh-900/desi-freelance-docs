@@ -2,6 +2,7 @@ import React from "react";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatProjectedDate, nextMilestoneStartLabel } from "@/lib/lifecycle/timing";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { MilestoneFocusCard } from "@/components/dashboard/MilestoneFocusCard";
 
 type StopState = "done" | "live" | "pending" | "end";
 
@@ -94,6 +95,23 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
   });
 
   const total = stops.length;
+  const focusStop = stops.find(s => s.state === "live" && s.type !== "start" && s.type !== "complete") || null;
+  const focusLabel = focusStop ? ((focusStop as any).label || (focusStop.originalIndex !== undefined ? `M${focusStop.originalIndex + 1}` : focusStop.kicker) || "") : "";
+  const focusInvoice = focusStop
+    ? (project.invoices.find(inv => (inv as any).parent_invoice_id && String((inv as any).milestone_index ?? "") === focusLabel.replace(/^M/i, "")) || project.invoices.find(inv => !(inv as any).parent_invoice_id) || null)
+    : null;
+  const focusData = focusStop
+    ? {
+        label: focusLabel,
+        name: focusStop.name || "",
+        amount: focusStop.amount || "—",
+        invoiceId: focusInvoice ? (focusInvoice as any).id : null,
+        isOverdue: Boolean(focusStop.meta && String(focusStop.meta).toLowerCase().includes("overdue")),
+        daysLate: null as number | null,
+        dueLabel: focusStop.meta || null,
+        unlocksLabel: null as string | null,
+      }
+    : null;
   const center = (idx: number) => ((idx + 0.5) / total) * 100;
   
   let liveStopIndex = 0;
@@ -140,6 +158,11 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
       </div>
 
       {/* Mobile vertical timeline */}
+      {focusData && (
+        <div className="md:hidden mb-4">
+          <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
+        </div>
+      )}
       <div className="md:hidden bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4">
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
@@ -194,6 +217,11 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
           );
         })}
       </div>
+      {focusData && (
+        <div className="hidden md:block mb-4">
+          <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
+        </div>
+      )}
       <div className="bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4 overflow-x-auto no-scrollbar relative hidden md:block">
         <div className="relative min-w-[800px] py-2">
           
