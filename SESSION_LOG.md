@@ -1,52 +1,216 @@
-# Session Log — May 22-23, 2026
+# Session Log — September 2–3, 2026 (Phase 3.0e–6.0e)
 
 ## READ FIRST: orientation for a new chat (pinned reference - keep at top)
 
-New Claude instance? Read this block, then the most recent session entries below (newest-first). It tells you what Lance is, how work ships here, and what's queued. Confirm the active task with the founder before starting.
+**What Lance is:** GST-compliant, milestone-driven invoicing + MSA enforcement for
+Indian creative freelancers. Next.js App Router · Supabase · Vercel · Resend ·
+Tailwind v4. Auto-deploys on push to `main`.
 
-**Product.** Lance (lanceinvoice.xyz) - GST-compliant, milestone-driven invoicing + MSA-enforcement for Indian creative freelancers. "Delivery tracker first, finance second." Stack: Next.js (App Router) + React 19 + Supabase + Vercel + Resend + Tailwind v4 + framer-motion 12 + lucide-react. Repo `kumarbrijesh-900/desi-freelance-docs` (public, `main`, auto-deploys to Vercel).
+**Roles:** Claude is architect, diagnostician, prompt author, and verification
+layer — **never pushes code**. Antigravity (Gemini Flash) is the sole executor;
+it auto-pushes and must never be trusted without independent verification.
 
-**How work ships (read carefully).** Claude does NOT push code. Claude authors *exact* Antigravity (AG) prompts - precise FIND/REPLACE blocks, explicit do-not-touch, "stage only these files." The founder runs them in AG (Gemini Flash: fast, auto-pushes, but hallucinates "done" and silently drops files) and pastes back the SHA. Claude then verifies byte-exact on `origin/main` before the next step. DB reads/migrations via the Supabase MCP; deploy checks via the Vercel MCP. Prod anchors (Supabase/Vercel project IDs, user id) live in Claude's memory - deliberately NOT committed (public repo).
+**AG prompt format:** exact file path → byte-exact FIND/REPLACE blocks (every
+anchor verified unique via Python first) → explicit DO-NOT-TOUCH list →
+`SUMMARY · git diff --stat · BUILD RESULT · PUSHED SHA · UNRESOLVED`.
+No "how to verify" inside the prompt. Verification goes in a separate message.
 
-**Verification discipline (every SHA).** `git fetch` + hard reset to `origin/main` + `git diff --stat HEAD~1 HEAD` scope check (catches AG `git add .` strays), then byte-exact: apply the prompt's FIND->REPLACE to the commit's parent and assert `== HEAD` per file (robust when files move across commits). Prove JSX structure with a tag-skeleton check + brace/paren/bracket/backtick balance. Generate AG prompts from the verified local diff, then re-parse the prompt's fenced blocks and re-apply to a fresh `git show HEAD:` copy to confirm they reproduce the expected file. For broad sweeps, run a residual scan proving zero offenders remain on deployed `origin/main`. Show a mockup (real E tokens) before pushing any visual/aesthetic change. Before deleting any UI, prove the capability exists elsewhere *and is reachable*. After any relocation, assert what the moved block is now nested inside. Never state an expected count you have not just executed against the current SHA.
+**Verification loop, every time:**
+```
+git ls-remote                                    # true HEAD first, always
+git fetch --depth 3 && git reset --hard FETCH_HEAD
+git diff --stat FETCH_HEAD~1 FETCH_HEAD          # scope check
+git diff FETCH_HEAD~1 FETCH_HEAD                 # read the whole diff
+python3 harness                                  # counts + positional assertions
+```
 
-**Design system - "E".** Tokens in `app/globals.css` `@theme`; plan in project file `lance-E-migration-plan.md`. The cream/bottle-green "E" palette (bottle-green primary `--color-acid` `#3a6e59`) applies to the light *document* theme (`/share/[token]`, preview, print). The cockpit theme is the live design language for freelancer-facing surfaces — dark ground `#0e0f0c`, paper-2 `#161813`, ink `#f2f4ea`, soft `#2a2d25`, strong `#3a3e33`, and acid lime primary `--color-acid` `#c8f542`. Note that `.box`, `.cap`, `.cap-strong`, and `.display` are undefined in shipped CSS; they are no-op class hooks from wireframe prototypes, so plans to edit them must define/replace them at call sites. Fonts Space Grotesk (display, June 28) / Hanken Grotesk (UI) / Space Mono (mono). Radius (consistent app-wide as of June 24): cards/dropdowns `rounded-[14px]`, modals/empty-states `rounded-[16px]`, inputs/buttons `rounded-[11px]`, chips/icon-boxes `rounded-md`, pills/progress `rounded-full`. Status palette: settled emerald `#157a54` (`bg-grass`), awaiting ochre `#c8943b`, revision/alert rust `#c2502f`, overdue `#ff6b5a` / `#a32d2d`, info muted-teal. Money: `tabular-nums`.
+**Harness rules:**
+- Assert only counts just executed against the current SHA. ~8 wrong expected-counts
+  this session; every one was Claude's assertion, not a code defect.
+- Import lines contain the identifier twice (`import X from ".../X"` = 2 hits).
+- Case-sensitive greps miss setters (`isEditingMeta` misses `setIsEditingMeta`).
+- Scan all colour notations — `#fff`, `rgba()`, `background: white`, inline `style={{}}`.
+- After any relocation assert **containment**, not just presence
+  (`src.index(a) < src.index(b)`).
 
-**Founder comms.** Terse, momentum-driven ("go", "run it", SHA-only, filename-only = "do this surface"). Strong design eye. Judges by deployed visible effect (sends screenshots). Lead with the simpler/safer fix; split risky logic from safe copy/CSS; when consistency is the goal be thorough and run completeness scans - don't ship partial passes.
-### Current queue (next up)
+**Founder:** extremely terse ("go", "b", "all five"). Prefers dense technical
+prose. Judges by visible effect. Blunt when something breaks or time is wasted.
+Works past 4am IST. Is a UX designer — expects design reasoning, not just code.
 
-**1. ~~Invoice templates — UX/UI + compliance pass.~~** ✅ DONE (June 25-27).
-
-**2. ~~Notification + email completeness.~~** ✅ DONE (June 27, session 2). Realtime bell fixed, notification enum fixed, MSA agency email shipped + live-tested, full email inventory mapped.
-
-**3. Extraction / autofill workstream (in progress — see July 5-6 entry).** The deployed multi-provider `parse-brief` pipeline is now wired into the editor (1a/1b), the review modal surfaces all extracted fields (#1), the live parser prompt is tuned (edge-fn **v17**), and the repo is re-synced to prod. Remaining:
-- **LIVE — autofill shipped to prod July 20** after the extended battery (see July 19–20 entry). Flag `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Production. Text intake only; image/voice gated behind their own flags pending batteries.
-- **PLANNED — Stage 3: image → Gemini multimodal.** Parser is text-only today; screenshots are OCR'd to text client-side before the parser ever sees them.
-- **PLANNED — Stage 4: voice intake** (`voiceTranscript` is already a `parse-brief` bundle field, unused).
-- **PLANNED — Stage 5: broader field coverage + per-item confidence.**
-
-**4. Open follow-ups:**
-- **Design track (July 31 — full spec in that entry):** "Acid Ledger" system, Phases 1–2B shipped (`8efe2b5`/`8118311`/`4ed2fb0`). Next: 2C dashboard leftovers → Phase 3 editor skeleton (big, fresh session). The July 31 entry is the canonical design handoff — read it before authoring any design prompt.
-- **Extraction / live-probe session (July 23 — full detail in that entry):** **P0 — Gemini free-tier quota = 20 requests/day** on `gemini-2.5-flash` (the primary); after ~20 briefs/day every parse silently falls to groq — decide pay-vs-harden before launch. **Bracket/dot bug:** hydrator per-line-item confidence lookups (`deliverables.0.type`) never match the parser's bracket keys (`deliverables[0].type`), so per-item confidence always falls through to overall — pure lib fix, deterministic, no deploy. D3 payee fix not yet provider-isolated to groq (needs a fresh-quota single-scenario probe). ~~App-side grok dead refs still to tidy.~~ ✅ DONE July 30 (`2dc33cd`) — grok fully removed, code + types. **NEW (July 30):** strict-field surface-for-review shipped (`d06734f`); its toggle half now pre-*flips* tax-determining controls (`client.location`, `isSezUnit`) on low-confidence reads — ✅ RESOLVED July 30–31 (`fcb321a`→`f5ca620`): location/SEZ now surface as un-applied "confirm to apply" suggestions. **Write-path cleanup Stages 1–3 shipped** (`b7f35d8`/`701ce10`/`3f46664`/`6d91f7a`): merge is now pure, derivation explicit at input boundaries + gated to driving-field edits. **Bracket/dot:** re-characterized as cosmetic post-floor — retracted as a priority.
-- **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** ~~P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead.~~ ✅ CLOSED July 23 — grok removed from the chain entirely (`88f3fd0`, edge fn v22); chain is now a declared 2-tier gemini → groq. Dead app-side grok references remain (see July 22–23 entry §7). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
-- **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); ~~Supabase `GROK_API_KEY` secret~~ ✅ RESOLVED July 23 — chain declared 2-tier and grok removed from code.
-- **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
-- Component-level React ErrorBoundary still unadded (route-level pages shipped July 1).
-- **PHASE 2 COMPLETE** (2.1–2.5, see July 8–11 entry). **Campaign board:** Track A templates ✓ closed · Track C backlog ✓ closed · **Track B ✓ closed** · **Signed-in hydration workstream ✓ shipped (July 20–21: divergence found, conflict card, offline probe)** — awaiting signed-in prod verification · Track D (Playwright revival) queued — diagnostic run first, then targeted fixes.
-
-**5. Planned build queue (non-extraction, founder-prioritised).**
-- **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
-- **v1.5 multi-milestone schema refactor** — promote Milestone to a real entity (existing empty `invoice_milestones` + `invoice_line_items` tables), Option A strict-sequential.
-- PostgREST FK rewrite via `projects.client_id` (no direct `invoices→clients` FK) — AUDIT-P0-002.
-- Restore C2 drawer richness (CHECKPOINT + CONTRACT + CHECKLIST).
-- Profile + Global MSA atomic save — AUDIT-P0-001.
-- Late-fee unit normalize (`msa-sync-utils.ts:71` + `default-msa.ts:24`).
-- Template placeholder suppression — AUDIT-P1-003; trigger-date edge case; orphan-invoice backfill.
-- Prod DB cleanup: delete `AUDIT DRAFT RETRY` orphan + `Test Project 1779434613`.
-
-**6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
+**Before any AG prompt:** ask for the roadmap and a current screenshot of the
+surface. Before any deletion: prove the capability exists elsewhere **and is
+reachable**.
 
 ---
+
+## Summary
+
+**Start `9d3721f` · End `5b83f4b` · 25 commits, all verified byte-exact.**
+
+Three workstreams, in order:
+
+1. **Dashboard redesign** — six representations of one fact reduced to a focus
+   card plus a collapsible list. `LifecycleStepper` 328 → 244 lines; two
+   components (467 lines) unmounted.
+2. **Notification integrity** — enum migration + backfill, applied directly via
+   MCP, plus display grouping.
+3. **Theme inversion** — cockpit became the product default at `<body>`; three
+   client-facing routes opt back to light.
+
+---
+
+## Commits
+
+### Dashboard redesign (option E desktop / H mobile)
+
+| SHA | What |
+|---|---|
+| `7b8ace0` | Live timeline node opens the settlement drawer |
+| `b2b2bef` | Settle target scoped to the dot (was swallowing the whole row) |
+| `855173c` | Removed drilldown card, metric cards, pill row, invoices ledger |
+| `ae0aad3` | `MilestoneFocusCard` component (unmounted) |
+| `d51dff9` | Mounted in both breakpoint branches — **closed a mobile settle gap** |
+| `789d334` | Card state derived from `invoice.due_date`, not the meta string |
+| `c949f44` | Payments banner stopped truncating project names to 3 chars |
+| `7b881f8` | One card, one shared collapsible list, legend removed |
+| `3cd0932` | Horizontal spine removed — **no breakpoint-specific milestone rendering left** |
+| `dc0bbda` | 760px measure, list default-open above `md` |
+| `1395ab9` | Page ground + rail pill + list measure |
+
+### Notifications
+
+| SHA | What |
+|---|---|
+| `3af348a` | Correct types written: `payment_reminder`, `milestone_requested` |
+| `e8733ca` | Activity feed rehomed into the drawer, grouped by title with real dates |
+
+Plus, applied directly through Supabase MCP (not via AG):
+- **Migration** `add_payment_reminder_notification_type` — `ALTER TYPE … ADD VALUE IF NOT EXISTS`
+- **Backfill** — guarded mutation, `RETURNING` as audit, **6 rows reclassified**
+
+### Contrast, theme, accessibility
+
+| SHA | What |
+|---|---|
+| `d410e2a` … `2f07232` | Editor contrast pass — step headers, tooltips, UP NEXT, totals, palette families |
+| `76f242a` | Contrast rule enforced on six controls |
+| `14a79ea` | Rail pill, dashboard ground, `AppIconButton` |
+| `13fa499` | `/support` + `/clients/[id]` adopt cockpit |
+| `fcafc66` | Feedback submit — explicit disabled state |
+| `fdf5254` | **Cockpit becomes the default at `<body>`**; `lance-light` opt-out |
+| `5b83f4b` | Radio state, destructive CTA disabled, pale-pill labels |
+
+---
+
+## Standing rules established this session
+
+**Contrast (founder-stated, now binding):**
+> Acid or white ground → **black** foreground. Dark ground → **white or acid** foreground.
+
+**Verification, learned the hard way:**
+> No visual fix without first reading the element's computed source — ground,
+> foreground, and containing scope. Every regression this session came from
+> acting on rendered appearance instead.
+
+---
+
+## Errors made and what they cost
+
+Recorded because a fresh instance will otherwise repeat them.
+
+**1. Rail pill made worse.** Assumed the selected card was acid from a mobile
+screenshot; it is `bg-acc-soft` (#1d201a, dark). Set the label to `#0e0f0c` —
+dark on dark, fully invisible. Two commits to fix.
+
+**2. Shipped a fix I had already predicted would fail.** Wrote down that
+`appPageShellClass` contains `bg-transparent` and would defeat the background,
+then shipped `w-full` anyway. Cream gutters persisted for two more rounds.
+
+**3. Reintroduced a defect I had just fixed.** Marooned the `HIDE` label ~1100px
+from its text — the identical problem fixed in 5.0g, recreated in 5.0h.
+
+**4. Nearly shipped a 47-site regression.** Theorised `--color-acc-ink` was a
+"landmine" and proposed forcing it dark in both themes. **It is a correctly
+paired token** — bottle-green + cream in light, acid + near-black in cockpit.
+Forcing it dark would have put near-black on bottle-green across every light
+surface. Caught only by checking the values before writing the prompt.
+
+**5. Three prompts nearly written on false positives.** `+ Generate Smart
+Template` looked blue, is `#157a54` emerald. `MSAAcceptanceModal`'s "unlabelled"
+buttons have visible text (regex stripped the ternaries). `AppIconButton` was
+ranked P0 with **zero call sites**.
+
+**Pattern:** greps and screenshots overstate real damage roughly **3:1**.
+`/invoices` + `/clients` were flagged with 58 hardcoded light values; after the
+theme flip they needed **four** label fixes.
+
+---
+
+## Architecture facts (do not re-derive)
+
+- **Theme is now default-dark.** `<body data-theme="cockpit">` in `app/layout.tsx`.
+  `/share/[token]`, `/invoice/[id]/client-preview`, `/invoice/preview` opt out via
+  `data-theme="lance-light"`. **No modals portal** — all inherit their page's theme.
+- `lance-light` declares **only 8 tokens**. Anything the light `:root` defines that
+  is not mirrored there inherits **cockpit** values inside those three routes.
+  Suspect this first for any wrong shadow/status colour on the share page.
+- `--color-acid` / `--color-acc-ink` are a **correctly paired set** that flips
+  together. Never force either to a fixed value.
+- `orderedSteps` = `["agency","client","deliverables","payment"]`. `"meta"` and
+  `"totals"` have `renderStepContent` cases but are **unreachable**.
+- `invoice_line_items` has **no `invoice_id`** — joins via `milestone_id`.
+- Child invoices' `msa_status` is a **dead field**; MSA state lives on the master.
+  A child reading `pending` is expected, not a defect.
+- `appPageShellClass` contains `bg-transparent` — never combine it with a
+  background utility on the same element.
+- `.box`, `.cap`, `.display` are **undefined no-op classes**. `--brutal-border-color`
+  and `--app-radius-card` are used but never declared.
+
+---
+
+## Open items
+
+**High**
+1. **`/share/[token]` has never been checked since the theme flip.** Only route a
+   client sees. Highest-consequence unknown.
+2. `MSAAcceptanceModal` — two `disabled:opacity-50` buttons on the client-facing
+   MSA acceptance flow.
+3. Closure-notice **checkbox** at `CloseProjectModal.tsx:114` still `accent-coral`.
+4. `/invoices` pagination PREV/NEXT near-invisible when disabled.
+
+**Medium**
+5. 55 RLS policies re-evaluate `auth.uid()` per row (`auth_rls_initplan`).
+   `clients` has **15 permissive policies**.
+6. 15 icon buttons without `aria-label`; **102 form inputs** with no `id` and no
+   `aria-label`.
+7. Leaked-password protection disabled in Supabase Auth.
+8. `/login` and `/signup` have **no error handling** — `signInWithOAuth` has no `.catch`.
+
+**Low**
+9. Dead code from `855173c`: `handleSendNow`, `handleResend`, `handlePreview`,
+   `handleEdit`; unused imports `ProjectInvoicesLedger`, `Sticker`, `Marker`,
+   `computeProjectLifecycle`.
+10. Share-path idempotency — invoice `0023fa6e…` has two `invoice_sent` rows 9
+    minutes apart.
+11. `+ New invoice` appears in header **and** rail; label casing has three forms.
+
+---
+
+## Business context (established this session, not code)
+
+Valuation was analysed at the founder's request. **Fair value today: $2,000–5,000.**
+Cost approach gives $7–14K, market comps $2–6K, income approach **zero** — there
+is no revenue. Driving fact from production: **4 registered users, 0 active in 30
+days, 1 user has ever created an invoice.**
+
+Agreed direction: **portfolio case study → contract work**, not selling the
+codebase. A three-month contract at Indian senior rates (₹4.5–9L) exceeds what
+the code would fetch, and retains the asset.
+
+**The case study has not been started.** It was deferred twice for design work.
+
+---
+
 
 ## July 31 — August 11, 2026 — Cockpit legibility sweeps, invoice identity IA, and grid collapse; Phase 3.0b–3.2b shipped
 
