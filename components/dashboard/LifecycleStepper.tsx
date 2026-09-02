@@ -100,16 +100,39 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
   const focusInvoice = focusStop
     ? (project.invoices.find(inv => (inv as any).parent_invoice_id && String((inv as any).milestone_index ?? "") === focusLabel.replace(/^M/i, "")) || project.invoices.find(inv => !(inv as any).parent_invoice_id) || null)
     : null;
+  const focusDueRaw = focusInvoice ? (focusInvoice as any).due_date : null;
+  let focusDaysLate: number | null = null;
+  let focusDueLabel: string | null = null;
+  if (focusDueRaw) {
+    const due = new Date(focusDueRaw);
+    if (!Number.isNaN(due.getTime())) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      due.setHours(0, 0, 0, 0);
+      const diff = Math.round((due.getTime() - today.getTime()) / 86400000);
+      if (diff < 0) focusDaysLate = Math.abs(diff);
+      focusDueLabel =
+        diff === 0 ? "Due today" : diff > 0 ? `Due in ${diff} day${diff === 1 ? "" : "s"}` : null;
+    }
+  }
+
+  const focusNextStop = focusStop
+    ? stops.find(s => s.type === "milestone" && s.state === "pending") || null
+    : null;
+  const focusUnlocks = focusNextStop
+    ? `Settling unlocks ${focusNextStop.originalIndex !== undefined ? `M${focusNextStop.originalIndex + 1}` : "the next milestone"}${focusNextStop.amount && focusNextStop.amount !== "—" ? ` (${focusNextStop.amount})` : ""}`
+    : null;
+
   const focusData = focusStop
     ? {
         label: focusLabel,
         name: focusStop.name || "",
         amount: focusStop.amount || "—",
         invoiceId: focusInvoice ? (focusInvoice as any).id : null,
-        isOverdue: Boolean(focusStop.meta && String(focusStop.meta).toLowerCase().includes("overdue")),
-        daysLate: null as number | null,
-        dueLabel: focusStop.meta || null,
-        unlocksLabel: null as string | null,
+        isOverdue: focusDaysLate !== null,
+        daysLate: focusDaysLate,
+        dueLabel: focusDueLabel,
+        unlocksLabel: focusUnlocks,
       }
     : null;
   const center = (idx: number) => ((idx + 0.5) / total) * 100;
