@@ -359,30 +359,26 @@ function DashboardContent() {
               {/* Title Section */}
               <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-start mb-4">
                 <div>
-                  <div className="flex flex-wrap gap-2 mb-3 items-center whitespace-nowrap">
-                    <div className="px-3 py-1 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest border border-soft rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> LIVE</div>
-                    <div className="px-3 py-1 bg-[color:var(--color-paper-2)] text-ink text-[10px] font-bold uppercase tracking-widest border border-soft rounded-full shadow-[var(--elev-0)]">
-                      {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
-                    </div>
-                    {(() => {
-                      const master = getMasterInvoice();
-                      const invNum = master?.invoice_number;
-                      if (!invNum) return null;
-                      return (
-                        <div className="px-3 py-1 bg-[color:var(--color-paper-2)] text-ink text-[10px] font-bold uppercase tracking-widest border border-soft rounded-full shadow-[var(--elev-0)]">
-                          {invNum}
-                        </div>
-                      );
-                    })()}
-                  </div>
                   <h1 className="font-display font-semibold text-2xl md:text-3xl leading-tight tracking-tight mb-1 text-ink max-w-[800px]">
                     {selectedProject.project.name}
                   </h1>
                   <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70">
                     CLIENT · {selectedProject.project.client?.client_name || "Unknown"} · {selectedProject.project.client?.city || "Unknown"}
                   </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">Project total</span>
+                    <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(selectedProject.metrics.billed)}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {selectedProject.milestones.length} milestones</span>
+                  </div>
                 </div>
                 <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
+                    className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold text-[11px] uppercase tracking-widest transition-all text-[color:var(--color-coral)]"
+                  >
+                    Close project
+                  </button>
                   <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold text-[11px] uppercase tracking-widest transition-all">
                     ⤓ EXPORT
                   </button>
@@ -391,44 +387,12 @@ function DashboardContent() {
                 </div>
               </div>
 
-              {/* 3-card stat strip — Project total is the ink hero */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                {[
-                  { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, hero: true, tone: "ink" },
-                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => (m.status || '').toLowerCase() === 'settled').length} settled`, hero: false, tone: "green" },
-                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", hero: false, tone: "ochre" }
-                ].map((s, i) => {
-                  const cardTone = s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : s.tone === 'green' ? 'flex-1 bg-[color:var(--color-acc-soft)] text-ink' : s.tone === 'ochre' ? 'flex-1 bg-[color:var(--state-warning-bg)] text-ink' : 'flex-1 bg-paper text-ink';
-                  const valTone = s.tone === 'green' ? 'text-[color:var(--color-grass)]' : s.tone === 'ochre' ? 'text-[color:var(--color-ochre-deep)]' : '';
-                  return (
-                  <div key={i} className={`p-4 rounded-[14px] border border-soft ${cardTone}`}>
-                    <div className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.label}</div>
-                    <div className={`font-bold mb-1 ${s.hero ? 'text-[28px] leading-none' : 'text-xl'} ${s.hero ? '' : valTone}`}>{s.val}</div>
-                    <div className={`text-[11px] font-bold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.sub}</div>
-                  </div>
-                  );
-                })}
-              </div>
-
               {/* Vertical layout per spec */}
               <LifecycleStepper
                 project={selectedProject}
                 onSettleLive={() => handleMarkSettled(drilldownState)}
               />
 
-              <ActiveDrilldown
-                state={drilldownState}
-                invoiceIds={selectedProject?.invoices.map(i => i.id) || []}
-                onSendNow={() => handleSendNow(drilldownState)}
-                onMarkSettled={() => handleMarkSettled(drilldownState)}
-                onResend={() => handleResend(drilldownState)}
-                onFinalize={() => handleEdit(drilldownState)}
-                onReviewRevision={() => handleEdit(drilldownState, "payment")}
-                onPreview={() => handlePreview(drilldownState)}
-                onCloseProject={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
-              />
-
-              <ProjectInvoicesLedger project={selectedProject} />
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[16px] m-8">
