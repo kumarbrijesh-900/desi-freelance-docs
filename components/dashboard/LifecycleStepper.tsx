@@ -19,6 +19,9 @@ interface StopDef {
 
 export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWithInvoices; onSettleLive?: () => void }) {
   const [listOpen, setListOpen] = useState(false);
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) setListOpen(true);
+  }, []);
   const milestones = [...project.milestones].filter(m =>
     project.invoices.find(inv => inv.id === m.invoice_id && !(inv as any).parent_invoice_id)
   ).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
@@ -164,7 +167,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
   return (
     <div className="mb-6">
       {focusData && (
-        <div className="mb-4">
+        <div className="mb-4 max-w-[760px]">
           <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
         </div>
       )}
@@ -173,7 +176,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
         type="button"
         onClick={() => setListOpen(open => !open)}
         aria-expanded={listOpen}
-        className="mb-3 flex w-full items-center justify-between gap-3 text-left"
+        className="mb-3 flex w-full max-w-[760px] items-center justify-between gap-3 text-left"
       >
         <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
           All milestones · {settledCount} of {milestoneCount} settled
@@ -183,7 +186,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
         </span>
       </button>
 
-      <div className={`${listOpen ? "block" : "hidden"} bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
+      <div className={`${listOpen ? "block" : "hidden"} max-w-[760px] bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
           const segSolid = idx < liveStopIndex;
