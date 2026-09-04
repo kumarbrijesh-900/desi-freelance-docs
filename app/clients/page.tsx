@@ -842,7 +842,7 @@ export default function ClientsPage() {
             <div className="flex gap-2 mb-3 items-center">
               <div className="px-3 py-1 bg-grass text-[color:var(--color-acc-ink)] text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
               <div className="px-3 py-1 bg-sky text-[color:var(--color-acc-ink)] text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
-              <div className="px-3 py-1 bg-butter text-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
+              <div className="px-3 py-1 bg-butter text-[color:var(--color-acc-ink)] text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
             </div>
             <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
               Your roster
@@ -946,7 +946,7 @@ export default function ClientsPage() {
               ) : (
                 paginatedClients.map((client, i) => {
                   const initial = (client.client_name || "U").slice(0, 2).toUpperCase();
-                  const avatarStyles = ["bg-rose text-ink", "bg-grass text-[color:var(--color-acc-ink)]", "bg-sky text-[color:var(--color-acc-ink)]", "bg-lav text-[color:var(--color-acc-ink)]", "bg-butter text-ink", "bg-coral text-[color:var(--color-acc-ink)]"];
+                  const avatarStyles = ["bg-rose text-ink", "bg-grass text-[color:var(--color-acc-ink)]", "bg-sky text-[color:var(--color-acc-ink)]", "bg-lav text-[color:var(--color-acc-ink)]", "bg-butter text-[color:var(--color-acc-ink)]", "bg-coral text-[color:var(--color-acc-ink)]"];
                   const avatarStyle = avatarStyles[i % avatarStyles.length];
                   const msaOk = client.msa_effective_date;
 
@@ -983,9 +983,9 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
                         {msaOk ? (
-                          <span className="px-2 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border border-soft bg-grass text-white shadow-none">✓ SIGNED</span>
+                          <span className="px-2 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
                         ) : (
-                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-butter text-ink">PENDING</span>
+                          <span className="px-2 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
                         )}
                       </td>
                       <td className="py-4 px-4 text-center">
