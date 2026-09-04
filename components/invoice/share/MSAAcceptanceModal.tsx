@@ -383,7 +383,7 @@ export default function MSAAcceptanceModal({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleAcceptTerms}
-                    className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                   >
                     {!isSubmitting && <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />}
                     {isSubmitting ? "Processing…" : "Accept terms"}
@@ -407,7 +407,7 @@ export default function MSAAcceptanceModal({
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}
                   onClick={handleSubmitProposal}
-                  className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:opacity-50"
+                  className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
                 >
                   {isSubmittingProposal ? "Submitting…" : "Submit proposal"}
                 </button>

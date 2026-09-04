@@ -111,7 +111,7 @@ export function CloseProjectModal({
           type="checkbox"
           checked={notifyClient}
           onChange={(e) => setNotifyClient(e.target.checked)}
-          className="mt-0.5 accent-coral"
+          className="mt-0.5 accent-ink"
         />
         <span className="text-sm font-bold text-ink leading-snug">
           Email the client a brief closure notice

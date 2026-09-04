@@ -16,19 +16,19 @@ export function AppPagination({
       <button
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black disabled:opacity-30 hover:bg-neutral-100 transition-colors disabled:hover:bg-transparent"
+        className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[color:var(--color-ink)] hover:bg-[color:var(--color-soft)] transition-colors disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-transparent"
       >
         ← Prev
       </button>
 
-      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">
-        Page <span className="text-black">{currentPage}</span> of {totalPages}
+      <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)]">
+        Page <span className="text-[color:var(--color-ink)]">{currentPage}</span> of {totalPages}
       </span>
 
       <button
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black disabled:opacity-30 hover:bg-neutral-100 transition-colors disabled:hover:bg-transparent"
+        className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[color:var(--color-ink)] hover:bg-[color:var(--color-soft)] transition-colors disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-transparent"
       >
         Next →
       </button>
