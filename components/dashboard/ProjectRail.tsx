@@ -144,7 +144,7 @@ export function ProjectRail({
             key={f}
             onClick={() => setFilter(f)}
             className={`whitespace-nowrap rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wide border transition-colors
-              ${filter === f ? "bg-acid text-acc-ink border-acid" : "bg-transparent text-ink-2 border-transparent hover:border-soft hover:text-ink"}
+              ${filter === f ? "bg-acid text-acc-ink border-acid" : "bg-transparent text-ink-2 border-strong hover:border-[color:var(--color-ink-3)] hover:text-ink"}
             `}
           >
             {f}
@@ -180,7 +180,7 @@ export function ProjectRail({
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
                 className={`block min-h-[90px] p-4 pl-5 border-b border-soft relative cursor-pointer transition-colors
-                  ${isSelected ? "bg-acc-soft" : "bg-paper hover:bg-paper-2"}
+                  ${isSelected ? "bg-soft" : "bg-paper hover:bg-paper-2"}
                 `}
               >
                 {/* 10px colored left stripe */}

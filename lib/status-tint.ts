@@ -38,7 +38,7 @@ export interface StatusTint {
 export function getStatusTint(kind: StatusKind): StatusTint {
   switch (kind) {
     case "live":
-      return { bg: "var(--color-acid)", fg: "#f0e9d6", bd: "var(--color-acid)" }; // bold hero
+      return { bg: "var(--color-acid)", fg: "var(--color-acc-ink)", bd: "var(--color-acid)" }; // bold hero
     case "active":
     case "complete":
       return { bg: "#e7efe7", fg: "#1e3d33", bd: "#d2e0d2" }; // soft green
