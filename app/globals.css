@@ -1507,14 +1507,73 @@ input::placeholder, select::placeholder, textarea::placeholder {
 /* Client-facing document surfaces opt back out of the dark default.
    Values mirror the light :root palette. */
 [data-theme="lance-light"] {
-  --color-paper:        #f2ebd8;
-  --color-paper-2:      #fbf6e8;
-  --color-ink:          #211c16;
-  --color-ink-2:        #5f574a;
-  --color-ink-3:        #988e7c;
-  --color-soft:         #ddd3bd;
-  --color-acid:         #3a6e59;
-  --color-acc-ink:      #f0e9d6;
+  --color-paper:           #f2ebd8;
+  --color-paper-2:         #fbf6e8;
+  --color-ink:             #211c16;
+  --color-ink-2:           #5f574a;
+  --color-ink-3:           #988e7c;
+  --color-soft:            #ddd3bd;
+  --color-acid:            #3a6e59;
+  --color-acc-ink:         #f0e9d6;
+
+  /* Mirrors of every cockpit-overridden token, sourced from @theme.
+     Without these, a token cockpit redefines but lance-light does not
+     re-declare resolves to the COCKPIT value inside these three routes. */
+  --color-strong:          #c9bb9d;
+  --color-acid-2:          #2d5a48;
+  --color-acc-soft:        #e7efe7;
+  --color-ochre:           #c8943b;
+  --color-ochre-deep:      #a5772a;
+  --color-gold:            #caa14e;
+  --color-clay:            #cf9b78;
+  --color-coral:           #c2502f;
+  --color-rose:            #e7c9b8;
+  --color-sky:             #3c6e63;
+  --color-lav:             #7d7059;
+  --color-butter:          #c8943b;
+  --color-grass:           #157a54;
+  --color-overdue:         #a32d2d;
+  --color-forest:          #1e3d33;
+  --color-plum:            #6f5775;
+  --state-success-bg:      #e7efe7;
+  --state-success-text:    #15603f;
+  --state-warning-bg:      #f6ecd6;
+  --state-warning-text:    #8a6520;
+  --state-danger-bg:       #f6e0d8;
+  --state-danger-text:     #8f3a20;
+  --color-lime-warm:       #e7c878;
+  --color-lime-300:        #157a54;
+  --color-lime-400:        #28b681;
+  --color-lime-500:        #1d9e75;
+  --color-lime-600:        #157a54;
+  --color-lime-700:        #11603f;
+  --color-lime-900:        #0c3a29;
+  --color-lime-50:         #eef6ee;
+  --color-cream:           #f7f0dd;
+  --color-coral-400:       #c2502f;
+  --brand-indigo:          #1e3d33;
+  --brand-indigo-deep:     #1e3d33;
+  --brand-indigo-light:    #2c5648;
+  --brand-indigo-muted:    #5f574a;
+  --color-paper-rose:      #ffeef5;
+  --color-paper-sky:       #e3f3ff;
+  --color-paper-lav:       #efeaff;
+  --color-paper-butter:    #fff7d6;
+  --color-paper-mint:      #e6faec;
+  --elev-1:                0 6px 16px -10px rgba(30,61,51,0.40);
+  --elev-2:                0 14px 30px -16px rgba(30,61,51,0.48);
+  --elev-3:                0 22px 44px -20px rgba(30,61,51,0.55);
+  --shadow-chunk-sm:       0 8px 18px -12px rgba(30,61,51,0.42);
+  --shadow-chunk:          0 14px 30px -16px rgba(30,61,51,0.48);
+  --shadow-chunk-lg:       0 22px 44px -20px rgba(30,61,51,0.55);
+  --shadow-chunk-coral:    0 14px 30px -16px rgba(165,119,42,0.38);
+  --shadow-chunk-sky:      0 14px 30px -16px rgba(60,110,99,0.36);
+  --shadow-chunk-lav:      0 14px 30px -16px rgba(95,87,74,0.32);
+  --brutal-shadow-sm:      0 6px 16px -10px rgba(30,61,51,0.40);
+  --brutal-shadow-md:      0 14px 30px -16px rgba(30,61,51,0.48);
+  --brutal-shadow-lg:      0 22px 44px -20px rgba(30,61,51,0.55);
+  --brutal-shadow-pressed: 0 3px 10px -6px rgba(30,61,51,0.40);
+
   color: var(--color-ink);
   background-color: var(--color-paper);
 }
