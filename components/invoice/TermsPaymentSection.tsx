@@ -640,7 +640,7 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                                   : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
@@ -654,7 +654,7 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 !value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                                   : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
@@ -687,7 +687,7 @@ export default function TermsPaymentSection({
                                         onClick={() => updateLicenseField("licenseType", opt.value as any)}
                                         className={cn(
                                           value.license.licenseType === opt.value
-                                            ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                            ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                                             : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                                         )}
                                       >

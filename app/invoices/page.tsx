@@ -362,7 +362,7 @@ export default function InvoicesPage() {
       <main className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
-          <div className="mb-6 px-4 py-3 bg-ink text-white text-sm font-bold shadow-none">
+          <div className="mb-6 px-4 py-3 bg-ink text-acc-ink text-sm font-bold shadow-none">
             {actionMessage}
           </div>
         )}
