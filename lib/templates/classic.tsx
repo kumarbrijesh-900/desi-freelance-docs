@@ -165,13 +165,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-left">
                 Description
               </th>
-              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-center w-[60px]">
+              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-center w-[48px]">
                 Qty
               </th>
-              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-right w-[120px]">
+              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-right w-[92px]">
                 Rate
               </th>
-              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-right w-[140px]">
+              <th className="py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-right w-[112px]">
                 Amount
               </th>
             </tr>
@@ -209,7 +209,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
 
               return (
                 <tr key={item.id}>
-                  <td className="py-6 pr-8">
+                  <td className="py-6 pr-6 align-top">
                     <div className="font-bold text-[15px] mb-1">
                       {item.description}
                     </div>
@@ -233,13 +233,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                       )}
                     </div>
                   </td>
-                  <td className="py-6 text-center text-[14px] font-normal">
+                  <td className="py-6 text-center text-[14px] font-normal align-top whitespace-nowrap">
                     {item.qty}
                   </td>
-                  <td className="py-6 text-right text-[14px] font-normal">
+                  <td className="py-6 text-right text-[14px] font-normal align-top whitespace-nowrap">
                     {item.rateFormatted}
                   </td>
-                  <td className="py-6 text-right text-[15px] font-bold">
+                  <td className="py-6 text-right text-[15px] font-bold align-top whitespace-nowrap">
                     {item.amountFormatted}
                   </td>
                 </tr>

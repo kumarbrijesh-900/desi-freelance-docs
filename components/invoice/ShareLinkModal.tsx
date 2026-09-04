@@ -229,7 +229,7 @@ export default function ShareLinkModal({
       <div className="flex gap-3 justify-center">
         <a
           href="/dashboard"
-          className="border border-soft bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
+          className="border border-acid bg-acid px-5 py-2.5 text-[12px] font-bold uppercase text-acc-ink shadow-[var(--brutal-shadow-sm)]"
         >
           Go to Dashboard
         </a>
@@ -420,7 +420,7 @@ export default function ShareLinkModal({
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !clientEmail?.trim()}
-                className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-acc-ink uppercase shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-acid-2)] transition-colors disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">
                   <SendIcon className="h-4 w-4" />
