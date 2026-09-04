@@ -373,7 +373,7 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setMode("propose")}
-                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] inline-flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-white inline-flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                       Propose changes
@@ -399,7 +399,7 @@ export default function MSAAcceptanceModal({
                     setMode("view");
                     setProposalText("");
                   }}
-                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)]"
+                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-white"
                 >
                   Cancel
                 </button>
