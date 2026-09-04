@@ -386,25 +386,28 @@ export default function InvoicesPage() {
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="bg-acid px-5 py-2.5 rounded-[11px] text-sm font-bold text-acc-ink shadow-[0_10px_22px_-12px_rgba(30,61,51,0.55)] transition-transform hover:-translate-y-px active:scale-[0.97] whitespace-nowrap"
+              className="sm:hidden bg-acid px-5 py-2.5 rounded-[11px] text-sm font-bold text-acc-ink shadow-[0_10px_22px_-12px_rgba(30,61,51,0.55)] transition-transform hover:-translate-y-px active:scale-[0.97] whitespace-nowrap"
             >
               + New invoice
             </a>
           </div>
         </div>
 
-        {/* Stat strip — calm tan (canonical: tan cards + one ink hero) */}
-        <div className="flex flex-wrap gap-4 mb-4 shrink-0">
+        {/* Stat line — on a ledger these are ambient context, not the task.
+            Cards are for when the metric IS the task. Outstanding keeps its
+            weight through type; acid is legitimate here because outstanding
+            is live money owed. */}
+        <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 mb-4 px-4 py-2.5 bg-paper-2 border border-soft rounded-[12px] shrink-0">
           {[
             { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, hero: true },
             { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, hero: false },
             { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
             { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
           ].map((s, i) => (
-            <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[0_10px_24px_-16px_rgba(30,61,51,0.35)] ${s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : 'flex-1 bg-paper-2 text-ink'}`}>
-              <div className={`text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5 ${s.hero ? 'opacity-70' : 'text-ink-2'}`}>{s.l}</div>
-              <div className={`font-display font-bold tabular-nums mb-1 ${s.hero ? 'text-[32px] leading-none' : 'text-2xl'}`}>{s.v}</div>
-              <div className={`text-[10px] font-bold uppercase tracking-[0.1em] ${s.hero ? 'opacity-70' : 'text-ink-3'}`}>{s.s}</div>
+            <div key={i} className="flex items-baseline gap-2 min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-2 whitespace-nowrap">{s.l}</span>
+              <span className={`font-display font-bold tabular-nums leading-none whitespace-nowrap ${s.hero ? 'text-[22px] text-acid' : 'text-[16px] text-ink'}`}>{s.v}</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-3 whitespace-nowrap">{s.s}</span>
             </div>
           ))}
         </div>
@@ -448,7 +451,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Bulk selection toolbar */}
-        {!loading && filteredInvoices.length > 0 && (
+        {!loading && selectedIds.size > 0 && (
           <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft rounded-[12px] shrink-0">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
@@ -484,9 +487,7 @@ export default function InvoicesPage() {
                   Clear
                 </button>
               </>
-            ) : (
-              <span className="text-[11px] font-medium text-ink-3">Select rows to export or delete</span>
-            )}
+            ) : null}
           </div>
         )}
 
@@ -517,6 +518,7 @@ export default function InvoicesPage() {
               />
             ))}
             </div>
+            {totalPages > 1 && (
             <div className="flex justify-between items-center mt-4 shrink-0">
               <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-2">
                 <span>Projects per page:</span>
@@ -538,6 +540,7 @@ export default function InvoicesPage() {
                 onPageChange={setCurrentPage}
               />
             </div>
+            )}
           </div>
         )}
       </main>
