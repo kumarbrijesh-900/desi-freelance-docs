@@ -229,10 +229,22 @@ function DashboardContent() {
   const confirmSettlement = async () => {
     if (!settlementChoice) return;
 
+    const masterInvoiceForMode = getMasterInvoice();
+    const milestonesForMode = selectedProject?.milestones
+      .filter(milestone => milestone.invoice_id === masterInvoiceForMode?.id)
+      .slice()
+      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)) ?? [];
+    const hasNextMilestone = !!milestonesForMode.find(
+      milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber + 1,
+    );
+
+    // Settling the final milestone IS completing the project. The server only
+    // accepts a terminal settle under trigger_mode "cancelled"; that branch
+    // cancels nothing when there is no later milestone and settles the master.
     const body: Record<string, unknown> = {
       invoice_id: settlementChoice.invoiceId,
       project_id: isUuid(settlementChoice.projectId) ? settlementChoice.projectId : null,
-      trigger_mode: settlementChoice.triggerMode,
+      trigger_mode: hasNextMilestone ? settlementChoice.triggerMode : "cancelled",
     };
 
     const masterInvoice = getMasterInvoice();

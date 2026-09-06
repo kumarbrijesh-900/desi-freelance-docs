@@ -323,8 +323,11 @@ export async function POST(req: NextRequest) {
         user_id: parent.user_id,
         invoice_id: invoiceId,
         type: "invoice_settled",
-        title: "Project Milestones Closed",
-        message: `Invoice ${parent.invoice_number} was settled and remaining milestones were cancelled.`,
+        title: (cancelledMilestones?.length || 0) > 0 ? "Project Milestones Closed" : "Invoice Settled",
+        message:
+          (cancelledMilestones?.length || 0) > 0
+            ? `Invoice ${parent.invoice_number} was settled and remaining milestones were cancelled.`
+            : `Invoice ${parent.invoice_number} was settled. This was the final milestone.`,
         is_read: false,
       });
 
