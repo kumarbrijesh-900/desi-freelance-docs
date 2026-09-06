@@ -617,6 +617,15 @@ export async function deleteInvoice(
     return { error: "Not authenticated" };
   }
 
+  // 0. Capture the project BEFORE deleting — it is unreadable afterwards.
+  const { data: invoiceRow } = await supabase
+    .from("invoices")
+    .select("project_id")
+    .eq("id", invoiceId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  const affectedProjectId = invoiceRow?.project_id ?? null;
+
   // 1. Fetch milestone IDs first to safely clear their nested line items
   const { data: milestones } = await supabase
     .from("invoice_milestones")
@@ -637,14 +646,40 @@ export async function deleteInvoice(
     .delete()
     .eq("invoice_id", invoiceId);
 
-  // 3. Delete parent invoice
+  // 3. Delete parent invoice. Child invoices go with it via the
+  //    parent_invoice_id ON DELETE CASCADE.
   const { error } = await supabase
     .from("invoices")
     .delete()
     .eq("id", invoiceId)
     .eq("user_id", userId);
 
-  return { error: error?.message ?? null };
+  if (error) {
+    return { error: error.message };
+  }
+
+  // 4. A project with no invoices is unreachable: projects are only ever
+  //    created by saving an invoice, and nothing in the app can delete one.
+  //    Leaving it behind puts a permanent empty row in the rail.
+  if (affectedProjectId) {
+    const { count, error: countError } = await supabase
+      .from("invoices")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", affectedProjectId)
+      .eq("user_id", userId);
+
+    if (!countError && count === 0) {
+      // Deliberately ignoring any error here: the invoice IS deleted, and
+      // failing the whole call over leftover cleanup would be worse.
+      await supabase
+        .from("projects")
+        .delete()
+        .eq("id", affectedProjectId)
+        .eq("user_id", userId);
+    }
+  }
+
+  return { error: null };
 }
 
 /* ─── Share Token Generation ─────────────────────────── */
