@@ -102,7 +102,7 @@ export async function GET(request: Request) {
       .select(
         "id, invoice_number, user_id, shared_to_email, share_token, form_data, project_id",
       )
-      .eq("due_date", today)
+      .lte("due_date", today)
       .eq("reminded_due_date", false)
       .in("status", AWAITING_PAYMENT);
 
@@ -177,7 +177,7 @@ export async function GET(request: Request) {
     const { data: overdue } = await supabaseAdmin
       .from("invoices")
       .select("id, invoice_number, user_id, form_data, project_id")
-      .eq("due_date", twoDaysAgo)
+      .lte("due_date", twoDaysAgo)
       .eq("reminded_overdue", false)
       .in("status", AWAITING_PAYMENT);
 

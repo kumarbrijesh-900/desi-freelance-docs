@@ -7,6 +7,7 @@ import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/
 import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
+import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
@@ -25,7 +26,7 @@ export default function InvoicesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
-  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete", "Offline"];
+  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Overdue", "Settled", "Complete", "Offline"];
 
   useEffect(() => {
     async function load() {
@@ -308,6 +309,7 @@ export default function InvoicesPage() {
       case "Live": return status === "live" || status === "finalized";
       case "Settled": return status === "settled";
       case "Complete": return status === "complete";
+      case "Overdue": return isInvoiceOverdue(item.invoice as any);
       case "Offline": return (item.invoice as any).is_offline === true;
       default: return true;
     }
@@ -428,6 +430,7 @@ export default function InvoicesPage() {
                 case "Live": return status === "live" || status === "finalized";
                 case "Settled": return status === "settled";
                 case "Complete": return status === "complete";
+                case "Overdue": return isInvoiceOverdue(item.invoice as any);
                 case "Offline": return (item.invoice as any).is_offline === true;
                 default: return true;
               }

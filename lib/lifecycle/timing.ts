@@ -35,6 +35,31 @@ export function computeSettlementTiming(
   }
 }
 
+/**
+ * Derived overdue. Deliberately NOT a stored status: a stored flag goes stale
+ * the moment a due date is edited and depends on the cron having run. This is
+ * a pure function of the row, so it is correct even if the cron never fires.
+ * Status set matches AWAITING_PAYMENT in app/api/cron/check-invoices so the
+ * badge and the reminder loop can never disagree.
+ */
+export function isInvoiceOverdue(invoice: {
+  status?: string | null;
+  due_date?: string | null;
+  settled_at?: string | null;
+}): boolean {
+  if (!invoice?.due_date) return false;
+  if (invoice.settled_at) return false;
+
+  const status = (invoice.status || "").toLowerCase();
+  if (!["finalized", "partial", "live"].includes(status)) return false;
+
+  const due = new Date(invoice.due_date);
+  if (Number.isNaN(due.getTime())) return false;
+  // same end-of-day benefit-of-doubt as computeSettlementTiming
+  due.setUTCHours(23, 59, 59, 999);
+  return Date.now() > due.getTime();
+}
+
 export function projectNextMilestoneDate(
   previous_settled_at: string | null,
   payment_terms_days: number | null
