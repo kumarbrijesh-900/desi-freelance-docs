@@ -20,6 +20,20 @@ export function flattenMilestonesToLineItems(
  * where it is written). It is kept only as a fallback for legacy rows whose
  * form_data cannot be resolved.
  */
+/**
+ * Ratio between an invoice's payable and its pre-tax subtotal — i.e. its
+ * effective tax multiplier, derived rather than hardcoded so it stays correct
+ * at any GST rate, under RCM, and for exports. Used to put pre-tax
+ * invoice_milestones.amount figures on the same basis as the money shown
+ * everywhere else. Returns 1 when there is nothing to divide by.
+ */
+export function invoiceTaxFactor(invoice: any): number {
+  const taxable = Number(invoice?.grand_total || 0);
+  if (taxable <= 0) return 1;
+  const payable = resolveInvoicePayable(invoice);
+  return payable > 0 ? payable / taxable : 1;
+}
+
 export function resolveInvoicePayable(invoice: any): number {
   try {
     const fd = invoice?.form_data;

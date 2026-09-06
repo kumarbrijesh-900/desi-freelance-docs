@@ -18,6 +18,7 @@ import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { invoiceTaxFactor } from "@/lib/invoice-calculations";
 
 type TriggerMode = "immediate" | "scheduled" | "cancelled";
 
@@ -131,6 +132,20 @@ function DashboardContent() {
     () => selectedProject ? computeActiveDrilldown(selectedProject) : null,
     [selectedProject]
   );
+
+  // Milestone amounts are pre-tax; everything else in the app shows payable.
+  // Derive the multiplier from this project's master invoice so the rows and
+  // the header reconcile at any tax rate.
+  const projectMaster = selectedProject?.invoices.find(
+    inv => !(inv as any).parent_invoice_id,
+  );
+  const milestoneTaxFactor = invoiceTaxFactor(projectMaster);
+  const liveMilestones = (selectedProject?.milestones ?? []).filter(
+    m => String((m as any).status || "").toUpperCase() !== "CANCELLED",
+  );
+  const projectContractedValue =
+    liveMilestones.reduce((sum, m) => sum + Number((m as any).amount || 0), 0) *
+    milestoneTaxFactor;
 
   const dueSoonAlerts = useMemo(() => {
     const alerts: { projectId: string; projectName: string; milestoneNumber: number; milestoneTitle: string; dueDays: number }[] = [];
@@ -410,9 +425,10 @@ function DashboardContent() {
                     CLIENT · {selectedProject.project.client?.client_name || "Unknown"} · {selectedProject.project.client?.city || "Unknown"}
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">Project total</span>
-                    <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(selectedProject.metrics.billed)}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {selectedProject.milestones.length} milestones</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">Project value</span>
+                    <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {formatInr(selectedProject.metrics.billed)} invoiced</span>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-2">
@@ -691,7 +707,7 @@ function DashboardContent() {
                                   M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
                                 </div>
                                 <div className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
-                                  {formatInr(Number(milestone.amount || 0))}
+                                  {formatInr(Number(milestone.amount || 0) * milestoneTaxFactor)}
                                 </div>
                               </div>
                               <span className={`flex-none rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusPillClass}`}>
