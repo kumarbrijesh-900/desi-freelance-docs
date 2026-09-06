@@ -4,7 +4,7 @@ import { formatProjectedDate, nextMilestoneStartLabel } from "@/lib/lifecycle/ti
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
 import { MilestoneFocusCard } from "@/components/dashboard/MilestoneFocusCard";
 
-type StopState = "done" | "live" | "pending" | "end";
+type StopState = "done" | "live" | "pending" | "cancelled" | "end";
 
 interface StopDef {
   id: string;
@@ -70,11 +70,18 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
     let timingLabel = null;
     if ((isSettled || isActive) && invoice && (invoice as any).shared_at && (invoice as any).due_date) {
       timingLabel = `SENT ${formatProjectedDate((invoice as any).shared_at)} · DUE ${formatProjectedDate((invoice as any).due_date)}`;
-    } else if (isPending && i === firstPendingIndex) {
+    } else if (isPending && i === firstPendingIndex
+               && String((m as any).status || "").toUpperCase() !== "CANCELLED") {
       timingLabel = nextMilestoneStartLabel(m);
     }
 
-    const state: StopState = isSettled ? "done" : isActive ? "live" : "pending";
+    // CANCELLED is terminal, not future work. Checked first: a cancelled
+    // milestone is neither settled nor active, so without this it falls
+    // through to "pending" and claims it will start on settle.
+    const isCancelled = String((m as any).status || "").toUpperCase() === "CANCELLED";
+    const state: StopState = isCancelled
+      ? "cancelled"
+      : isSettled ? "done" : isActive ? "live" : "pending";
 
     stops.push({
       id: m.id,
@@ -100,7 +107,9 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
 
   const total = stops.length;
   const settledCount = stops.filter(s => s.type === "milestone" && s.state === "done").length;
-  const milestoneCount = stops.filter(s => s.type === "milestone").length;
+  // Cancelled milestones are resolved, not outstanding. Counting them in the
+  // denominator means a fully closed project can never read "N of N settled".
+  const milestoneCount = stops.filter(s => s.type === "milestone" && s.state !== "cancelled").length;
   const focusStop = stops.find(s => s.state === "live" && s.type !== "start" && s.type !== "complete") || null;
   const focusLabel = focusStop ? ((focusStop as any).label || (focusStop.originalIndex !== undefined ? `M${focusStop.originalIndex + 1}` : focusStop.kicker) || "") : "";
   const focusInvoice = focusStop
@@ -194,12 +203,14 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
           let dotContent = null;
           if (stop.state === "done") { dotClass += " bg-grass text-[color:var(--color-acc-ink)]"; dotContent = "✓"; }
           else if (stop.state === "live") { dotClass += " bg-acid text-acc-ink shadow-[0_0_0_5px_var(--color-acc-soft)]"; if (stop.type === "milestone") dotContent = `M${(stop.originalIndex ?? 0) + 1}`; }
+          else if (stop.state === "cancelled") { dotClass += " bg-soft border-[3px] border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] line-through"; if (stop.type === "milestone") dotContent = `M${(stop.originalIndex ?? 0) + 1}`; }
           else if (stop.state === "pending") { dotClass += " bg-paper border-[3px] border-dashed border-[color:var(--color-strong)] text-ink"; if (stop.type === "milestone") dotContent = `M${(stop.originalIndex ?? 0) + 1}`; }
           else { dotClass += " bg-paper border-[2px] border-solid border-[color:var(--color-strong)] text-ink"; }
 
           let chipNode = null;
           if (stop.type === "milestone") {
             if (stop.state === "live") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest font-mono">LIVE</span>;
+            else if (stop.state === "cancelled") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-soft border-[1.5px] border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] text-[10px] font-bold uppercase tracking-widest font-mono">CANCELLED</span>;
             else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-bold uppercase tracking-widest font-mono">PENDING</span>;
             else if (stop.state === "done") chipNode = <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-ink-2 font-mono">SETTLED</span>;
           }
