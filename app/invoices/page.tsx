@@ -350,9 +350,13 @@ export default function InvoicesPage() {
   });
   const outstandingSum = outstandingInvoices.reduce((sum, item) => sum + resolveInvoicePayable(item.invoice), 0);
 
+  // PARTIAL included deliberately. A master reaches PARTIAL only once its own
+  // milestone settles, and resolveInvoicePayable returns that milestone's
+  // payable — so this adds exactly the money received, nothing more. It cannot
+  // double-count: outstandingInvoices above excludes PARTIAL.
   const settledInvoices = flattenedInvoices.filter(item => {
     const s = (item.invoice.status || '').toLowerCase();
-    return s === 'settled' || s === 'paid';
+    return s === 'settled' || s === 'paid' || s.includes('partial');
   });
   const settledSum = settledInvoices.reduce((sum, item) => sum + resolveInvoicePayable(item.invoice), 0);
   
@@ -415,7 +419,7 @@ export default function InvoicesPage() {
         <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 mb-4 px-4 py-2.5 bg-paper-2 border border-soft rounded-[12px] shrink-0">
           {[
             { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, hero: true },
-            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, hero: false },
+            { l: "Collected", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, hero: false },
             { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
             { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
           ].map((s, i) => (
