@@ -467,16 +467,11 @@ export default function InvoicesPage() {
             );
           })}
           <div className="grow" />
-          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-3">Newest first ▾</div>
-        </div>
-
-        {/* Bulk selection toolbar */}
-        {!loading && selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft rounded-[12px] shrink-0">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
+          {!loading && filteredInvoices.length > 0 && (
+            <label className="flex items-center gap-2 cursor-pointer select-none mr-4">
               <input
                 type="checkbox"
-                checked={filteredInvoices.length > 0 && filteredInvoices.every(item => selectedIds.has(item.invoice.id))}
+                checked={filteredInvoices.every(item => selectedIds.has(item.invoice.id))}
                 onChange={(e) => {
                   if (e.target.checked) {
                     setSelectedIds(new Set(filteredInvoices.map(item => item.invoice.id)));
@@ -490,7 +485,14 @@ export default function InvoicesPage() {
                 Select all {filteredInvoices.length}
               </span>
             </label>
-            <div className="grow" />
+          )}
+          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-3">Newest first ▾</div>
+        </div>
+
+        {/* Bulk selection toolbar */}
+        {!loading && selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft rounded-[12px] shrink-0">
+
             {selectedIds.size > 0 ? (
               <>
                 <span className="text-[11px] font-bold tracking-tight text-ink">{selectedIds.size} selected</span>
@@ -499,7 +501,7 @@ export default function InvoicesPage() {
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
-                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold bg-coral text-white hover:-translate-y-px active:scale-[0.97] transition-transform">
+                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold bg-coral text-[color:var(--color-acc-ink)] hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Delete
                 </button>
                 <button type="button" onClick={clearSelection}
