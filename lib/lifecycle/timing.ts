@@ -43,15 +43,26 @@ export function computeSettlementTiming(
  * badge and the reminder loop can never disagree.
  */
 export function isInvoiceOverdue(invoice: {
+  is_offline?: boolean | null;
   status?: string | null;
   due_date?: string | null;
   settled_at?: string | null;
-}): boolean {
+}, masterMsaStatus: string | null | undefined): boolean {
   if (!invoice?.due_date) return false;
   if (invoice.settled_at) return false;
 
   const status = (invoice.status || "").toLowerCase();
   if (!["finalized", "partial", "live"].includes(status)) return false;
+
+  // Terms must be agreed before an invoice can be overdue. The MSA is what
+  // establishes the due date and the late fee; you cannot be past due on
+  // terms nobody accepted. Child invoices inherit the master's MSA state,
+  // so callers must pass the MASTER status, never the row's own.
+  // Offline invoices are agreed out of band and are exempt.
+  const termsAgreed =
+    invoice.is_offline === true ||
+    (masterMsaStatus || "").toLowerCase() === "accepted";
+  if (!termsAgreed) return false;
 
   const due = new Date(invoice.due_date);
   if (Number.isNaN(due.getTime())) return false;

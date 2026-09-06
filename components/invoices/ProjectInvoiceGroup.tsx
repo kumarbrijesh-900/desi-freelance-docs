@@ -78,7 +78,7 @@ export function ProjectInvoiceGroup({
   const [expanded, setExpanded] = useState(true);
 
   const labels = items.map(it =>
-    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any)).label
+    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any, it.masterMsaStatus)).label
   );
 
   // Rolled-up status shown on the project header.

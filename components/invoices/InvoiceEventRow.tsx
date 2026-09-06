@@ -34,7 +34,7 @@ export function isInvoiceRowDeletable(
   masterMsaStatus?: string | null,
   hasClientMsaNote?: boolean,
 ) {
-  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any));
+  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus));
   return info.label === "draft" || info.label === "live";
 }
 
@@ -72,7 +72,7 @@ export function InvoiceEventRow({
       ? `M${milestoneIndex} BILLING`
       : "MILESTONE BILLING";
   
-  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any));
+  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus));
 
   let total = Number(invoice.grand_total || 0);
   if (total === 0 && invoice.form_data?.totals?.total) {

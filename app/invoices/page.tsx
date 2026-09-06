@@ -309,7 +309,7 @@ export default function InvoicesPage() {
       case "Live": return status === "live" || status === "finalized";
       case "Settled": return status === "settled";
       case "Complete": return status === "complete";
-      case "Overdue": return isInvoiceOverdue(item.invoice as any);
+      case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
       case "Offline": return (item.invoice as any).is_offline === true;
       default: return true;
     }
@@ -430,7 +430,7 @@ export default function InvoicesPage() {
                 case "Live": return status === "live" || status === "finalized";
                 case "Settled": return status === "settled";
                 case "Complete": return status === "complete";
-                case "Overdue": return isInvoiceOverdue(item.invoice as any);
+                case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
                 case "Offline": return (item.invoice as any).is_offline === true;
                 default: return true;
               }
