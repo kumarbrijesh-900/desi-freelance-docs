@@ -94,7 +94,11 @@ export async function GET(request: Request) {
 
     console.log(`[CRON] check-invoices for ${today}`);
 
-    const AWAITING_PAYMENT = ["finalized", "PARTIAL"];
+    // PARTIAL excluded: a master reaches PARTIAL only once its own milestone
+    // settles. Its outstanding balance is billed on child invoices, which are
+    // "finalized" and already covered here. Chasing the master would email the
+    // client about money they have already sent.
+    const AWAITING_PAYMENT = ["finalized"];
 
     /* ───────── Action 1: Due today — remind client + agency ───────── */
     const { data: dueToday } = await supabaseAdmin

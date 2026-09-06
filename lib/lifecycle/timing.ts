@@ -39,7 +39,8 @@ export function computeSettlementTiming(
  * Derived overdue. Deliberately NOT a stored status: a stored flag goes stale
  * the moment a due date is edited and depends on the cron having run. This is
  * a pure function of the row, so it is correct even if the cron never fires.
- * Status set matches AWAITING_PAYMENT in app/api/cron/check-invoices so the
+ * Status set is kept identical to AWAITING_PAYMENT in the check-invoices cron
+ * — both exclude PARTIAL for the same reason — so the
  * badge and the reminder loop can never disagree.
  */
 export function isInvoiceOverdue(invoice: {
@@ -52,7 +53,12 @@ export function isInvoiceOverdue(invoice: {
   if (invoice.settled_at) return false;
 
   const status = (invoice.status || "").toLowerCase();
-  if (!["finalized", "partial", "live"].includes(status)) return false;
+  // PARTIAL is deliberately excluded. A master only becomes PARTIAL after its
+  // own milestone settles, so its billed amount has been received; the money
+  // still outstanding sits on child invoices, which are "finalized" and carry
+  // their own due dates. Including PARTIAL here reports collected money as
+  // overdue AND double-counts the live milestone against its own child.
+  if (!["finalized", "live"].includes(status)) return false;
 
   // Terms must be agreed before an invoice can be overdue. The MSA is what
   // establishes the due date and the late fee; you cannot be past due on
