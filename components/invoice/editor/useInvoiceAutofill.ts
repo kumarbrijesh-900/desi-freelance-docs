@@ -15,6 +15,7 @@ export function useInvoiceAutofill() {
     isNewClient: boolean;
     parsedMilestones: NormalizedBriefMilestone[];
     providerUsed: BriefParserProvider | null;
+    overriddenFields: ParsedInvoiceHydrationResult["overriddenFields"];
     preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
     pendingConfirmations: { label: string; path: string; value: string }[];
   } | null>(null);

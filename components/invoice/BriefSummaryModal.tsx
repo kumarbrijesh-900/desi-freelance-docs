@@ -54,6 +54,7 @@ interface BriefSummaryModalProps {
   isLoggedIn: boolean;
   parsedMilestones: NormalizedBriefMilestone[];
   providerUsed: BriefParserProvider | null;
+  overriddenFields: ParsedInvoiceHydrationResult["overriddenFields"];
   preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
   pendingConfirmations: { label: string; path: string; value: string }[];
   onContinueManually: (data: InvoiceFormData) => void;
@@ -483,6 +484,7 @@ export default function BriefSummaryModal({
   isLoggedIn,
   parsedMilestones,
   providerUsed,
+  overriddenFields,
   preservedFields,
   pendingConfirmations,
   onContinueManually,
@@ -894,6 +896,13 @@ export default function BriefSummaryModal({
             {(() => {
               const normalizeForCompare = (value?: string) =>
                 (value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+              const overrideRows = (overriddenFields || []).filter(
+                (f) =>
+                  Boolean(f.incomingValue) &&
+                  Boolean(f.currentValue) &&
+                  normalizeForCompare(f.incomingValue) !==
+                    normalizeForCompare(f.currentValue),
+              );
               const conflictFields = preservedFields.filter(
                 (f) =>
                   Boolean(f.incomingValue) &&
@@ -901,85 +910,178 @@ export default function BriefSummaryModal({
                   normalizeForCompare(f.incomingValue) !==
                     normalizeForCompare(f.currentValue),
               );
-              if (conflictFields.length === 0) return null;
-              return (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 px-0.5">
-                    <span className="h-2 w-2 rounded-full bg-[#c2502f]" />
-                    <h3 className="text-[13px] font-semibold text-ink">
-                      Differs from your saved profile
-                    </h3>
-                    <span className="ml-auto text-[12px] tabular-nums text-ink-3">
-                      {conflictFields.length} to confirm
-                    </span>
-                  </div>
-                  <p className="px-0.5 text-[12px] text-ink-3">
-                    Your brief and your saved profile disagree here. Pick what
-                    this invoice should use — your profile isn&apos;t changed
-                    either way.
-                  </p>
-                  <div className="space-y-2">
-                    {conflictFields.map((f) => {
-                      const active = normalizeForCompare(
-                        getExtractedValueForLabel(f.label, localData),
-                      );
-                      const briefActive =
-                        active === normalizeForCompare(f.incomingValue);
-                      const options = [
-                        {
-                          key: "brief",
-                          caption: "From brief",
-                          value: f.incomingValue ?? "",
-                          selected: briefActive,
-                        },
-                        {
-                          key: "profile",
-                          caption: "From profile",
-                          value: f.currentValue ?? "",
-                          selected: !briefActive,
-                        },
-                      ];
-                      return (
-                        <div
-                          key={f.path}
-                          className="rounded-[14px] border border-soft bg-paper p-3"
-                        >
-                          <span className="block text-[12px] font-semibold text-ink-2">
-                            {f.label}
-                          </span>
-                          <div className="mt-2 grid grid-cols-2 gap-2">
-                            {options.map((option) => (
-                              <button
-                                key={option.key}
-                                type="button"
-                                aria-pressed={option.selected}
-                                onClick={() =>
-                                  setLocalData((prev) =>
-                                    setFormDataValue(prev, f.label, option.value),
-                                  )
-                                }
-                                className={cn(
-                                  "rounded-[10px] border px-3 py-2 text-left transition-colors",
-                                  option.selected
-                                    ? "border-[#c2502f] bg-[#f7ece6]"
-                                    : "border-soft bg-white hover:bg-[#efe6d1]",
-                                )}
-                              >
-                                <span className="block text-[11px] font-medium text-ink-3">
-                                  {option.caption}
-                                </span>
-                                <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
-                                  {option.value}
-                                </span>
-                              </button>
-                            ))}
+              if (overrideRows.length === 0 && conflictFields.length === 0) return null;
+
+              const renderOverrideSection = () => {
+                if (overrideRows.length === 0) return null;
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-0.5">
+                      <span className="h-2 w-2 rounded-full bg-[#a5772a]" />
+                      <h3 className="text-[13px] font-semibold text-ink">
+                        Updated from your brief
+                      </h3>
+                      <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                        {overrideRows.length} replaced
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {overrideRows.map((f) => {
+                        const active = normalizeForCompare(
+                          getExtractedValueForLabel(f.label, localData),
+                        );
+                        const briefActive =
+                          active === normalizeForCompare(f.incomingValue);
+                        const options = [
+                          {
+                            key: "brief",
+                            caption: "Brief said",
+                            value: f.incomingValue ?? "",
+                            selected: briefActive,
+                          },
+                          {
+                            key: "profile",
+                            caption: "Replaced",
+                            value: f.currentValue ?? "",
+                            selected: !briefActive,
+                          },
+                        ];
+                        return (
+                          <div
+                            key={f.path}
+                            className="rounded-[14px] border border-soft bg-paper p-3"
+                          >
+                            <span className="block text-[12px] font-semibold text-ink-2">
+                              {f.label}
+                            </span>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              {options.map((option) => (
+                                <button
+                                  key={option.key}
+                                  type="button"
+                                  aria-pressed={option.selected}
+                                  onClick={() =>
+                                    setLocalData((prev) =>
+                                      setFormDataValue(prev, f.label, option.value),
+                                    )
+                                  }
+                                  className={cn(
+                                    "rounded-[10px] border px-3 py-2 text-left transition-colors",
+                                    option.selected
+                                      ? "border-[#a5772a] bg-[#fbf6ec]"
+                                      : "border-soft bg-white hover:bg-[#efe6d1]",
+                                  )}
+                                >
+                                  <span className="block text-[11px] font-medium text-ink-3">
+                                    {option.caption}
+                                  </span>
+                                  <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
+                                    {option.value}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
+                );
+              };
+
+              const renderConflictSection = () => {
+                if (conflictFields.length === 0) return null;
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-0.5">
+                      <span className="h-2 w-2 rounded-full bg-[#c2502f]" />
+                      <h3 className="text-[13px] font-semibold text-ink">
+                        Differs from your saved profile
+                      </h3>
+                      <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                        {conflictFields.length} to confirm
+                      </span>
+                    </div>
+                    <p className="px-0.5 text-[12px] text-ink-3">
+                      Your brief and your saved profile disagree here. Pick what
+                      this invoice should use — your profile isn&apos;t changed
+                      either way.
+                    </p>
+                    <div className="space-y-2">
+                      {conflictFields.map((f) => {
+                        const active = normalizeForCompare(
+                          getExtractedValueForLabel(f.label, localData),
+                        );
+                        const briefActive =
+                          active === normalizeForCompare(f.incomingValue);
+                        const options = [
+                          {
+                            key: "brief",
+                            caption: "From brief",
+                            value: f.incomingValue ?? "",
+                            selected: briefActive,
+                          },
+                          {
+                            key: "profile",
+                            caption: "From profile",
+                            value: f.currentValue ?? "",
+                            selected: !briefActive,
+                          },
+                        ];
+                        return (
+                          <div
+                            key={f.path}
+                            className="rounded-[14px] border border-soft bg-paper p-3"
+                          >
+                            <span className="block text-[12px] font-semibold text-ink-2">
+                              {f.label}
+                            </span>
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              {options.map((option) => (
+                                <button
+                                  key={option.key}
+                                  type="button"
+                                  aria-pressed={option.selected}
+                                  onClick={() =>
+                                    setLocalData((prev) =>
+                                      setFormDataValue(prev, f.label, option.value),
+                                    )
+                                  }
+                                  className={cn(
+                                    "rounded-[10px] border px-3 py-2 text-left transition-colors",
+                                    option.selected
+                                      ? "border-[#c2502f] bg-[#f7ece6]"
+                                      : "border-soft bg-white hover:bg-[#efe6d1]",
+                                  )}
+                                >
+                                  <span className="block text-[11px] font-medium text-ink-3">
+                                    {option.caption}
+                                  </span>
+                                  <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
+                                    {option.value}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              };
+
+              if (overrideRows.length > 0 && conflictFields.length > 0) {
+                return (
+                  <div className="space-y-6">
+                    {renderOverrideSection()}
+                    {renderConflictSection()}
+                  </div>
+                );
+              }
+              if (overrideRows.length > 0) return renderOverrideSection();
+              if (conflictFields.length > 0) return renderConflictSection();
+              return null;
             })()}
 
             {confidentFields.length > 0 &&

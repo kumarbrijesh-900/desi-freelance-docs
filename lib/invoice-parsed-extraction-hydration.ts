@@ -58,6 +58,9 @@ export type ParsedInvoiceHydrationResult = {
   nextFormData: InvoiceFormData;
   parsedMilestones: NormalizedBriefMilestone[];
   hydratedFields: HydrationField[];
+  /** Brief value REPLACED a non-blank saved profile value. Must be surfaced:
+   *  the user is being told their saved bank detail was overridden. */
+  overriddenFields: HydrationField[];
   preservedFields: HydrationField[];
   suggestedFields: HydrationField[];
   pendingConfirmations: HydrationField[];
@@ -71,6 +74,7 @@ type HydrationContext = {
   nextFormData: InvoiceFormData;
   parserResponse: BriefParserResponse;
   hydratedFields: HydrationField[];
+  overriddenFields: HydrationField[];
   preservedFields: HydrationField[];
   suggestedFields: HydrationField[];
   pendingConfirmations: HydrationField[];
@@ -206,6 +210,9 @@ function applyStringField(params: {
   defaultValue: string;
   assign: (value: string) => void;
   kind?: InvoiceFieldKind;
+  /** When present and it returns true, a format-valid brief value overrides a
+   *  non-blank current value instead of being preserved. */
+  overrideEligible?: (incoming: string) => boolean;
 }) {
   const incoming = sanitizeHydrationString({
     value: params.incoming,
@@ -254,6 +261,23 @@ function applyStringField(params: {
         confidence,
       );
     }
+    return;
+  }
+
+  // A format-valid identifier from the brief beats a stale profile default.
+  // Restricted to IFSC and account number: both are validated shapes, so a
+  // match cannot be a mis-extraction. Free-text fields (beneficiary name)
+  // deliberately stay preserved — see probe case D1.
+  if (params.overrideEligible?.(incoming)) {
+    params.assign(incoming);
+    recordHydration(
+      params.ctx.overriddenFields,
+      params.path,
+      params.label,
+      confidence,
+      incoming,
+      params.currentValue,
+    );
     return;
   }
 
@@ -757,6 +781,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     nextFormData,
     parserResponse: params.parserResponse,
     hydratedFields: [],
+    overriddenFields: [],
     preservedFields: [],
     suggestedFields: [],
     pendingConfirmations: [],
@@ -1200,6 +1225,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.payment.accountNumber = value;
     },
+    // Indian account numbers: 9-18 digits, nothing else.
+    overrideEligible: (v) => /^\d{9,18}$/.test(v.replace(/\s/g, "")),
   });
   applyStringField({
     ctx,
@@ -1212,6 +1239,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.payment.ifscCode = value.toUpperCase();
     },
+    // IFSC: 4 letters, then 0, then 6 alphanumerics.
+    overrideEligible: (v) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v.trim().toUpperCase()),
   });
   applyStringField({
     ctx,
@@ -1426,6 +1455,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     nextFormData: normalizeInvoiceEntities(mergeInvoiceFormData(nextFormData)),
     parsedMilestones,
     hydratedFields: ctx.hydratedFields,
+    overriddenFields: ctx.overriddenFields,
     preservedFields: ctx.preservedFields,
     suggestedFields: ctx.suggestedFields,
     pendingConfirmations: ctx.pendingConfirmations,

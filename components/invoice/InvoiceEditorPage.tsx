@@ -1980,6 +1980,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       isNewClient,
       parsedMilestones: parsedHydration.parsedMilestones,
       providerUsed: parserResponse.providerUsed,
+      overriddenFields: parsedHydration.overriddenFields,
       preservedFields: parsedHydration.preservedFields,
       pendingConfirmations: parsedHydration.pendingConfirmations.map((f) => ({
         label: f.label,
@@ -3071,6 +3072,7 @@ return (
         isNewClient={briefSummaryData.isNewClient}
         parsedMilestones={briefSummaryData.parsedMilestones}
         providerUsed={briefSummaryData.providerUsed}
+        overriddenFields={briefSummaryData.overriddenFields}
         preservedFields={briefSummaryData.preservedFields}
         pendingConfirmations={briefSummaryData.pendingConfirmations}
         isLoggedIn={!isGuestMode}
