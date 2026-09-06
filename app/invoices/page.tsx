@@ -361,7 +361,15 @@ export default function InvoicesPage() {
     ? Math.round(settledWithDates.reduce((sum, i) => sum + (new Date(i.invoice.settled_at!).getTime() - new Date(i.invoice.shared_at!).getTime()) / 86400000, 0) / settledWithDates.length)
     : null;
 
-  const gstCollected = settledSum * 0.18; // approximation for display
+  // Tax actually collected = payable minus taxable value, per invoice. Do NOT
+  // multiply settledSum by a rate: settledSum is already tax-inclusive, and a
+  // hardcoded 18% is wrong for any invoice on a different rate.
+  const gstCollected = settledInvoices.reduce(
+    (sum, item) =>
+      sum +
+      Math.max(0, resolveInvoicePayable(item.invoice) - Number(item.invoice.grand_total || 0)),
+    0,
+  );
 
   return (
     <div className={`${appPageShellClass} h-dvh overflow-hidden flex flex-col`}>

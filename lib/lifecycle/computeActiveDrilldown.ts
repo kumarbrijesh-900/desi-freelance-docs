@@ -66,7 +66,13 @@ export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownS
     // Past negotiation (e.g. MSA accepted) but no milestone is LIVE yet.
     // Active = the FIRST non-settled milestone, never the last.
     const ordered = [...activeMilestones].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-    const firstUnsettled = ordered.find(m => (m.status || '').toLowerCase() !== 'settled');
+    // CANCELLED is terminal, not pending work. Without this a soft-cancelled
+    // milestone on a closed project is picked as active and surfaces in
+    // PAYMENTS DUE SOON as overdue.
+    const firstUnsettled = ordered.find(m => {
+      const s = (m.status || '').toLowerCase();
+      return s !== 'settled' && s !== 'cancelled';
+    });
     if (firstUnsettled) {
       activeMilestone = firstUnsettled;
       primaryAction = 'mark_settled';
