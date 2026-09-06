@@ -65,11 +65,13 @@ type Assertion = {
  * payment failure — the brief must win over a profile default.
  */
 const ASSERTIONS: Assertion[] = [
-  {
-    scenario: "D1",
-    name: "brief VPA beats profile account name",
-    fn: (f) => f.payment.accountName === "ruhnika@okhdfcbank",
-  },
+  // REMOVED — D1 "brief VPA beats profile account name".
+  // It required payment.accountName === "ruhnika@okhdfcbank": a UPI handle the
+  // extractor mis-read as a beneficiary name. Satisfying it would mean writing
+  // a VPA into the beneficiary field, so accountName is deliberately NOT
+  // override-eligible. Overrides are limited to format-validated identifiers
+  // (IFSC, account number) where a match cannot be a mis-extraction; the brief
+  // value still surfaces in the conflict card for the user to choose.
   {
     scenario: "D2",
     name: "brief IFSC beats profile IFSC",
