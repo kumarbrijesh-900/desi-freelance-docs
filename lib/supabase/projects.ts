@@ -228,6 +228,12 @@ export async function listProjectsByClient(
 }
 
 function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): number {
+  // Tax-inclusive payable first, so project value agrees with project
+  // outstanding and with the invoice document. The branches below are pre-tax
+  // and remain only as fallbacks for rows without resolvable form_data.
+  const payable = resolveInvoicePayable(invoice);
+  if (payable > 0) return payable;
+
   if (milestones.length > 0) {
     return milestones.reduce((sum, milestone) => sum + Number(milestone.amount || 0), 0);
   }

@@ -8,7 +8,7 @@ import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
 import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
-import { resolveInvoicePayable, calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
