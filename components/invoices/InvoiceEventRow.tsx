@@ -4,14 +4,18 @@ import React from "react";
 import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
+import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
 
-export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false) {
+export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false, derivedOverdue: boolean = false) {
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
   // Return side (left stripe color) and pill details
   if (status === 'cancelled') return { side: 'bg-rule', pill: 'bg-rule text-ink line-through', label: 'cancelled' };
-  if (status === 'overdue') return { side: 'bg-overdue', pill: 'bg-overdue text-acc-ink shadow-none', label: 'overdue' };
+  // Reachable via derivedOverdue: nothing writes status='overdue'. Ranked above
+  // settled/partial deliberately — the predicate already excludes settled rows,
+  // so this can never mask a paid invoice.
+  if (status === 'overdue' || derivedOverdue) return { side: 'bg-overdue', pill: 'bg-overdue text-acc-ink shadow-none', label: 'overdue' };
   if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-none', label: 'settled' };
   if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-none', label: 'partial' };
   if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-none', label: 'revision' };
@@ -30,7 +34,7 @@ export function isInvoiceRowDeletable(
   masterMsaStatus?: string | null,
   hasClientMsaNote?: boolean,
 ) {
-  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at);
+  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any));
   return info.label === "draft" || info.label === "live";
 }
 
@@ -68,7 +72,7 @@ export function InvoiceEventRow({
       ? `M${milestoneIndex} BILLING`
       : "MILESTONE BILLING";
   
-  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at);
+  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any));
 
   let total = Number(invoice.grand_total || 0);
   if (total === 0 && invoice.form_data?.totals?.total) {

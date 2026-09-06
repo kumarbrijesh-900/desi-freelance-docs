@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusInfo, isInvoiceRowDeletable } from "./InvoiceEventRow";
+import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
 
 type Item = {
   invoice: any;
@@ -41,7 +42,7 @@ const PILL: Record<string, string> = {
   locked: "bg-[#e3ecea] text-teal border border-[#cadbd6]",
   live: "bg-acc-soft text-acid border border-[#cfe0cf]",
   revision: "bg-[#f7e4dc] text-coral border border-[#e0b9a6]",
-  overdue: "bg-[#f7e4dc] text-coral border border-[#e0b9a6]",
+  overdue: "bg-overdue text-acc-ink border border-overdue font-bold",
   cancelled: "bg-paper-2 text-ink/40 line-through border border-soft",
   draft: "bg-transparent text-ink/50 border border-dashed border-strong",
 };
@@ -77,7 +78,7 @@ export function ProjectInvoiceGroup({
   const [expanded, setExpanded] = useState(true);
 
   const labels = items.map(it =>
-    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at).label
+    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any)).label
   );
 
   // Rolled-up status shown on the project header.
