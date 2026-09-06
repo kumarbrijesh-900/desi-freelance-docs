@@ -6,6 +6,7 @@ import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusInfo, isInvoiceRowDeletable } from "./InvoiceEventRow";
 import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 type Item = {
   invoice: any;
@@ -18,7 +19,7 @@ type Item = {
 // Same total + fallbacks InvoiceEventRow uses, so amounts match everywhere.
 function invoiceTotal(invoice: any): number {
   const milestoneIndex = Number(invoice.milestone_index);
-  let total = Number(invoice.grand_total || 0);
+  let total = resolveInvoicePayable(invoice);
   if (total === 0 && invoice.form_data?.totals?.total) {
     total = Number(invoice.form_data.totals.total);
   }

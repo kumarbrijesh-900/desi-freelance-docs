@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false, derivedOverdue: boolean = false) {
   const status = (invoiceStatus || '').toLowerCase();
@@ -74,7 +75,7 @@ export function InvoiceEventRow({
   
   const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus));
 
-  let total = Number(invoice.grand_total || 0);
+  let total = resolveInvoicePayable(invoice);
   if (total === 0 && invoice.form_data?.totals?.total) {
     total = Number(invoice.form_data.totals.total);
   }

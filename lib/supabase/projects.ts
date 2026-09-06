@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "@/lib/supabase/client";
+import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 export interface Project {
   id: string;
@@ -240,7 +241,8 @@ function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): numbe
     );
   }
 
-  return Number(invoice.form_data?.totals?.total || invoice.grand_total || 0);
+  // form_data.totals does not exist on any invoice — this fallback was dead.
+  return resolveInvoicePayable(invoice);
 }
 
 function getProjectMetrics(
@@ -286,7 +288,7 @@ function getProjectMetrics(
         status !== "paid" && 
         !status.includes("partial") && 
         status !== "cancelled") {
-      outstanding += Number(invoice.grand_total || 0);
+      outstanding += resolveInvoicePayable(invoice);
     }
   });
 

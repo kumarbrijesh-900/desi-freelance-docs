@@ -8,6 +8,7 @@ import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
 import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { resolveInvoicePayable, calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
@@ -140,7 +141,9 @@ export default function InvoicesPage() {
       const paid = statusRaw === "settled" || statusRaw === "paid" || !!inv.settled_at;
       const shared = !!inv.shared_at;
       const cancelled = statusRaw === "cancelled";
-      const amount = Number(inv.grand_total || 0);
+      const taxableValue = Number(inv.grand_total || 0);
+      const amount = resolveInvoicePayable(inv);
+      const gstAmount = Math.max(0, amount - taxableValue);
       const outstanding = shared && !paid && !cancelled && !statusRaw.includes("partial") ? amount : 0;
       const collected = paid ? amount : 0;
       sumAmount += amount; sumOutstanding += outstanding; sumCollected += collected;
@@ -192,6 +195,8 @@ export default function InvoicesPage() {
         "Shared": toDate(inv.shared_at),
         "Due": toDate(inv.due_date),
         "Settled": toDate(inv.settled_at),
+        "Taxable value (INR)": taxableValue,
+        "GST amount (INR)": gstAmount,
         "Amount (INR)": amount,
         "Paid?": paid ? "Yes" : "No",
         "Outstanding (INR)": outstanding,
@@ -343,13 +348,13 @@ export default function InvoicesPage() {
     const s = (item.invoice.status || '').toLowerCase();
     return item.invoice.shared_at && s !== 'settled' && s !== 'paid' && s !== 'cancelled' && !s.includes('partial');
   });
-  const outstandingSum = outstandingInvoices.reduce((sum, item) => sum + Number(item.invoice.grand_total || 0), 0);
+  const outstandingSum = outstandingInvoices.reduce((sum, item) => sum + resolveInvoicePayable(item.invoice), 0);
 
   const settledInvoices = flattenedInvoices.filter(item => {
     const s = (item.invoice.status || '').toLowerCase();
     return s === 'settled' || s === 'paid';
   });
-  const settledSum = settledInvoices.reduce((sum, item) => sum + Number(item.invoice.grand_total || 0), 0);
+  const settledSum = settledInvoices.reduce((sum, item) => sum + resolveInvoicePayable(item.invoice), 0);
   
   const settledWithDates = settledInvoices.filter(i => i.invoice.shared_at && i.invoice.settled_at);
   const avgPaidDays = settledWithDates.length > 0 

@@ -11,6 +11,29 @@ export function flattenMilestonesToLineItems(
   return milestones.flatMap((m) => m.lineItems);
 }
 
+/**
+ * The amount actually payable, tax inclusive. Derived from form_data via the
+ * same calculateInvoiceTotals the invoice document uses, so a summary card can
+ * never disagree with the PDF it summarises.
+ *
+ * The grand_total COLUMN is the pre-tax subtotal (see lib/supabase/invoices.ts
+ * where it is written). It is kept only as a fallback for legacy rows whose
+ * form_data cannot be resolved.
+ */
+export function resolveInvoicePayable(invoice: any): number {
+  try {
+    const fd = invoice?.form_data;
+    if (fd && (fd.milestones?.length || fd.lineItems?.length)) {
+      const totals = calculateInvoiceTotals(fd);
+      const payable = Number(totals?.grandTotal || 0);
+      if (payable > 0) return payable;
+    }
+  } catch {
+    // fall through to the stored subtotal
+  }
+  return Number(invoice?.grand_total || 0);
+}
+
 export function calculateInvoiceTotals(formData: any): InvoiceComputedValues {
   const lineItems = formData?.lineItems || [];
   const milestones = formData?.milestones || [];

@@ -6,6 +6,7 @@ import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatInr } from "./ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusTint, type StatusKind } from "@/lib/status-tint";
+import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
   const status = (invoiceStatus || '').toLowerCase();
@@ -82,7 +83,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               }
 
               // Compute grand total
-              let total = Number(inv.grand_total || 0);
+              let total = resolveInvoicePayable(inv);
               if (total === 0) {
                 total = Number(inv.form_data?.totals?.total || 0);
               }
