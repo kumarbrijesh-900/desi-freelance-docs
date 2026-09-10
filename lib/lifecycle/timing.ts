@@ -77,6 +77,42 @@ export function isInvoiceOverdue(invoice: {
   return Date.now() > due.getTime();
 }
 
+/**
+ * Shared, never accepted, and old enough that silence is the answer.
+ *
+ * Mutually exclusive with isInvoiceOverdue by construction: that requires the
+ * master MSA to be "accepted", this requires "pending". They can never both
+ * be true for the same invoice.
+ *
+ * "pending" ONLY — "proposed" and "rejected" both mean the client responded,
+ * which is a different problem with a different action.
+ */
+export const UNANSWERED_AFTER_DAYS = 7;
+
+export function isInvoiceUnanswered(
+  invoice: {
+    status?: string | null;
+    shared_at?: string | null;
+    settled_at?: string | null;
+    is_offline?: boolean | null;
+  },
+  masterMsaStatus: string | null | undefined,
+): boolean {
+  if (!invoice?.shared_at) return false;
+  if (invoice.settled_at) return false;
+  if (invoice.is_offline === true) return false;
+
+  const status = (invoice.status || "").toLowerCase();
+  if (status === "settled" || status === "cancelled" || status === "draft") return false;
+
+  if ((masterMsaStatus || "").toLowerCase() !== "pending") return false;
+
+  const shared = new Date(invoice.shared_at);
+  if (Number.isNaN(shared.getTime())) return false;
+  const days = (Date.now() - shared.getTime()) / 86400000;
+  return days >= UNANSWERED_AFTER_DAYS;
+}
+
 export function projectNextMilestoneDate(
   previous_settled_at: string | null,
   payment_terms_days: number | null

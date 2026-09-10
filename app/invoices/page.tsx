@@ -7,7 +7,7 @@ import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/
 import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
-import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
@@ -27,7 +27,7 @@ export default function InvoicesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
-  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Overdue", "Settled", "Complete", "Offline"];
+  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Overdue", "Unanswered", "Settled", "Complete", "Offline"];
 
   useEffect(() => {
     async function load() {
@@ -315,6 +315,7 @@ export default function InvoicesPage() {
       case "Settled": return status === "settled";
       case "Complete": return status === "complete";
       case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
+      case "Unanswered": return isInvoiceUnanswered(item.invoice as any, item.masterMsaStatus);
       case "Offline": return (item.invoice as any).is_offline === true;
       default: return true;
     }
@@ -448,6 +449,7 @@ export default function InvoicesPage() {
                 case "Settled": return status === "settled";
                 case "Complete": return status === "complete";
                 case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
+                case "Unanswered": return isInvoiceUnanswered(item.invoice as any, item.masterMsaStatus);
                 case "Offline": return (item.invoice as any).is_offline === true;
                 default: return true;
               }

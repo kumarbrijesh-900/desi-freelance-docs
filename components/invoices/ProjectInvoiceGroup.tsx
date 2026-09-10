@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusInfo, isInvoiceRowDeletable } from "./InvoiceEventRow";
-import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 type Item = {
@@ -40,6 +40,7 @@ const PILL: Record<string, string> = {
   complete: "bg-[#e4f1ea] text-acid border border-[#c7e4d4]",
   partial: "bg-[#f6ecd6] text-ochre-deep border border-[#ecd9b0]",
   awaiting: "bg-[#f6ecd6] text-ochre-deep border border-[#ecd9b0]",
+  unanswered: "bg-[color:var(--color-soft)] text-[color:var(--color-ink-2)] border border-[color:var(--color-strong)] shadow-none",
   locked: "bg-[#e3ecea] text-teal border border-[#cadbd6]",
   live: "bg-acc-soft text-acid border border-[#cfe0cf]",
   revision: "bg-[#f7e4dc] text-coral border border-[#e0b9a6]",
@@ -79,7 +80,7 @@ export function ProjectInvoiceGroup({
   const [expanded, setExpanded] = useState(true);
 
   const labels = items.map(it =>
-    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any, it.masterMsaStatus)).label
+    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any, it.masterMsaStatus), isInvoiceUnanswered(it.invoice as any, it.masterMsaStatus)).label
   );
 
   // Rolled-up status shown on the project header.

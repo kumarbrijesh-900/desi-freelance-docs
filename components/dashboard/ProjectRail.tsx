@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { Search } from "lucide-react";
 import { getStatusTint, statusKindFromSummary } from "@/lib/status-tint";
+import { isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 
 type FilterMode = "ALL" | "ACTIVE" | "AT RISK" | "AWAITING CLIENT" | "COMPLETE";
 
@@ -75,6 +76,12 @@ export function ProjectRail({
     }
 
     if (msaStatus === "pending") {
+      if (isInvoiceUnanswered(master as any, master.msa_status)) {
+        const days = Math.floor(
+          (Date.now() - new Date(master.shared_at as string).getTime()) / 86400000,
+        );
+        return `UNANSWERED · ${days}d`;
+      }
       return "AWAITING MSA ACCEPTANCE";
     }
 

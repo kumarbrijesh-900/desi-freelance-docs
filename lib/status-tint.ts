@@ -7,6 +7,7 @@
 // dark-green pills (live/locked/settled/complete all looked the same).
 
 export type StatusKind =
+  | "unanswered"
   | "live"
   | "active"
   | "locked"
@@ -46,6 +47,8 @@ export function getStatusTint(kind: StatusKind): StatusTint {
       return { bg: "#e4f1ea", fg: "#157a54", bd: "#c7e4d4" }; // emerald
     case "locked":
       return { bg: "#e6edeb", fg: "#33655b", bd: "#cfe0db" }; // muted teal — distinct from live
+    case "unanswered":
+      return { bg: "#f6ecd6", fg: "var(--color-ochre-deep)", bd: "#ecd9b0", dashed: true };
     case "awaiting":
       return { bg: "#f6ecd6", fg: "#a5772a", bd: "#ecd9b0" }; // ochre
     case "viewed":
@@ -72,6 +75,7 @@ export function statusKindFromSummary(summary: string): StatusKind {
   if (s.startsWith("LIVE")) return "live";
   if (s === "COMPLETE") return "complete";
   if (s.startsWith("REVISION")) return "revision";
+  if (s.startsWith("UNANSWERED")) return "unanswered";
   if (s.startsWith("AWAITING")) return "awaiting";
   if (s.startsWith("LOCKED")) return "locked";
   if (s.startsWith("SETTLED")) return "settled";

@@ -4,10 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
-import { isInvoiceOverdue } from "@/lib/lifecycle/timing";
+import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
-export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false, derivedOverdue: boolean = false) {
+export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false, derivedOverdue: boolean = false, derivedUnanswered: boolean = false) {
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
@@ -20,6 +20,9 @@ export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, h
   if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-none', label: 'settled' };
   if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-none', label: 'partial' };
   if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-none', label: 'revision' };
+  // Above both 'awaiting' branches: an unanswered invoice IS awaiting, but
+  // saying only that hides that it has been awaiting for months.
+  if (derivedUnanswered) return { side: 'bg-strong', pill: 'bg-[color:var(--color-soft)] text-[color:var(--color-ink-2)] border border-[color:var(--color-strong)] shadow-none', label: 'unanswered' };
   if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-sky', pill: 'bg-sky text-white shadow-none', label: 'locked' };
   if (msa === 'proposed') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-none', label: 'awaiting' };
   if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-none', label: 'awaiting' };
@@ -35,7 +38,7 @@ export function isInvoiceRowDeletable(
   masterMsaStatus?: string | null,
   hasClientMsaNote?: boolean,
 ) {
-  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus));
+  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus), isInvoiceUnanswered(invoice as any, masterMsaStatus));
   return info.label === "draft" || info.label === "live";
 }
 
@@ -73,7 +76,7 @@ export function InvoiceEventRow({
       ? `M${milestoneIndex} BILLING`
       : "MILESTONE BILLING";
   
-  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus));
+  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus), isInvoiceUnanswered(invoice as any, masterMsaStatus));
 
   let total = resolveInvoicePayable(invoice);
   if (total === 0 && invoice.form_data?.totals?.total) {
