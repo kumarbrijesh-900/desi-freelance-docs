@@ -219,6 +219,45 @@ export async function GET(request: Request) {
       console.log(`[CRON] Processed ${sent} 'overdue' nudges.`);
     }
 
+    // ── UNANSWERED: shared 7+ days ago, master MSA never accepted ──────────
+    // Notifies the USER (bell), does NOT email the client. Both these invoices
+    // have already been chased twice by the blocks above and got nothing back;
+    // a third identical email is not the answer, so this is a signal to act,
+    // not another nudge.
+    const UNANSWERED_AFTER_DAYS = 7;
+    const unansweredCutoff = new Date(
+      Date.now() - UNANSWERED_AFTER_DAYS * 86400000,
+    ).toISOString();
+
+    const { data: unanswered } = await supabaseAdmin
+      .from("invoices")
+      .select("id, user_id, invoice_number, shared_at, msa_status, parent_invoice_id")
+      .in("status", AWAITING_PAYMENT)
+      .eq("notified_unanswered", false)
+      .eq("msa_status", "pending")
+      .is("parent_invoice_id", null)
+      .not("shared_at", "is", null)
+      .lte("shared_at", unansweredCutoff);
+
+    for (const inv of unanswered ?? []) {
+      const days = Math.floor(
+        (Date.now() - new Date(inv.shared_at as string).getTime()) / 86400000,
+      );
+
+      await supabaseAdmin.from("notifications").insert({
+        user_id: inv.user_id,
+        invoice_id: inv.id,
+        type: "msa_unanswered",
+        title: "No response yet",
+        message: `${inv.invoice_number} was sent ${days} days ago and the terms still have not been accepted. Resend the link or close it out.`,
+      });
+
+      await supabaseAdmin
+        .from("invoices")
+        .update({ notified_unanswered: true })
+        .eq("id", inv.id);
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
