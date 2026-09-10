@@ -168,6 +168,12 @@ export default function ShareLinkModal({
 }: ShareLinkModalProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Seeded from the prop but editable: 114 days of silence usually means the
+  // address was wrong, so resending to the same one is not a fix.
+  const [emailDraft, setEmailDraft] = useState(clientEmail || "");
+  useEffect(() => { setEmailDraft(clientEmail || ""); }, [clientEmail]);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailDraft.trim());
   const effectivePaymentTerms = formatPaymentTerms(
     invoiceData?.meta?.paymentTerms,
     invoiceData?.client?.msaPaymentTermsDays,
@@ -179,7 +185,7 @@ export default function ShareLinkModal({
 
   /* ── Send invoice email via secure API route ── */
   const handleSend = async () => {
-    if (!clientEmail?.trim()) {
+    if (!emailValid) {
       push({ kind: "error", ttl: "Client email is required. Add it in the invoice editor." });
       return;
     }
@@ -191,7 +197,7 @@ export default function ShareLinkModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           invoiceId,
-          clientEmail: clientEmail.trim(),
+          clientEmail: emailDraft.trim(),
         }),
       });
 
@@ -224,7 +230,7 @@ export default function ShareLinkModal({
       </div>
       <h2 className="text-xl font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
       <p className="text-[13px] text-[color:var(--color-ink-2)] mb-6">
-        A secure link has been delivered to <strong>{clientEmail}</strong>. You will be notified when they view or accept it.
+        A secure link has been delivered to <strong>{emailDraft}</strong>. You will be notified when they view or accept it.
       </p>
       <div className="flex gap-3 justify-center">
         <a
@@ -277,16 +283,24 @@ export default function ShareLinkModal({
               </label>
               <div className="mt-1.5 flex items-center gap-2 border border-soft bg-[color:var(--color-paper)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--color-ink-2)]" />
-                <span
-                  className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--color-ink)] font-normal" : "text-[color:var(--color-ink-2)] italic"}`}
-                >
-                  {clientEmail?.trim() ||
-                    "No client email — add it in the editor first"}
-                </span>
+                <input
+                  type="email"
+                  value={emailDraft}
+                  onChange={(e) => setEmailDraft(e.target.value)}
+                  placeholder="name@company.com"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="w-full bg-transparent text-sm font-normal text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-2)] placeholder:italic outline-none"
+                />
               </div>
-              {!clientEmail?.trim() && (
-                <p className="mt-1.5 text-[#FF5C00] text-[10px] font-bold uppercase tracking-[0.16em]">
-                  ← Go back to Step 2 and add the client email to continue.
+              {emailDraft.trim() && !emailValid && (
+                <p className="mt-1.5 text-[color:var(--color-coral)] text-[10px] font-bold uppercase tracking-[0.16em]">
+                  That does not look like a valid email address.
+                </p>
+              )}
+              {sharedAt && emailDraft.trim() !== (clientEmail || "").trim() && emailValid && (
+                <p className="mt-1.5 text-[color:var(--color-ochre-deep)] text-[11px] font-medium">
+                  This will update the client email on the invoice, not just this send.
                 </p>
               )}
             </div>
@@ -406,7 +420,7 @@ export default function ShareLinkModal({
           <div className="border-t border-[color:var(--color-soft)] px-6 py-4 flex items-center justify-between gap-3">
             <p className="text-[11px] text-[color:var(--color-ink-2)] leading-relaxed">
               🔒 The secure link is delivered only to{" "}
-              {clientEmail?.trim() || "the client's email"}.
+              {emailDraft.trim() || "the client's email"}.
             </p>
             <div className="flex items-center gap-2 shrink-0">
               <button
@@ -419,7 +433,7 @@ export default function ShareLinkModal({
               <button
                 type="button"
                 onClick={handleSend}
-                disabled={sending || !clientEmail?.trim()}
+                disabled={sending || !emailValid}
                 className="inline-flex items-center gap-2 border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-acc-ink uppercase shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-acid-2)] transition-colors disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">

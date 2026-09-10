@@ -199,6 +199,10 @@ export async function POST(req: NextRequest) {
           msa_status: 'pending',
           msa_response: 'pending',
           client_msa_note: null,
+          form_data: {
+            ...(invoice.form_data as any),
+            client: { ...((invoice.form_data as any)?.client ?? {}), clientEmail },
+          },
         })
         .eq("id", invoiceId);
 
@@ -220,6 +224,10 @@ export async function POST(req: NextRequest) {
           msa_status: 'pending',
           msa_response: 'pending',
           client_msa_note: null,
+          form_data: {
+            ...(invoice.form_data as any),
+            client: { ...((invoice.form_data as any)?.client ?? {}), clientEmail },
+          },
         })
         .eq("id", invoiceId);
 
