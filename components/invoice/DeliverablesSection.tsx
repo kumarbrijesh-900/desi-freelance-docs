@@ -655,7 +655,7 @@ function LineItemCard({
                 value={item.rate}
                 placeholder={isGuestMode ? "Enter" : "0"}
                 className={isReadOnly
-                  ? "h-11 text-[14px] !pl-10 border-[#D4D2CC] bg-[#F5F4F0] text-[#6B6660] shadow-none"
+                  ? "h-11 text-[14px] !pl-10 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] shadow-none"
                   : cn(
                       "h-11 text-[14px] !pl-10",
                       getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate),

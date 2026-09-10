@@ -67,8 +67,8 @@ export function WorkbenchReadinessPanel({
             className={cn(
               "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-soft rounded-md",
               isReadOnly
-                ? "bg-[#F5F4F0] text-[#6B6660]"
-                : ready ? "bg-[#00DCB4] text-[color:var(--color-ink)]" : "bg-[#FFFBE6] text-[#B45309]",
+                ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)]"
+                : ready ? "bg-acid text-acc-ink" : "bg-[#FFFBE6] text-[#B45309]",
             )}
             aria-hidden="true"
           >

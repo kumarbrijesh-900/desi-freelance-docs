@@ -179,7 +179,7 @@ export default function MSAAcceptanceModal({
             <button
               type="button"
               onClick={onClosePreview}
-              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-[10px] border border-soft bg-[color:var(--color-ochre)] text-white hover:brightness-105 transition-colors"
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-[10px] border border-soft bg-[color:var(--color-ochre)] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ochre-deep)] transition-colors"
               aria-label="Close Preview"
             >
               <span className="text-2xl font-bold leading-none mb-1">×</span>

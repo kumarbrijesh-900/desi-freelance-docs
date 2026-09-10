@@ -345,7 +345,7 @@ export default function TotalsTaxesSection({
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 {paymentTerms && (
-                  <div className="border border-soft rounded-md bg-[#F0EAFF] text-[#8B5CF6] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border border-soft rounded-md bg-[color:var(--color-acc-soft)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     {paymentTerms}
                   </div>
                 )}
