@@ -779,7 +779,7 @@ function BrutalSelect({
     return (
       <div
         className={cn(
-          "flex h-11 w-full items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 text-[14px] font-normal text-[#6B6660]",
+          "flex h-11 w-full items-center border-2 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 text-[14px] font-normal text-[color:var(--color-ink-2)]",
           className,
         )}
       >

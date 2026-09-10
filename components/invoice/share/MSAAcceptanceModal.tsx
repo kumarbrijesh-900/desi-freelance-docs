@@ -281,7 +281,7 @@ export default function MSAAcceptanceModal({
                 {(paymentTerms || addendumNotes) && (
                   <div className="rounded-[var(--radius-soft)] border border-[#ecd9b0] bg-[#f6ecd6] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[color:var(--color-ochre)] text-[10px] font-bold text-white">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[color:var(--color-ochre)] text-[10px] font-bold text-[color:var(--color-ink)]">
                         !
                       </span>
                       <div>
