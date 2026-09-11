@@ -461,7 +461,7 @@ function EditableRow({
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-colors",
               isApproved
                 ? "border-transparent bg-acid text-acc-ink"
-                : "border-soft bg-paper-2 text-ink-3 hover:border-acid hover:text-acid disabled:opacity-40",
+                : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid disabled:opacity-40",
             )}
           >
             <CheckIcon className="h-5 w-5" />
