@@ -160,7 +160,7 @@ export async function fireMilestoneInvoice(
     },
   };
   const appliedSnapshot = computeAppliedMsaSnapshot(childFormData as any);
-  const childGrandTotal = calculateInvoiceTotals(childFormData as any).grandTotal;
+  const childGrandTotal = calculateInvoiceTotals(childFormData as any).subtotal;
 
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
   const randBytes = Array.from(crypto.getRandomValues(new Uint8Array(12)));

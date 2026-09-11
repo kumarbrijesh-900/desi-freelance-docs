@@ -12,15 +12,6 @@ export function flattenMilestonesToLineItems(
 }
 
 /**
- * The amount actually payable, tax inclusive. Derived from form_data via the
- * same calculateInvoiceTotals the invoice document uses, so a summary card can
- * never disagree with the PDF it summarises.
- *
- * The grand_total COLUMN is the pre-tax subtotal (see lib/supabase/invoices.ts
- * where it is written). It is kept only as a fallback for legacy rows whose
- * form_data cannot be resolved.
- */
-/**
  * Ratio between an invoice's payable and its pre-tax subtotal — i.e. its
  * effective tax multiplier, derived rather than hardcoded so it stays correct
  * at any GST rate, under RCM, and for exports. Used to put pre-tax
@@ -34,6 +25,15 @@ export function invoiceTaxFactor(invoice: any): number {
   return payable > 0 ? payable / taxable : 1;
 }
 
+/**
+ * The amount actually payable, tax inclusive. Derived from form_data via the
+ * same calculateInvoiceTotals the invoice document uses, so a summary card can
+ * never disagree with the PDF it summarises.
+ *
+ * The grand_total COLUMN is the pre-tax subtotal (see lib/supabase/invoices.ts
+ * where it is written). It is kept only as a fallback for legacy rows whose
+ * form_data cannot be resolved.
+ */
 export function resolveInvoicePayable(invoice: any): number {
   try {
     const fd = invoice?.form_data;
