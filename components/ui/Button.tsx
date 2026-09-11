@@ -19,21 +19,31 @@ const variants: Record<ButtonVariant, string> = {
   paper:   "bg-paper text-ink border border-[color:var(--color-soft)] shadow-[var(--brutal-shadow-sm)]",
 };
 
+/**
+ * Button styling as a plain class string, so controls that NAVIGATE can render
+ * as a real anchor and still look identical. A button with an onClick router
+ * push is not a link: it cannot be cmd-clicked, shows no URL on hover, exposes
+ * no href to crawlers, and does nothing before JS loads.
+ */
+export function buttonClasses(variant: ButtonVariant = "primary", className?: string) {
+  return cn(
+    "inline-flex items-center justify-center gap-2 px-4 py-2.5",
+    "rounded-xl",
+    "app-focus-ring",
+    "font-sans text-xs font-bold tracking-[0.1em] uppercase",
+    "cursor-pointer transition-[transform,box-shadow,background-color,border-color] duration-150",
+    "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
+    variants[variant],
+    className,
+  );
+}
+
 export function Button({ variant = "primary", className, children, ...props }: ButtonProps) {
   return (
     <motion.button
       whileHover={{ y: -1 }}
       whileTap={{ scale: 0.96, transition: { duration: 0.08 } }}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 px-4 py-2.5",
-        "rounded-xl",
-        "app-focus-ring",
-        "font-sans text-xs font-bold tracking-[0.1em] uppercase",
-        "cursor-pointer transition-[transform,box-shadow,background-color,border-color] duration-150",
-        "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
-        variants[variant],
-        className
-      )}
+      className={buttonClasses(variant, className)}
       {...props}
     >
       {children}
