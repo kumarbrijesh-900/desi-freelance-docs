@@ -108,6 +108,7 @@ export async function GET(request: Request) {
       )
       .lte("due_date", today)
       .eq("reminded_due_date", false)
+      .or(`last_notified_at.is.null,last_notified_at.lt.${new Date(Date.now() - 48 * 3600 * 1000).toISOString()}`)
       .in("status", AWAITING_PAYMENT);
 
     if (dueToday && dueToday.length > 0) {
@@ -183,6 +184,7 @@ export async function GET(request: Request) {
       .select("id, invoice_number, user_id, form_data, project_id")
       .lte("due_date", twoDaysAgo)
       .eq("reminded_overdue", false)
+      .or(`last_notified_at.is.null,last_notified_at.lt.${new Date(Date.now() - 48 * 3600 * 1000).toISOString()}`)
       .in("status", AWAITING_PAYMENT);
 
     if (overdue && overdue.length > 0) {

@@ -141,10 +141,15 @@ export async function POST(req: NextRequest) {
       is_read: false,
     });
 
-    /* ── 6. Mark invoice as nudged (update reminded flag) ── */
+    /* ── 6. Record WHEN we nudged ── */
+    // Deliberately NOT reminded_due_date. That flag means "the due-date
+    // reminder has been sent"; setting it here cancelled a chase scheduled for
+    // weeks later. last_notified_at records the fact we actually have — when
+    // this client was last contacted — and the cron uses it as a short
+    // cool-off rather than a permanent suppression.
     await supabaseAdmin
       .from("invoices")
-      .update({ reminded_due_date: true })
+      .update({ last_notified_at: new Date().toISOString() })
       .eq("id", invoice.id);
 
     return NextResponse.json({ success: true });
