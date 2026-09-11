@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { MotionReveal } from "@/components/ui/motion-primitives";
@@ -18,6 +18,10 @@ export default function PublicInvoiceSharePage({
   const [templateId, setTemplateId] = useState("classic");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
+  // React 18 StrictMode double-invokes effects in dev; without this the first
+  // open would insert two read_receipts rows and the count === 1 first-view
+  // notification would never fire.
+  const viewTracked = useRef(false);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
@@ -51,6 +55,25 @@ export default function PublicInvoiceSharePage({
         setTemplateId(data.template_id || "classic");
         setInvoiceNumber(data.invoice_number || "");
         setInvoiceId(data.id || "");
+
+        // Record that the client opened the link. Fire-and-forget: this must
+        // never block or fail the render of the invoice itself.
+        if (data.id && !viewTracked.current) {
+          viewTracked.current = true;
+          void fetch("/api/track-view", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              invoiceId: data.id,
+              userAgent:
+                typeof navigator !== "undefined"
+                  ? navigator.userAgent.slice(0, 512)
+                  : null,
+            }),
+          }).catch(() => {
+            /* tracking is best-effort; never surface to the client */
+          });
+        }
         
         // Check if this is a child milestone invoice
         if (data.parent_invoice_id) {
