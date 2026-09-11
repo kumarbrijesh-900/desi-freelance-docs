@@ -20,10 +20,10 @@ export function Sticker({ rotate = -4, tone = "acid", children, className }: Sti
         "font-display font-semibold text-[13px]",
         "shadow-[var(--brutal-shadow-md)]",
         tone === "acid"   && "bg-acid text-acc-ink",
-        tone === "coral"  && "bg-coral text-white",
+        tone === "coral"  && "bg-[color:var(--state-danger-bg)] text-[color:var(--state-danger-text)]",
         tone === "rose"   && "bg-rose",
-        tone === "sky"    && "bg-sky text-white",
-        tone === "lav"    && "bg-lav text-white",
+        tone === "sky"    && "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]",
+        tone === "lav"    && "bg-[color:var(--state-neutral-bg)] text-[color:var(--state-neutral-text)]",
         tone === "butter" && "bg-butter",
         className
       )}

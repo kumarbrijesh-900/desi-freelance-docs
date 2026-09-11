@@ -974,7 +974,7 @@ export default function ClientsPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
-                        <span className={`px-2 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-sky text-white" : "bg-transparent text-ink"}`}>
+                        <span className={`px-2 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
                           {client.client_type === "international" ? "INTL" : "INDIA"}
                         </span>
                       </td>

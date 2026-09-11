@@ -42,6 +42,10 @@
   --state-warning-text: #8a6520;
   --state-danger-bg:    #f6e0d8;
   --state-danger-text:  #8f3a20;
+  --state-info-bg:      #e3ecea;
+  --state-info-text:    #2f574e;
+  --state-neutral-bg:   #ebe7dd;
+  --state-neutral-text: #5f574a;
 
   /* Legacy accent aliases → E */
   --color-lime-warm:    #e7c878;
@@ -1541,6 +1545,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-warning-text:    #8a6520;
   --state-danger-bg:       #f6e0d8;
   --state-danger-text:     #8f3a20;
+  --state-info-bg:         #e3ecea;
+  --state-info-text:       #2f574e;
+  --state-neutral-bg:      #ebe7dd;
+  --state-neutral-text:    #5f574a;
   --color-lime-warm:       #e7c878;
   --color-lime-300:        #157a54;
   --color-lime-400:        #28b681;
@@ -1624,6 +1632,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-warning-text: #f5c542;
   --state-danger-bg:    #2e1512;
   --state-danger-text:  #ff6b5a;
+  --state-info-bg:      #11241f;
+  --state-info-text:    #6bbfa8;
+  --state-neutral-bg:   #1e1c26;
+  --state-neutral-text: #b9a6ff;
 
   --color-lime-warm:    #d6f97a;
   --color-lime-300:     #d6f97a;

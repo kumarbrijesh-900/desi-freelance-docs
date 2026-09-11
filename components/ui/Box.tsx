@@ -23,12 +23,12 @@ export function Box({ shadow = "ink", tone, className, children, ...props }: Box
         !tone && "bg-paper",
         tone === "acid"   && "bg-acid text-acc-ink",
         tone === "rose"   && "bg-rose text-ink",
-        tone === "sky"    && "bg-sky text-white",
-        tone === "lav"    && "bg-lav text-white",
-        tone === "butter" && "bg-butter text-ink",
+        tone === "sky"    && "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]",
+        tone === "lav"    && "bg-[color:var(--state-neutral-bg)] text-[color:var(--state-neutral-text)]",
+        tone === "butter" && "bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]",
         tone === "mint"   && "bg-paper-mint text-ink",
         tone === "paper"  && "bg-paper text-ink",
-        tone === "grass"  && "bg-grass text-white",
+        tone === "grass"  && "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]",
         className
       )}
       {...props}

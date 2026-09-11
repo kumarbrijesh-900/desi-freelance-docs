@@ -12,9 +12,9 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)]",
-  coral:   "bg-coral text-white shadow-[var(--brutal-shadow-sm)]",
-  sky:     "bg-sky text-white shadow-[var(--brutal-shadow-sm)]",
-  lav:     "bg-lav text-white shadow-[var(--brutal-shadow-sm)]",
+  coral:   "bg-[color:var(--state-danger-bg)] text-[color:var(--state-danger-text)] shadow-[var(--brutal-shadow-sm)]",
+  sky:     "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)] shadow-[var(--brutal-shadow-sm)]",
+  lav:     "bg-[color:var(--state-neutral-bg)] text-[color:var(--state-neutral-text)] shadow-[var(--brutal-shadow-sm)]",
   ghost:   "bg-transparent text-ink hover:bg-[color:var(--color-acc-soft)]",
   paper:   "bg-paper text-ink border border-[color:var(--color-soft)] shadow-[var(--brutal-shadow-sm)]",
 };

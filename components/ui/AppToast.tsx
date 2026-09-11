@@ -68,23 +68,23 @@ export function Toaster() {
           className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[10px] border border-soft shadow-[var(--brutal-shadow-md)] bg-white relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
         >
           {toast.kind === "success" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-grass text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckIcon size={14} strokeWidth={3} />
             </div>
           )}
           {toast.kind === "error" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-coral text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-[color:var(--state-danger-bg)] text-[color:var(--state-danger-text)]">
               <XIcon size={14} strokeWidth={3} />
             </div>
           )}
           {toast.kind === "info" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-sky text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]">
               <InfoIcon size={14} strokeWidth={3} />
             </div>
           )}
           {/* Default fallback if no kind or unknown kind */}
           {!toast.kind && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-butter text-ink">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]">
               <InfoIcon size={14} strokeWidth={3} />
             </div>
           )}
