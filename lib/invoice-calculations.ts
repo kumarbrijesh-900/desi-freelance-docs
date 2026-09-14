@@ -1,7 +1,10 @@
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeInvoiceMoney } from "@/lib/money/compute-invoice-money";
+import { buildTaxContext } from "@/lib/money/tax-context";
+import type { InvoiceMoney, TaxContext } from "@/lib/money/types";
 import type {
   InvoiceComputedValues,
   InvoiceLineItem,
+  InvoiceTaxType,
   Milestone,
 } from "@/types/invoice";
 
@@ -33,6 +36,11 @@ export function invoiceTaxFactor(invoice: any): number {
  * The grand_total COLUMN is the pre-tax subtotal (see lib/supabase/invoices.ts
  * where it is written). It is kept only as a fallback for legacy rows whose
  * form_data cannot be resolved.
+ *
+ * Deliberately UNROUNDED. `computeInvoiceMoney` also returns `amountPayable`,
+ * which is the whole-rupee figure under Sec 170, but moving the ledger onto it
+ * is a separate decision from putting it onto the engine — so this returns
+ * `grossBeforeRounding` and every surface keeps the figure it shows today.
  */
 export function resolveInvoicePayable(invoice: any): number {
   try {
@@ -48,29 +56,73 @@ export function resolveInvoicePayable(invoice: any): number {
   return Number(invoice?.grand_total || 0);
 }
 
-export function calculateInvoiceTotals(formData: any): InvoiceComputedValues {
-  const lineItems = formData?.lineItems || [];
+/** The engine's treatment vocabulary, narrowed to the four the document uses. */
+function toTaxType(money: InvoiceMoney): InvoiceTaxType {
+  switch (money.treatment) {
+    case "intrastate":
+      return "cgst_sgst";
+    case "interstate":
+    case "export_igst":
+    case "sez_igst":
+      return "igst";
+    case "export_zero_rated":
+    case "sez_zero_rated":
+      return "zero_rated";
+    default:
+      return "exempt";
+  }
+}
+
+/**
+ * Which line items an invoice bills.
+ *
+ * A master carries the whole milestone array but bills only the first; a child
+ * is generated with `milestones: [thatOne]`. So "milestones[0]" is the invariant,
+ * not an accident, and it is preserved here exactly as it was.
+ */
+function billableLineItems(formData: any): any[] {
   const milestones = formData?.milestones || [];
-  const isRcmEnabled = formData?.tax?.isRcmEnabled || false;
+  if (milestones.length > 0) return milestones[0]?.lineItems ?? [];
+  return formData?.lineItems || [];
+}
 
-  // Use milestones if provided and non-empty, otherwise fall back to lineItems
-  const effectiveItems =
-    milestones && milestones.length > 0
-      ? (milestones[0]?.lineItems ?? [])
-      : lineItems;
+function contextFor(formData: any): TaxContext {
+  return buildTaxContext({
+    agency: formData?.agency ?? {},
+    client: formData?.client ?? {},
+    tax: formData?.tax ?? {},
+    supplyDate: formData?.meta?.invoiceDate ?? "",
+  });
+}
 
-  const subtotal = effectiveItems.reduce((sum: number, item: any) => {
-    const qty = Number(item.qty) || 0;
-    const rate = Number(item.rate) || 0;
-    return sum + qty * rate;
-  }, 0);
-
-  const taxBreakdown = computeInvoiceTax(formData, subtotal);
+/**
+ * Adapter over `computeInvoiceMoney`, returning the shape this function has
+ * always returned so that no caller changes.
+ *
+ * `tests/money/run-calculate-totals-parity-tests.ts` holds a frozen copy of the
+ * implementation this replaced and asserts all thirteen fields match across the
+ * full input matrix. When the last caller moves to the engine directly, delete
+ * this function and that test together.
+ */
+export function calculateInvoiceTotals(formData: any): InvoiceComputedValues {
+  const ctx = contextFor(formData);
+  const money = computeInvoiceMoney(billableLineItems(formData), ctx);
+  const taxType = toTaxType(money);
+  const taxed = taxType === "cgst_sgst" || taxType === "igst";
 
   return {
-    subtotal,
-    grandTotal: subtotal + (isRcmEnabled ? 0 : taxBreakdown.taxAmount),
-    isRcmEnabled,
-    ...taxBreakdown,
+    subtotal: money.taxableValue,
+    grandTotal: money.grossBeforeRounding,
+    isRcmEnabled: ctx.reverseCharge,
+    registered: money.treatment !== "unregistered",
+    taxType,
+    rate: taxed ? ctx.defaultRate : 0,
+    taxableValue: money.taxableValue,
+    cgst: money.cgstTotal,
+    sgst: money.sgstTotal,
+    igst: money.igstTotal,
+    taxAmount: money.taxTotal,
+    totalPayable: money.grossBeforeRounding,
+    label: money.label,
   };
 }

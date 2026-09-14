@@ -248,9 +248,14 @@ export function computeInvoiceMoney(
 
     const taxAmount = round2(slabTaxable * (rate / 100));
     if (mode === "cgst_sgst") {
-      const cgst = round2(taxAmount / 2);
-      // The remainder absorbs the odd paisa so cgst + sgst === taxAmount exactly.
-      const sgst = round2(taxAmount - cgst);
+      // Split in integer paise: floating-point halves of a 2dp figure are not
+      // exactly representable, so 222.23 / 2 is 111.11499999... and any rounding
+      // of it is a coin toss. CGST takes the lower half and SGST absorbs the odd
+      // paisa, so cgst + sgst === taxAmount exactly and the assignment is stable.
+      const taxPaise = Math.round(taxAmount * 100);
+      const cgstPaise = Math.floor(taxPaise / 2);
+      const cgst = cgstPaise / 100;
+      const sgst = (taxPaise - cgstPaise) / 100;
       slabs.push({ rate, taxableValue: slabTaxable, cgst, sgst, igst: 0, taxAmount });
     } else {
       slabs.push({

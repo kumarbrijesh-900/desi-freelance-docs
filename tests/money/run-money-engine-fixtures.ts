@@ -121,10 +121,10 @@ const FIXTURES: Fixture[] = [
     expect: { taxableValue: 0, taxTotal: 0, roundOff: 0, amountPayable: 0, treatment: "intrastate", slabCount: 0 },
   },
   {
-    name: "10. rounding edge — odd paisa split across CGST/SGST",
+    name: "10. rounding edge — odd paisa goes to SGST, cgst+sgst === taxAmount",
     lines: [{ qty: 1, rate: 1234.61 }],
     context: ctx({}),
-    expect: { taxableValue: 1234.61, taxTotal: 222.23, cgstTotal: 111.12, sgstTotal: 111.11, roundOff: 0.16, amountPayable: 1457, treatment: "intrastate" },
+    expect: { taxableValue: 1234.61, taxTotal: 222.23, cgstTotal: 111.11, sgstTotal: 111.12, roundOff: 0.16, amountPayable: 1457, treatment: "intrastate" },
   },
   {
     name: "11a. LUT valid — M1 supplied 10 Feb 2026 under FY 2025-26 LUT",
