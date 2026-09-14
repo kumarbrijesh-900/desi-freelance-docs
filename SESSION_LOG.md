@@ -1,3 +1,429 @@
+# Session Log — September 4–11, 2026 (Phase 6.0f–6.0z)
+
+## Summary
+
+**Start `945bb52` · End `02f7202` · 35 commits, all verified byte-exact.
+Plus 5 production data passes and 1 migration.**
+
+Five workstreams:
+
+1. **Theme token integrity** — 54 cockpit-overridden tokens mirrored into
+   `lance-light`; 21 live leaks on the three client-facing routes → 0.
+2. **The money model** — overdue derived not stored, `PARTIAL` understood,
+   tax-inclusive display, GST no longer double-counted, XLS split into
+   taxable/GST/total. Outstanding + Collected now reconcile to total billed.
+3. **Contrast** — a resolved-value scanner took the whole app from 40 failing
+   pairs to 0.
+4. **The Unanswered state** — end to end: predicate → pill → chip → rail →
+   bell notification → resend with correctable email.
+5. **Demo data** — production rewritten from a test corpus into a coherent
+   four-client portfolio that passes the product's own validators.
+
+---
+
+## READ FIRST: additions to the pinned orientation
+
+Everything in the previous session's READ FIRST block still applies. Add these.
+
+### Claude's recurring failure mode this session
+
+**13 false harness failures. Every single one was Claude's assertion, not a
+code defect.** Three sub-patterns, each of which cost a round trip:
+
+1. **Unscoped `str.count()` / `str.index()`** on a whole file when the string
+   occurs in more than one function. (`disabled={isSubmitting}` ×2,
+   `const due = new Date` ×2, a `rounded-md` pill prefix ×3.)
+   → **Slice to the function or JSX block before asserting.**
+2. **Substring-absence against prose.** Asserting a token is gone from a file
+   that contains English *about* that token — `"Resend"` in button copy,
+   `reminded_due_date` in a comment explaining why it isn't used, `href` in a
+   JSDoc, `client` inside `createClient()`.
+   → **Assert on the code construct (`.update({ reminded_due_date`, never the
+   bare identifier.)**
+3. **File-wide absence when only one line changed.** Claiming `#F5F4F0` is gone
+   when the prompt altered one of three occurrences. This one was *useful*
+   twice — it accidentally found two real unfixed instances — but it is still
+   the wrong assertion.
+
+Also: `| head` truncating a listing was misread as a file being absent, and a
+`&&` chain short-circuited on a zero count so half a check silently never ran.
+
+### Anchoring, not just asserting
+
+Two real misses came from choosing a FIND anchor without reading the enclosing
+function:
+
+- `getInvoiceTotal` — anchored on the last line; two earlier branches returned
+  first, so the edit was **dead code** and project value stayed pre-tax.
+- User-testing Test 2 claimed "no settle path exists" after grepping
+  `settled_at` call sites without reading either one. Both paths existed.
+
+→ **Read the whole enclosing function before choosing where to edit, not after.**
+
+### AG's SHA reporting is unreliable — verify every time
+
+Four consecutive pushes reported a SHA whose **first 7 characters were correct
+and whose remaining 33 were fabricated.** The remote rejects them outright
+("not our ref"). Whatever produces those strings has only the abbreviation and
+generates the rest.
+
+```
+pasted 5d985fc8d77c…  actual 5d985fc4d09a…
+pasted e5cd6bcc331e…  actual e5cd6bc431e3…
+pasted 6c4d66827a4d…  actual 6c4d6685cc18…
+pasted 0109df95b367…  actual 0109df9966334…
+```
+
+`git ls-remote` first, always. A plausible-looking wrong hash is worse than a
+short one because it passes a glance.
+
+### AG also substitutes its own judgement on WHICH task to do
+
+Given a prompt to write `SESSION_LOG.md`, it instead implemented the money
+engine's Phase 0 and pushed that — correct on priority, but it did not say so.
+The only way to find out was diffing. **Read the SUMMARY, not the SHA.**
+
+### Greps overstate — but measure before believing that too
+
+Claude asserted the "36 broken contrast pairs" figure was inflated by the
+`[data-theme="cockpit"] .bg-[#hex]` override block. **It wasn't.** A scanner
+resolving 36 background + 69 text overrides, excluding state variants, and
+scoping each file to its theme still found 40. What was wrong was the
+*interpretation*: 34 were styleguide-only. **A count that survives scrutiny
+still tells you nothing about priority until you ask what is reachable.**
+
+---
+
+## Architectural facts established (these will not survive a `git log` read)
+
+### `PARTIAL` means the master's own milestone is PAID
+
+`PARTIAL` is only ever written in the advance-to-next-milestone flow
+(`trigger-next-milestone/route.ts:244`, `lib/supabase/milestones.ts:104`),
+which runs *after* the current milestone settles. So a `PARTIAL` master has
+received its own billed amount; the outstanding money lives on child invoices.
+
+Consequences, both fixed: it must not be counted as overdue (it was reporting
+₹2,40,720 already collected as overdue, and double-counting against its own
+child), and its money must count as collected (it was in **neither** bucket —
+outstanding and collected summed to ₹7,60,392 against ₹10,01,112 billed).
+
+### Overdue is DERIVED, never stored
+
+`status = 'overdue'` is **never written anywhere**, despite 12 files branching
+on it, a tint in `status-tint.ts`, and the CHECK constraint permitting it.
+`lib/lifecycle/timing.ts::isInvoiceOverdue` is a pure predicate. Stored state
+would go stale the moment a due date changes and would depend on a cron run.
+
+**It is gated on the MASTER's MSA being `accepted`.** You cannot be past due on
+terms nobody agreed to — the MSA is what establishes the due date and late fee.
+Child `msa_status` is a dead field; callers must pass the master's. `is_offline`
+is the escape hatch for out-of-band agreements.
+
+### Unanswered is also derived, and 7 days is deliberate
+
+`isInvoiceUnanswered` = shared 7+ days ago, master MSA still `pending`.
+**7 not 14, because an MSA is a signature, not a payment.** Signing takes
+minutes; a week of silence means the mail never landed, went to the wrong
+person, or there is an unvoiced objection. Being early costs one pill; being
+late cost `INV-2026-4078` 114 days.
+
+`unanswered` and `overdue` are **mutually exclusive by construction** — one
+requires `pending`, the other `accepted`.
+
+### Reminder cron: `.lte` not `.eq`, and the flags mean different things
+
+`check-invoices` used `.eq("due_date", today)`. One failed run and that invoice
+was **never reminded again**. The `reminded_*` booleans already make it
+idempotent, so `<=` is safe and self-healing.
+
+`reminded_due_date` / `reminded_overdue` mean **"we emailed the client."**
+`notified_unanswered` means **"we told the user."** `last_notified_at` means
+**"when we last contacted the client"** — a 48h cool-off, not a suppression.
+A manual nudge previously set `reminded_due_date`, permanently cancelling a
+chase scheduled for weeks later.
+
+### Cancelled ≠ pending
+
+`computeActiveDrilldown` selected the first milestone that was not `'settled'`,
+so a **CANCELLED** milestone was picked as active and announced in
+PAYMENTS DUE SOON as "overdue by 77 days" on a closed, settled project.
+`LifecycleStepper` had no `cancelled` state at all and rendered it as PENDING ·
+STARTS ON SETTLE. Soft-cancellation exists for the audit trail; both defeated it.
+
+### Deleting a master cascades
+
+`parent_invoice_id`, `invoice_milestones`, `notifications` and `read_receipts`
+are all `ON DELETE CASCADE`; `invoices.project_id` is `SET NULL`. So deleting
+`INV-2026-9996` takes 9997, 9998 and the whole Halcyon project with it.
+`deleteInvoice` now also removes a project left with zero invoices — projects
+can *only* be created by saving an invoice and there is no `deleteProject`
+anywhere, so an empty one is unreachable state.
+
+**Latent:** `projects.msa_accepted_via_invoice_id` is `NO ACTION`, not
+`SET NULL`. Only ever written as `null` today (`projects.ts:420`), so it cannot
+fire — but once populated, deleting the referenced invoice throws a raw FK
+error into the UI.
+
+### Contrast: no single foreground works in both themes
+
+`--color-butter` etc. are **foreground tokens being used as grounds** —
+`--color-grass` `#4ade9a` *is* the value of `--state-success-text`. Measured:
+
+```
+butter  cockpit acc-ink 11.85 / light 2.23   NEITHER
+grass   cockpit 11.17    / light 4.39        NEITHER (ink 3.17)
+lav     cockpit  9.12    / light 4.00        NEITHER
+coral   cockpit  8.69    / light 3.87        NEITHER
+sky     cockpit  8.83    / light 4.81        acc-ink works
+```
+
+A blanket swap is impossible. The `--state-*` pairs are defined per theme and
+correct in both. `--state-info-*` and `--state-neutral-*` were added for sky
+and lav. **Any new token must be added to all three blocks — `@theme`,
+`cockpit`, AND `lance-light`.** Missing the mirror is exactly the `a567e36` bug.
+
+### `text-white` on `bg-ink` was white-on-white
+
+In cockpit `--color-ink` is `#f2f4ea`. Four sites rendered `#ffffff` on it at
+**1.11:1**.
+
+---
+
+## The client-facing surface
+
+`/share/[token]` had **21 live token leaks**, was **fully indexable** (no
+robots.txt, no noindex, nothing — and the URL is the only credential), and
+inherited the **marketing openGraph card**, so a client receiving a payment
+demand saw "Lance — Invoices in 10 Seconds" in their WhatsApp preview.
+
+`generateMetadata` now sets `noindex, nofollow, nocache` and a real title.
+**Deliberately no amount, no client name, no due date** — the page gates
+invoice detail behind MSA acceptance and a preview must not route around that.
+
+`/api/track-view` was **fully built and never called** — route, schema,
+notification type and bell all complete, one `fetch` missing. `read_receipts`
+had zero rows since the feature shipped. Now wired and verified live.
+
+**This is the missing half of Unanswered.** `UNANSWERED · 114d` with **0
+receipts** = the link never arrived → resend to a corrected address.
+With **receipts > 0** = they read it and are stalling → phone call. Same pill,
+opposite actions.
+
+---
+
+## Data passes (production, all reversible)
+
+Originals in `public._demo_backup_20260904` (`tbl`, `row_id`, full-row JSON).
+
+1. **Identity + tax** — profile registered with a checksum-valid GSTIN, 4
+   clients, 4 projects renamed, all 6 `form_data` blocks.
+2. **Content** — 18 line items and 12 milestones rewritten to a coherent
+   design-services portfolio.
+3. **Addresses + late fee** — every client had been in the same building as the
+   studio; Nilaya was billed to Mumbai at a Bangalore locality with a
+   non-Mumbai PIN. Nilaya's late fee read **1.4% per day (~511%/yr)**; the
+   other three had the correct `1.5 monthly`.
+4. **Deletion + terms** — `INV-2026-1120` and its stray project removed; terms
+   aligned to each client's MSA so `invoiceDate + terms = due_date` on all six.
+5. **`shared_to_email`** — still held the original addresses *after* the
+   clients table was fixed, including a real third party's. **That is the field
+   `nudge` and resend actually send to.** Three separate email fields had
+   drifted; `share-invoice` now writes `form_data.client.clientEmail` alongside
+   `shared_to_email` in both update paths.
+
+**Migration:** `add_msa_unanswered_notification` — `msa_unanswered` added to
+the `notification_type` enum, `invoices.notified_unanswered` boolean.
+
+---
+
+## Retractions — claims made and then disproved
+
+Recorded because each was stated confidently before being checked.
+
+- **"Every share link shows Amount Due ₹0."** Wrong. `calculateInvoiceTotals`
+  receives `milestones`; the flat `form_data.lineItems` is vestigial.
+- **"There is no way to mark an invoice settled."** Wrong. Two paths exist.
+  The accurate finding was narrower: a *single-milestone* invoice could only
+  settle via project close, because line 157 rejected a terminal settle.
+- **"The first-run autofill trap."** Wrong twice. Blanks pass through (the
+  probe's CONTROL proves it). Then the *retraction* was also wrong — the
+  probe's own comment demands the brief beat a stale profile for payment
+  identifiers, and 3 of 4 assertions were failing.
+- **"The 36-pair contrast figure is inflated."** Wrong. It was 40 and real.
+- **"Gross up the LifecycleStepper milestone amounts."** Withdrawn after a
+  CA-style re-check — see below.
+
+---
+
+## NEXT SESSION — start here
+
+### 1. Money engine — Phase 0 is DONE, start at Phase 1
+
+**Phase 0 landed in `02f7202` (Sept 11).** `lib/supabase/milestones.ts:163` now
+writes `calculateInvoiceTotals(...).subtotal`, so master and child agree:
+`grand_total` is the pre-tax subtotal everywhere. The divergence below is
+CLOSED — recorded because it explains why the engine is needed and how it
+stayed invisible for so long.
+
+| | wrote `grand_total` as |
+|---|---|
+| Master — `lib/supabase/invoices.ts:373` | `sum(qty × rate)` — pre-tax |
+| Child — `lib/supabase/milestones.ts:163` | `.grandTotal` — tax-INCLUSIVE |
+
+It was invisible until GST was switched on this session: every invoice was
+`not-registered` at `rate: 0`, so gross equalled net and the two paths agreed
+by accident. Halcyon M3 was `LIVE`, so the next settlement would have written a
+gross value into a net column, and `resolveInvoicePayable` — which falls back
+to `grand_total` — would have grossed an already-gross figure again.
+
+**Everything below remains to be done.**
+
+Every money bug this session was one bug in different clothes. Build
+`computeInvoiceMoney(invoice, taxContext)` as the **only** path to a number.
+
+Return every field named for its **basis** — `taxableValue`, `taxTotal`,
+`roundOff`, `amountPayable`, per-slab breakdown — so `total` never appears and
+nobody can guess wrong.
+
+Non-obvious requirements, each learned the hard way:
+
+- **Tax per rate SLAB**, not per line and not per invoice. That is what GSTR-1
+  reconciles against; per-line-then-sum drifts by paise.
+- **Round-off belongs in the engine.** It currently lives only in
+  `template-data.ts:188`, so the PDF and the ledger round differently.
+- **Tax context is an explicit argument** — registration status, LUT validity
+  *on the invoice date*, both states, rate — sourced from `user_profiles` and
+  `clients`, never read from a copied snapshot. Because:
+
+> **The contract determines *what* is supplied and for how much.
+> The date of supply determines *how* it is taxed.
+> A child invoice inherits the first and must re-derive the second.**
+
+The codebase already gets the mirror case right: `computeAppliedMsaSnapshot`
+deliberately freezes MSA terms into the child, which is correct because the
+agreement *was* agreed once. Tax is currently being treated the same way and
+must not be.
+
+**Child invoices still copy the parent's `agency`, `client` and `tax`
+wholesale** — Phase 0 fixed only the amount basis, not this. Four ways it
+undercharges tax, and the first two come out of the freelancer's own pocket:
+
+- **LUT expiry.** An LUT is valid for one financial year and lapses 31 March.
+  M1 in February correctly zero-rated; M2 auto-generated in April copies
+  `lutAvailability: "yes"` and zero-rates a supply that now owes IGST.
+- **Crossing the ₹20L registration threshold** mid-project — M2 still copies
+  `not-registered`.
+- **A GST rate revision** between milestones.
+- **Client relocation** flipping CGST+SGST ↔ IGST.
+
+**Golden fixtures to check in:** unregistered · RCM · intrastate · interstate ·
+export+LUT · export no-LUT · SEZ · mixed slabs · zero-value · rounding edges ·
+**LUT lapsing across 31 March** · **registration acquired mid-project** ·
+**rate revised mid-project**. The last three are the ones nobody catches by
+hand. Same shape as `tests/extraction/run-signed-in-hydration-probe.ts`, which
+proved its worth this session (1/4 → 3/3).
+
+**Two blocking questions before any code:**
+
+1. **Are mixed tax slabs on one invoice needed?** `InvoiceLineItem` has **no
+   tax rate field** — `tax.taxRate` is invoice-level only, so mixed slabs are
+   currently *unrepresentable*. If yes: migration + backfill. If one rate per
+   invoice is genuinely enough, this phase mostly disappears.
+2. **Does `grand_total` survive?** With an engine it exists only for query
+   performance, and there are six invoices. It is the direct cause of three
+   bugs this session plus the divergence above.
+
+**Then:** migrate every consumer (`template-data`, `/invoices` cards + XLS,
+`projects.ts`, the ledger, the stepper, `share-invoice`, child generation),
+delete `resolveInvoicePayable` and `invoiceTaxFactor`, and add a lint rule
+banning arithmetic on `grand_total` and any bare `0.18`/`1.18` outside the
+engine. `gstCollected` was wrong for months because nothing stopped a raw
+multiply.
+
+**Sizing, honestly:** multi-session. The worst outcome is a half-migrated
+codebase where some surfaces use the engine and some don't — today's
+inconsistency is at least *uniform*.
+
+### 2. LifecycleStepper — the fix was withdrawn, and why
+
+The plan was to gross up milestone amounts to match the card header. **Do not
+do this.** A CA-style re-check produced three objections:
+
+- **GST is not the freelancer's money.** Output GST is a liability remitted to
+  the government; revenue is recognised net. `PROJECT VALUE ₹7,13,900` on
+  Halcyon overstates earnings by **₹1,08,900**.
+- **Two of those five milestones have no tax invoice.** M4 and M5 were never
+  invoiced. Grossing them asserts an 18% liability on a supply that has not
+  occurred.
+- **Vermilion M2 is CANCELLED** — grossing it asserts tax on work never
+  supplied and never will be.
+
+The stepper showing **net** is correct: a milestone is a contracted deliverable
+value; an invoice is a tax document. The error is the **card header** —
+`PROJECT VALUE` should be the taxable value (₹6,05,000 for Halcyon), with gross
+reserved for cash-flow surfaces (`Outstanding`, `Collected`) where it is right.
+`invoiceTaxFactor` then becomes unused and should be deleted — it invites
+exactly this mistake.
+
+Arithmetic note: per-row grossing and gross-of-sum agree to the paisa on all
+four projects. Rounding was never the risk; *what the numbers assert* was.
+
+### 3. Landing page
+
+Tested live: every route resolves, 0.5s, one `h1`, ~635 words. `Sign In` is now
+a real anchor (was a button with `router.push`, so `/login` appeared nowhere in
+47KB of served HTML).
+
+**The structural problem: it sells the artifact, not the outcome.** The `h1` is
+*"Invoicing, stripped to the essentials"* — which Refrens, Zoho, Vyapar and
+Swipe all promise. The page then describes something none of them do: the
+client must accept terms before work begins, and M2 does not bill until M1
+delivers. **That is payment enforcement, not invoicing** — it is the only
+defensible claim and it is buried in section two.
+
+Ranked:
+
+1. **Lead with enforcement.** Something nearer *"Get paid on time, because the
+   terms say so."* Keep speed in the subhead.
+2. **No proof anywhere** — no testimonial, no count, no named customer. The
+   biggest objection is asking a client to open a link from an unknown brand.
+   *"Built by a designer in Bangalore who got tired of chasing payments"* beats
+   a fake logo wall and is true.
+3. **The client-side experience is invisible.** The riskiest moment is the
+   client receiving the link. Showing that page — now genuinely good — converts
+   the fear into a feature.
+4. **635 words, no SEO surface.** No blog, no free tool, no GST reference
+   content. *"GST invoice format for freelancers"*, *"is LUT required for export
+   of services"*, *"CGST or IGST for out-of-state client"* — the engine already
+   encodes those answers. Highest ceiling, but a project not an edit.
+5. **"No signup to start" cuts both ways** — brilliant for friction, but
+   suggests a throwaway tool for a product whose promise is *contracts*. Pair
+   with a permanence signal.
+6. **No price stated.** "Free · for Indian freelancers" reads as *free for now*.
+
+**Start with 1 and 3** — copy and layout on a page already owned, no new
+product, and together they reposition the page from "another invoice generator"
+to "the thing that makes clients pay."
+
+### 4. Smaller open items
+
+- **`activity_log` is empty** — settlement drawer feed renders nothing.
+- **`MSAs signed 0 of 4`** on `/clients` counts `msa_effective_date` (null on
+  all four) while the dashboard shows accepted MSAs. Contradictory.
+- **Bulk-delete confirmation copy** almost certainly does not say that deleting
+  a master takes its children and the project with it.
+- **A dead ternary** in the `/invoices` bulk bar — `selectedIds.size > 0 ? … :
+  null` inside a bar that only renders when that is true.
+- **WhatsApp** (deferred): start with a `wa.me` share link — no API, no
+  approval, pre-fills the message, user sends from their own account. Needs a
+  `client_phone` field. Cloud API / a BSP only after that proves the channel,
+  since it needs business verification, approved templates and per-conversation
+  billing — and consent risk moves from the freelancer's number to yours.
+
+
+---
+
 # Session Log — September 2–3, 2026 (Phase 3.0e–6.0e)
 
 ## READ FIRST: orientation for a new chat (pinned reference - keep at top)
