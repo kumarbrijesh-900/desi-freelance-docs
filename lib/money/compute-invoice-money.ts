@@ -35,61 +35,97 @@ interface Resolution {
   label: string;
 }
 
-/**
- * Resolves an export/SEZ supply against the LUT actually held on the date of
- * supply. This is the branch that silently undercharged: a milestone invoice
- * generated in April copies February's `lutAvailability: "yes"` and zero-rates
- * a supply whose LUT lapsed on 31 March.
- */
-function resolveZeroRatable(
-  ctx: TaxContext,
-  warnings: MoneyWarning[],
-  zeroRated: TaxTreatment,
-  taxed: TaxTreatment,
-  zeroLabel: string,
-): Resolution {
+/** True only when a LUT is declared held AND its FY window covers the supply date. */
+function lutValidOn(ctx: TaxContext): boolean {
+  if (ctx.lutDeclared !== "yes") return false;
   const window = lutWindow(ctx.lutFinancialYear);
+  if (!window || !ctx.supplyDate) return false;
+  return ctx.supplyDate >= window.from && ctx.supplyDate <= window.to;
+}
 
+function lapseWarning(ctx: TaxContext, warnings: MoneyWarning[]): void {
+  const window = lutWindow(ctx.lutFinancialYear);
   if (!window) {
-    if (ctx.lutFinancialYear === "") {
-      warnings.push({
-        code: "LUT_VALIDITY_MISSING",
-        message:
-          "No LUT on record for this supply. Zero-rating an export without a valid LUT is the freelancer's own liability.",
-      });
-    } else {
-      warnings.push({
-        code: "LUT_VALIDITY_MISSING",
-        message: `LUT validity "${ctx.lutFinancialYear}" is not a recognised financial year.`,
-      });
-    }
-  } else if (ctx.supplyDate && ctx.supplyDate > window.to) {
     warnings.push({
-      code: "LUT_LAPSED",
-      message: `LUT expired ${window.to}; this supply is dated ${ctx.supplyDate}. IGST is now payable.`,
+      code: "LUT_VALIDITY_MISSING",
+      message: ctx.lutFinancialYear
+        ? `LUT validity "${ctx.lutFinancialYear}" is not a recognised financial year.`
+        : "A LUT is declared held but no financial year is recorded, so its validity cannot be established.",
     });
-  } else if (ctx.supplyDate && ctx.supplyDate < window.from) {
-    warnings.push({
-      code: "LUT_NOT_YET_EFFECTIVE",
-      message: `LUT takes effect ${window.from}; this supply is dated ${ctx.supplyDate}.`,
-    });
-  } else if (window && ctx.supplyDate) {
-    return { treatment: zeroRated, mode: "none", label: zeroLabel };
-  } else {
+  } else if (!ctx.supplyDate) {
     warnings.push({
       code: "LUT_VALIDITY_MISSING",
       message: "No date of supply, so LUT validity cannot be established.",
     });
+  } else if (ctx.supplyDate > window.to) {
+    warnings.push({
+      code: "LUT_LAPSED",
+      message: `LUT expired ${window.to}; this supply is dated ${ctx.supplyDate}. IGST is now payable.`,
+    });
+  } else {
+    warnings.push({
+      code: "LUT_NOT_YET_EFFECTIVE",
+      message: `LUT takes effect ${window.from}; this supply is dated ${ctx.supplyDate}.`,
+    });
   }
+}
 
-  if (ctx.noLutHandling === "add-igst") {
+/**
+ * Export of services. Precedence is inherited verbatim from the function this
+ * replaces, so that behaviour is unchanged for every supply whose LUT is either
+ * valid or absent:
+ *
+ *   1. an explicit add-igst preference wins outright
+ *   2. a LUT valid ON THE DATE OF SUPPLY zero-rates       <- the date is the new part
+ *   3. an explicit "no LUT" charges IGST
+ *   4. a LUT declared held but not valid on the date charges IGST   <- NEW
+ *   5. nothing stated zero-rates, and says so
+ *
+ * Only rule 4 is new. It is the case where a February milestone correctly
+ * zero-rated and its April sibling inherited `lutAvailability: "yes"` for a LUT
+ * that lapsed on 31 March.
+ */
+function resolveExport(ctx: TaxContext, warnings: MoneyWarning[]): Resolution {
+  const igst: Resolution = {
+    treatment: "export_igst",
+    mode: "igst",
+    label: `IGST ${ctx.defaultRate}%`,
+  };
+  const zero: Resolution = {
+    treatment: "export_zero_rated",
+    mode: "none",
+    label: "Export of services — zero-rated under LUT",
+  };
+
+  if (ctx.noLutHandling === "add-igst") return igst;
+  if (lutValidOn(ctx)) return zero;
+  if (ctx.lutDeclared === "no") return igst;
+  if (ctx.lutDeclared === "yes") {
+    lapseWarning(ctx, warnings);
+    return igst;
+  }
+  warnings.push({
+    code: "LUT_VALIDITY_MISSING",
+    message:
+      "No LUT on record for this supply. Zero-rating an export without a valid LUT is the freelancer's own liability.",
+  });
+  return zero;
+}
+
+/**
+ * SEZ supply. The old function's SEZ branch consulted ONLY lutAvailability and
+ * never noLutTaxHandling, so this one does not either. Rule 2 below is new.
+ */
+function resolveSez(ctx: TaxContext, warnings: MoneyWarning[]): Resolution {
+  if (lutValidOn(ctx)) {
     return {
-      treatment: taxed,
-      mode: "igst",
-      label: `IGST ${ctx.defaultRate}%`,
+      treatment: "sez_zero_rated",
+      mode: "none",
+      label: "SEZ Supply — zero-rated under LUT",
     };
   }
-  return { treatment: zeroRated, mode: "none", label: zeroLabel };
+  if (ctx.lutDeclared === "yes") lapseWarning(ctx, warnings);
+  return { treatment: "sez_igst", mode: "igst", label: `IGST ${ctx.defaultRate}%` };
 }
 
 function resolveTreatment(
@@ -113,23 +149,11 @@ function resolveTreatment(
   }
 
   if (ctx.recipientLocation === "international") {
-    return resolveZeroRatable(
-      ctx,
-      warnings,
-      "export_zero_rated",
-      "export_igst",
-      "Export of services — zero-rated under LUT",
-    );
+    return resolveExport(ctx, warnings);
   }
 
   if (ctx.recipientIsSez) {
-    return resolveZeroRatable(
-      ctx,
-      warnings,
-      "sez_zero_rated",
-      "sez_igst",
-      "SEZ supply — zero-rated under LUT",
-    );
+    return resolveSez(ctx, warnings);
   }
 
   if (!ctx.supplierState || !ctx.recipientState) {
@@ -245,9 +269,9 @@ export function computeInvoiceMoney(
   const igstTotal = round2(slabs.reduce((sum, s) => sum + s.igst, 0));
   const taxTotal = round2(cgstTotal + sgstTotal + igstTotal);
 
-  const gross = round2(taxableValue + taxTotal);
-  const amountPayable = Math.round(gross);
-  const roundOff = round2(amountPayable - gross);
+  const grossBeforeRounding = round2(taxableValue + taxTotal);
+  const amountPayable = Math.round(grossBeforeRounding);
+  const roundOff = round2(amountPayable - grossBeforeRounding);
 
   return {
     taxableValue,
@@ -256,6 +280,7 @@ export function computeInvoiceMoney(
     sgstTotal,
     igstTotal,
     taxTotal,
+    grossBeforeRounding,
     roundOff,
     amountPayable,
     treatment,

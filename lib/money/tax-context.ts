@@ -35,31 +35,35 @@ export function buildTaxContext(sources: TaxContextSources): TaxContext {
   const client = sources?.client ?? ({} as TaxContextSources["client"]);
   const tax = sources?.tax ?? ({} as TaxContextSources["tax"]);
 
-  const gstin = (agency.gstin ?? "").trim();
+  const gstin = agency.gstin ?? "";
   const supplierRegistered =
     agency.gstRegistrationStatus === "registered" || gstin.length === 15;
 
   /**
-   * An LUT only exists for the engine when the agency says it holds one AND has
-   * recorded which financial year it covers. `lutAvailability: "yes"` with a
-   * blank `lutValidity` is not a LUT you can prove on a date — the engine warns
-   * rather than zero-rating on trust. This is the field nothing read before.
+   * Both fields are carried through unchanged. `lutAvailability` is a tri-state
+   * and "" ("not stated") is NOT the same as "no" — the resolution rules in the
+   * engine branch on all three, exactly as the function they replace did.
    */
-  const lutFinancialYear =
-    agency.lutAvailability === "yes" ? (agency.lutValidity ?? "").trim() : "";
+  const lutDeclared =
+    agency.lutAvailability === "yes" || agency.lutAvailability === "no"
+      ? agency.lutAvailability
+      : "";
+  const lutFinancialYear = agency.lutValidity ?? "";
 
-  // A rate of 0 is a legitimate value and must survive; only absent/NaN falls back.
-  const rawRate = Number(tax.taxRate);
+  // A rate of 0 is legitimate and must survive; only absent/null/NaN falls back,
+  // matching the `?? 18` the old function used.
+  const rawRate = tax.taxRate == null ? Number.NaN : Number(tax.taxRate);
   const defaultRate = Number.isFinite(rawRate) ? rawRate : 18;
 
   return {
-    supplyDate: (sources?.supplyDate ?? "").trim(),
+    supplyDate: sources?.supplyDate ?? "",
     supplierRegistered,
-    supplierState: (agency.agencyState ?? "").trim(),
-    recipientState: (client.clientState ?? "").trim(),
+    supplierState: agency.agencyState ?? "",
+    recipientState: client.clientState ?? "",
     recipientLocation:
       client.clientLocation === "international" ? "international" : "domestic",
     recipientIsSez: client.isClientSezUnit === "yes",
+    lutDeclared,
     lutFinancialYear,
     noLutHandling:
       agency.noLutTaxHandling === "add-igst" ? "add-igst" : "keep-zero-tax",

@@ -78,24 +78,27 @@ const CASES: Case[] = [
       const c = buildTaxContext(
         sources({ agency: { lutAvailability: "yes", lutValidity: "fy_2026_27" } }),
       );
+      assert.equal(c.lutDeclared, "yes");
       assert.equal(c.lutFinancialYear, "fy_2026_27");
     },
   },
   {
-    name: "5. LUT suppressed when availability is no, even if a FY is recorded",
+    name: "5. lutDeclared carries \"no\" through as a distinct state from blank",
     run: () => {
       const c = buildTaxContext(
         sources({ agency: { lutAvailability: "no", lutValidity: "fy_2026_27" } }),
       );
-      assert.equal(c.lutFinancialYear, "");
+      assert.equal(c.lutDeclared, "no");
+      assert.equal(c.lutFinancialYear, "fy_2026_27");
     },
   },
   {
-    name: "6. LUT suppressed when availability is yes but FY is blank",
+    name: "6. declared yes with blank FY is carried, and cannot validate on a date",
     run: () => {
       const c = buildTaxContext(
         sources({ agency: { lutAvailability: "yes", lutValidity: "" } }),
       );
+      assert.equal(c.lutDeclared, "yes");
       assert.equal(c.lutFinancialYear, "");
     },
   },
@@ -173,7 +176,7 @@ const CASES: Case[] = [
     name: "14. END TO END — the LUT lapse, built from records not literals",
     run: () => {
       const held = {
-        agency: { lutAvailability: "yes" as const, lutValidity: "fy_2025_26", noLutTaxHandling: "add-igst" as const },
+        agency: { lutAvailability: "yes" as const, lutValidity: "fy_2025_26", noLutTaxHandling: "" as const },
         client: { clientLocation: "international" as const, clientState: "" as const },
       };
       const feb = computeInvoiceMoney(

@@ -63,7 +63,9 @@ export interface TaxContext {
   recipientState: string;
   recipientLocation: "domestic" | "international";
   recipientIsSez: boolean;
-  /** AgencyDetails.lutValidity FY code, e.g. "fy_2026_27". "" = no LUT held. */
+  /** AgencyDetails.lutAvailability verbatim. "" is "not stated", not "no". */
+  lutDeclared: "" | "yes" | "no";
+  /** AgencyDetails.lutValidity FY code, e.g. "fy_2026_27". "" = none recorded. */
   lutFinancialYear: string;
   noLutHandling: "add-igst" | "keep-zero-tax";
   reverseCharge: boolean;
@@ -89,7 +91,9 @@ export interface InvoiceMoney {
   sgstTotal: number;
   igstTotal: number;
   taxTotal: number;
-  /** Sec 170 CGST Act. amountPayable - (taxableValue + taxTotal). */
+  /** taxableValue + taxTotal, unrounded. What resolveInvoicePayable returns. */
+  grossBeforeRounding: number;
+  /** Sec 170 CGST Act. amountPayable - grossBeforeRounding. */
   roundOff: number;
   /** Whole rupees. The only figure a client is ever asked to pay. */
   amountPayable: number;

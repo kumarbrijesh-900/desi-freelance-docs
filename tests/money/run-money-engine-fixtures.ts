@@ -20,6 +20,7 @@ const BASE: TaxContext = {
   recipientState: "Karnataka",
   recipientLocation: "domestic",
   recipientIsSez: false,
+  lutDeclared: "",
   lutFinancialYear: "",
   noLutHandling: "keep-zero-tax",
   reverseCharge: false,
@@ -77,19 +78,31 @@ const FIXTURES: Fixture[] = [
   {
     name: "5. export with valid LUT — zero rated",
     lines: ONE_LAKH,
-    context: ctx({ recipientLocation: "international", recipientState: "", lutFinancialYear: "fy_2026_27" }),
+    context: ctx({ recipientLocation: "international", recipientState: "", lutDeclared: "yes", lutFinancialYear: "fy_2026_27" }),
     expect: { taxableValue: 100000, taxTotal: 0, roundOff: 0, amountPayable: 100000, treatment: "export_zero_rated", warnings: [] },
   },
   {
     name: "6. export, no LUT, agency chose add-igst",
     lines: ONE_LAKH,
     context: ctx({ recipientLocation: "international", recipientState: "", lutFinancialYear: "", noLutHandling: "add-igst" }),
-    expect: { taxableValue: 100000, taxTotal: 18000, igstTotal: 18000, roundOff: 0, amountPayable: 118000, treatment: "export_igst", warnings: ["LUT_VALIDITY_MISSING"] },
+    expect: { taxableValue: 100000, taxTotal: 18000, igstTotal: 18000, roundOff: 0, amountPayable: 118000, treatment: "export_igst", warnings: [] },
+  },
+  {
+    name: "6b. export, nothing stated about a LUT — zero-rates but warns",
+    lines: ONE_LAKH,
+    context: ctx({ recipientLocation: "international", recipientState: "", lutDeclared: "", lutFinancialYear: "", noLutHandling: "keep-zero-tax" }),
+    expect: { taxableValue: 100000, taxTotal: 0, roundOff: 0, amountPayable: 100000, treatment: "export_zero_rated", warnings: ["LUT_VALIDITY_MISSING"] },
+  },
+  {
+    name: "6c. export, LUT explicitly declared absent — charges IGST",
+    lines: ONE_LAKH,
+    context: ctx({ recipientLocation: "international", recipientState: "", lutDeclared: "no", noLutHandling: "keep-zero-tax" }),
+    expect: { taxableValue: 100000, taxTotal: 18000, igstTotal: 18000, roundOff: 0, amountPayable: 118000, treatment: "export_igst", warnings: [] },
   },
   {
     name: "7. SEZ recipient with valid LUT",
     lines: ONE_LAKH,
-    context: ctx({ recipientIsSez: true, lutFinancialYear: "fy_2026_27" }),
+    context: ctx({ recipientIsSez: true, lutDeclared: "yes", lutFinancialYear: "fy_2026_27" }),
     expect: { taxableValue: 100000, taxTotal: 0, roundOff: 0, amountPayable: 100000, treatment: "sez_zero_rated" },
   },
   {
@@ -116,13 +129,13 @@ const FIXTURES: Fixture[] = [
   {
     name: "11a. LUT valid — M1 supplied 10 Feb 2026 under FY 2025-26 LUT",
     lines: ONE_LAKH,
-    context: ctx({ supplyDate: "2026-02-10", recipientLocation: "international", recipientState: "", lutFinancialYear: "fy_2025_26", noLutHandling: "add-igst" }),
+    context: ctx({ supplyDate: "2026-02-10", recipientLocation: "international", recipientState: "", lutDeclared: "yes", lutFinancialYear: "fy_2025_26" }),
     expect: { taxableValue: 100000, taxTotal: 0, roundOff: 0, amountPayable: 100000, treatment: "export_zero_rated", warnings: [] },
   },
   {
     name: "11b. LUT LAPSED — same contract, M2 supplied 15 Apr 2026",
     lines: ONE_LAKH,
-    context: ctx({ supplyDate: "2026-04-15", recipientLocation: "international", recipientState: "", lutFinancialYear: "fy_2025_26", noLutHandling: "add-igst" }),
+    context: ctx({ supplyDate: "2026-04-15", recipientLocation: "international", recipientState: "", lutDeclared: "yes", lutFinancialYear: "fy_2025_26" }),
     expect: { taxableValue: 100000, taxTotal: 18000, igstTotal: 18000, roundOff: 0, amountPayable: 118000, treatment: "export_igst", warnings: ["LUT_LAPSED"] },
   },
   {
@@ -175,6 +188,7 @@ for (const fixture of FIXTURES) {
     if (e.warnings !== undefined) {
       assert.deepEqual(money.warnings.map((w) => w.code).sort(), [...e.warnings].sort(), "warnings");
     }
+    assert.equal(money.grossBeforeRounding, Math.round((e.taxableValue + money.taxTotal) * 100) / 100, "grossBeforeRounding");
     // Invariant, every fixture: the parts must reconstruct the payable exactly.
     assert.equal(
       Math.round((e.taxableValue + money.taxTotal + money.roundOff) * 100) / 100,
