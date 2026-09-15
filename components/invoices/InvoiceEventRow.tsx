@@ -104,7 +104,7 @@ export function InvoiceEventRow({
   return (
     <Link
       href={rowHref}
-      className="flex items-stretch bg-white border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition-all"
+      className="flex items-stretch bg-paper-2 border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition-all"
     >
       {selectable && (
         <div

@@ -224,7 +224,7 @@ export default function ShareLinkModal({
 
   return sent ? (
   <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70" role="dialog" aria-modal="true" aria-labelledby="share-link-modal-title">
-    <div className="w-full max-w-md border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)] text-center">
+    <div className="w-full max-w-md border border-soft bg-paper-2 p-8 shadow-[var(--brutal-shadow-lg)] text-center">
       <div className="inline-flex h-14 w-14 items-center justify-center border border-soft bg-[#00DCB4] mb-4">
         <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
       </div>
@@ -241,7 +241,7 @@ export default function ShareLinkModal({
         </a>
         <a
           href="/invoices"
-          className="border border-soft bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)]"
+          className="border border-soft bg-paper-2 px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)]"
         >
           View Invoices
         </a>
@@ -261,7 +261,7 @@ export default function ShareLinkModal({
       }}
     >
       <MotionReveal preset="scale-in">
-        <div className="mx-4 w-full max-w-lg border border-soft bg-white p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+        <div className="mx-4 w-full max-w-lg border border-soft bg-paper-2 p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--color-soft)] px-6 py-4">
             <h2 className="text-lg font-bold text-[color:var(--color-ink)]">

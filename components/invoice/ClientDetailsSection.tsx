@@ -381,7 +381,7 @@ export default function ClientDetailsSection({
                 />
 
                 {showSuggestions && !isReadOnly && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-paper-2 p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     {isLoading ? (
                       <div className="px-3 py-4 text-center">
                         <span className="text-[12px] text-[color:var(--color-ink-3)] animate-pulse">Loading saved clients...</span>
@@ -856,7 +856,7 @@ export default function ClientDetailsSection({
         {/* ─── Section Header ─── */}
         <div
           className={cn(
-            "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--color-soft)] rounded-[14px] bg-white hover:bg-[color:var(--color-paper)] transition-colors text-left group cursor-pointer"
+            "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--color-soft)] rounded-[14px] bg-paper-2 hover:bg-[color:var(--color-paper)] transition-colors text-left group cursor-pointer"
           )}
           onClick={() => {
             setIsMsaOpen(!isMsaOpen);
@@ -1106,7 +1106,7 @@ export default function ClientDetailsSection({
                               e.stopPropagation();
                               updateField("msaNotesBoilerplate", "");
                             }}
-                            className="inline-flex items-center justify-center border border-soft rounded-md bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] hover:bg-[#FFF5F2] transition-colors"
+                            className="is-interactive inline-flex items-center justify-center border border-soft rounded-md bg-paper-2 px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] transition-colors"
                           >
                             Clear
                           </button>
@@ -1114,7 +1114,7 @@ export default function ClientDetailsSection({
                       )}
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-soft/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
+                    <div className="border-2 border-dashed border-soft/30 bg-paper-2/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
                       No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[color:var(--color-ink)]">{clauseActionLabel}</span>.
                     </div>
                   )}

@@ -119,7 +119,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-8 w-8 items-center justify-center border border-soft bg-white transition-all hover:bg-[color:var(--color-paper)] active:scale-95"
+        className="relative flex h-8 w-8 items-center justify-center border border-soft bg-paper-2 transition-all hover:bg-[color:var(--color-paper)] active:scale-95"
       >
         <BellIcon
           className={cn(
@@ -137,7 +137,7 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 origin-top-right border border-soft bg-white shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 origin-top-right border border-soft bg-paper-2 shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50 px-4 py-3">
             <h3 className="text-[13px] font-bold text-[color:var(--color-ink)]">Activity</h3>
             {hasUnread && (
@@ -174,7 +174,7 @@ export default function NotificationBell() {
                     )}
                   >
                     <div className="mt-0.5 flex-shrink-0">
-                      <div className="flex h-8 w-8 items-center justify-center bg-white border border-[color:var(--color-soft)] shadow-sm">
+                      <div className="flex h-8 w-8 items-center justify-center bg-paper-2 border border-[color:var(--color-soft)] shadow-sm">
                         {getIcon(n.type)}
                       </div>
                     </div>

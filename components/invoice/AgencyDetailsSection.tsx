@@ -547,7 +547,7 @@ export default function AgencyDetailsSection({
                   )}
                 />
                 {showSuggestions && showProfileSuggestion && !isReadOnly && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-paper-2 p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
                     </div>
@@ -579,7 +579,7 @@ export default function AgencyDetailsSection({
                 {value.logoUrl ? (
                   <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                      <div className="flex h-10 w-10 items-center justify-center bg-paper-2 p-1 shadow-sm ring-1 ring-gray-200">
                         <img
                           src={value.logoUrl}
                           alt="Logo"
@@ -606,7 +606,7 @@ export default function AgencyDetailsSection({
                         type="button"
                         onClick={removeLogo}
                         aria-label="Remove agency logo"
-                        className="group flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                        className="group flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-coral"
                         title="Remove Logo"
                       >
                         <svg
@@ -627,7 +627,7 @@ export default function AgencyDetailsSection({
                     )}
                   </div>
                 ) : !isReadOnly ? (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-soft bg-white px-4 transition-all hover:border-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 px-4 transition-all hover:border-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5">
                     <input
                       type="file"
                       accept="image/*"

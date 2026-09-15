@@ -154,7 +154,7 @@ export default function Home() {
               Ship your first invoice<br />in two minutes.
             </h2>
             <p className="mx-auto mb-7 mt-3.5 text-[17px] text-acc-ink/80">No signup required. Start now, save when you&rsquo;re ready.</p>
-            <Button variant="paper" onClick={startInvoice} className="bg-white px-[22px] py-3.5 text-[15px] font-bold">
+            <Button variant="paper" onClick={startInvoice} className="bg-paper-2 px-[22px] py-3.5 text-[15px] font-bold">
               Create your first invoice →
             </Button>
           </div>

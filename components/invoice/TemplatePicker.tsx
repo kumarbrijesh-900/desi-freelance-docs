@@ -212,7 +212,7 @@ function ThumbnailCard({
         {/* Visitor overlay (blurred) */}
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
-            <div className="flex h-6 w-6 items-center justify-center border border-soft rounded-md bg-white shadow">
+            <div className="flex h-6 w-6 items-center justify-center border border-soft rounded-md bg-paper-2 shadow">
               <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>
@@ -221,7 +221,7 @@ function ThumbnailCard({
         {/* Free-tier overlay (visible but locked) */}
         {lockState === "locked" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-            <div className="flex h-6 w-6 items-center justify-center border border-soft rounded-md bg-white shadow ring-1 ring-black/5">
+            <div className="flex h-6 w-6 items-center justify-center border border-soft rounded-md bg-paper-2 shadow ring-1 ring-black/5">
               <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>

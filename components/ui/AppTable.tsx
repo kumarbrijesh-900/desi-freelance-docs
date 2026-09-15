@@ -19,7 +19,7 @@ AppTableHeader.displayName = "AppTableHeader";
 
 export const AppTableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <tbody ref={ref} className={cn("[&_tr:last-child]:border-0 bg-white", className)} {...props} />
+    <tbody ref={ref} className={cn("[&_tr:last-child]:border-0 bg-paper-2", className)} {...props} />
   )
 );
 AppTableBody.displayName = "AppTableBody";

@@ -78,7 +78,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
       <MotionReveal
         preset="fade-up"
-        className="relative w-full max-w-md overflow-hidden bg-white shadow-[var(--brutal-shadow-lg)]"
+        className="relative w-full max-w-md overflow-hidden bg-paper-2 shadow-[var(--brutal-shadow-lg)]"
       >
         {isSuccess ? (
           <div className="p-10 text-center">
@@ -139,7 +139,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <AppSelectField
                   value={type}
                   onChange={(e) => setType(e.target.value as FeedbackType)}
-                  className="bg-white"
+                  className="bg-paper-2"
                   disabled={isSubmitting}
                   hasValue={true}
                 >
@@ -160,7 +160,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   placeholder="Tell us about your experience..."
                   className={cn(
                     getAppFieldClass({ hasValue: message.length > 0 }),
-                    "min-h-[120px] py-3 bg-white",
+                    "min-h-[120px] py-3 bg-paper-2",
                   )}
                   disabled={isSubmitting}
                 />

@@ -56,7 +56,7 @@ export function WorkbenchReadinessPanel({
   return (
     <div
       className={cn(
-        "border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-sm)]",
+        "border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-sm)]",
         compact ? "px-4 py-3" : "px-3 py-3",
       )}
       aria-label="Invoice workbench readiness"

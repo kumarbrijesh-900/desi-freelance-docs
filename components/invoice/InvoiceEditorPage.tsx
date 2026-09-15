@@ -2635,7 +2635,7 @@ return (
                 </p>
                 <Link
                   href="/login"
-                  className="shrink-0 text-[12px] font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-[#8B5CF6]"
+                  className="shrink-0 text-[12px] font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-acid"
                 >
                   Sign in →
                 </Link>

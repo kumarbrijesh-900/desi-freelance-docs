@@ -123,7 +123,7 @@ export default function MSAAcceptanceModal({
     return (
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
         <MotionReveal preset="fade-up" className="w-full max-w-md">
-          <div className="rounded-[var(--radius-soft)] border border-soft bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
+          <div className="rounded-[var(--radius-soft)] border border-soft bg-paper-2 p-8 text-center shadow-[var(--brutal-shadow-md)]">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border border-soft bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
@@ -159,7 +159,7 @@ export default function MSAAcceptanceModal({
                 <button
                   type="button"
                   onClick={onClosePreview}
-                  className="w-full border border-soft bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition-all"
+                  className="w-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition-all"
                 >
                   Close Preview
                 </button>
@@ -174,7 +174,7 @@ export default function MSAAcceptanceModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="relative rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
+        <div className="relative rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-md)] overflow-hidden">
           {previewMode && onClosePreview && (
             <button
               type="button"
@@ -206,7 +206,7 @@ export default function MSAAcceptanceModal({
            !['pending', 'accepted', 'rejected', 'proposed', 'negotiating'].includes(msaResponseText.toLowerCase()) && 
            mode === "view" && (
             <div className="border-b border-soft bg-[#e4f1ea] px-6 py-4 sm:px-8 flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#c7e4d4] bg-white text-[#157a54]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#c7e4d4] bg-paper-2 text-[#157a54]">
                 <DocumentSparkIcon className="h-4 w-4" />
               </span>
               <div>
@@ -222,7 +222,7 @@ export default function MSAAcceptanceModal({
           )}
 
 
-          <div className="grid border-b border-soft bg-white sm:grid-cols-3">
+          <div className="grid border-b border-soft bg-paper-2 sm:grid-cols-3">
             <div className="border-b border-soft p-4 sm:border-b-0 sm:border-r">
               <div className="flex items-start gap-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#c7e4d4] bg-[#e4f1ea] text-[#157a54]">
@@ -321,7 +321,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 rounded-[12px] border border-soft bg-white p-4 text-sm outline-none transition-colors resize-none app-focus-ring"
+                    className="w-full h-40 rounded-[12px] border border-soft bg-paper-2 p-4 text-sm outline-none transition-colors resize-none app-focus-ring"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--color-ink-2)] italic">
@@ -356,7 +356,7 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     onClick={onClosePreview}
-                    className="self-center rounded-full border border-soft bg-white px-8 py-3 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)]"
+                    className="self-center rounded-full border border-soft bg-paper-2 px-8 py-3 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)]"
                   >
                     Close preview
                   </button>
@@ -373,7 +373,7 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setMode("propose")}
-                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-white inline-flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2 inline-flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                       Propose changes
@@ -399,7 +399,7 @@ export default function MSAAcceptanceModal({
                     setMode("view");
                     setProposalText("");
                   }}
-                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-white"
+                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2"
                 >
                   Cancel
                 </button>

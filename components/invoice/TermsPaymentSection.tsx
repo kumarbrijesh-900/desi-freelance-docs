@@ -580,7 +580,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                                 }
                               }}
-                              className="w-16 border border-soft rounded-[11px] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-16 border border-soft rounded-[11px] bg-paper-2 text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                           </div>
@@ -602,7 +602,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                                 }
                               }}
-                              className="w-20 border border-soft rounded-[11px] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-20 border border-soft rounded-[11px] bg-paper-2 text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                           </div>
@@ -641,7 +641,7 @@ export default function TermsPaymentSection({
                               className={cn(
                                 value.license.isLicenseIncluded
                                   ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  : "is-interactive border border-soft rounded-[11px] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                               )}
                             >
                               Yes
@@ -655,7 +655,7 @@ export default function TermsPaymentSection({
                               className={cn(
                                 !value.license.isLicenseIncluded
                                   ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  : "is-interactive border border-soft rounded-[11px] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                               )}
                             >
                               No
@@ -688,7 +688,7 @@ export default function TermsPaymentSection({
                                         className={cn(
                                           value.license.licenseType === opt.value
                                             ? "border border-soft rounded-[11px] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                            : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                            : "is-interactive border border-soft rounded-[11px] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
                                         )}
                                       >
                                         {opt.label}

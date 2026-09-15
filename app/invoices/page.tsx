@@ -457,7 +457,7 @@ export default function InvoicesPage() {
               }
             }).length;
 
-            let toneClass = "bg-white text-ink-2 border-soft hover:border-ink/30 hover:text-ink";
+            let toneClass = "bg-paper-2 text-ink-2 border-soft hover:border-ink/30 hover:text-ink";
             if (filter === f) toneClass = "bg-acid text-acc-ink border-acid";
 
             return (
@@ -495,13 +495,13 @@ export default function InvoicesPage() {
 
         {/* Bulk selection toolbar */}
         {!loading && selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft rounded-[12px] shrink-0">
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-paper-2 border border-soft rounded-[12px] shrink-0">
 
             {selectedIds.size > 0 ? (
               <>
                 <span className="text-[11px] font-bold tracking-tight text-ink">{selectedIds.size} selected</span>
                 <button type="button" onClick={handleExportXls}
-                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold border border-soft bg-white text-ink hover:-translate-y-px active:scale-[0.97] transition-transform">
+                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold border border-soft bg-paper-2 text-ink hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
@@ -522,7 +522,7 @@ export default function InvoicesPage() {
             Loading invoices…
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border border-soft rounded-[16px]">
+          <div className="py-20 text-center flex flex-col items-center justify-center bg-paper-2 border border-soft rounded-[16px]">
             <div className="text-[28px] font-display font-bold tracking-tight mb-2 text-ink">No invoices yet</div>
             <p className="text-[12px] font-medium text-ink-2">
               Create your first invoice to get started
@@ -574,7 +574,7 @@ export default function InvoicesPage() {
       {/* ── Delete Confirmation Dialog ── */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm border border-soft bg-white rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
+          <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
             <p className="text-sm font-medium text-ink-2 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
@@ -583,7 +583,7 @@ export default function InvoicesPage() {
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform"
+                className="border border-soft bg-paper-2 px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform"
               >
                 Cancel
               </button>
@@ -602,14 +602,14 @@ export default function InvoicesPage() {
       {/* ── Bulk Delete Confirmation Dialog ── */}
       {bulkDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm border border-soft bg-white rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
+          <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
             <p className="text-sm font-medium text-ink-2 mb-5">
               Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
-                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform">
+                className="border border-soft bg-paper-2 px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform">
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete}

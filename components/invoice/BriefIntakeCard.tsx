@@ -141,7 +141,7 @@ export default function BriefIntakeCard({
     return (
       <MotionReveal className="mb-4" preset="fade-up" delay={40}>
         <section
-          className="border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-sm)] overflow-hidden"
+          className="border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-sm)] overflow-hidden"
           aria-labelledby="brief-intake-collapsed-heading"
         >
           <motion.div
@@ -184,7 +184,7 @@ export default function BriefIntakeCard({
   return (
     <MotionReveal className="mb-4" preset="fade-up" delay={40}>
       <section
-        className="border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
+        className="border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
         aria-labelledby="brief-intake-heading"
       >
         {/* Toggle */}

@@ -51,7 +51,7 @@ function LoginCard() {
   };
 
   return (
-    <div className="w-full max-w-sm border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
+    <div className="w-full max-w-sm border border-soft bg-paper-2 p-8 shadow-[var(--brutal-shadow-lg)]">
       <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
         {isRestoring ? "Your draft is safe" : "Get started"}
       </h2>
@@ -64,7 +64,7 @@ function LoginCard() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="mt-6 flex w-full items-center justify-center gap-3 border border-soft bg-white py-3 font-bold uppercase transition-all is-interactive"
+        className="mt-6 flex w-full items-center justify-center gap-3 border border-soft bg-paper-2 py-3 font-bold uppercase transition-all is-interactive"
       >
         <GoogleIcon className="h-5 w-5" />
         Continue with Google
@@ -133,7 +133,7 @@ export default function LoginPage() {
           {/* Suspense required because useSearchParams needs it during SSR */}
           <Suspense
             fallback={
-              <div className="w-full max-w-sm border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
+              <div className="w-full max-w-sm border border-soft bg-paper-2 p-8 shadow-[var(--brutal-shadow-lg)]">
                 <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                   Get started
                 </h2>

@@ -372,7 +372,7 @@ export default function ProfilePage() {
             {value ? (
               <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-paper-2 p-1 shadow-sm ring-1 ring-gray-200">
                     <img
                       src={value}
                       alt={label}
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                       onUrlChange("");
                       setIsDirty(true);
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-coral"
                     title="Remove"
                   >
                     <svg
@@ -442,7 +442,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
+                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-paper-2 px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
@@ -723,7 +723,7 @@ export default function ProfilePage() {
         </p>
 
             {/* Tabs */}
-            <div className="sticky top-[64px] z-20 bg-white mb-8">
+            <div className="sticky top-[64px] z-20 bg-paper-2 mb-8">
               <div className="flex flex-wrap items-center gap-2 py-4 border-b border-ink">
                 {tabs.map((tab) => (
                   <button
@@ -1180,7 +1180,7 @@ export default function ProfilePage() {
                           Global MSA Document
                         </h2>
                       </div>
-                      <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
+                      <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-acid">
                         {isMsaExpanded ? "Hide" : "View/Edit MSA Document →"}
                       </span>
                     </button>
@@ -1229,7 +1229,7 @@ export default function ProfilePage() {
                       title="Export Compliance"
                       description="Details for zero-tax international or SEZ billing."
                     />
-                    <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
+                    <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-acid">
                       {isLutExpanded ? "Hide" : "Expand LUT Details →"}
                     </span>
                   </button>
@@ -1285,7 +1285,7 @@ export default function ProfilePage() {
       </AppPageShell>
 
       {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--color-soft)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--color-soft)] bg-paper-2 px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
         <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           {saveFeedback && (
             <div

@@ -143,7 +143,7 @@ export default function SharedMsaPreviewContent({
             <button
               type="button"
               onClick={() => window.print()}
-              className="rounded-full border border-soft bg-white px-5 py-2.5 text-[13px] font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
+              className="rounded-full border border-soft bg-paper-2 px-5 py-2.5 text-[13px] font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
             >
               <PrinterIcon className="h-4 w-4 inline mr-2" />
               Download PDF
@@ -156,7 +156,7 @@ export default function SharedMsaPreviewContent({
           "mx-auto mb-6 max-w-[210mm] print:hidden",
           showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
-          <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
+          <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-sm)]">
             <div className="flex flex-col gap-4 border-b border-soft bg-acc-soft px-5 py-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
@@ -278,7 +278,7 @@ export default function SharedMsaPreviewContent({
 
         {hasPaymentCheckpoint && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
+            <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-sm)]">
               <div className="flex flex-col gap-3 border-b border-soft bg-[color:var(--color-paper)] px-5 py-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-start gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-acid bg-acid text-[color:var(--color-acc-ink)]" aria-hidden="true">
@@ -410,7 +410,7 @@ export default function SharedMsaPreviewContent({
           showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
-            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-[var(--radius-soft)] border border-soft bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
+            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-[var(--radius-soft)] border border-soft bg-paper-2 px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
             preset="scale-in"
           >
             <TemplateRenderer formData={formData} templateId={templateId} />
@@ -444,7 +444,7 @@ export default function SharedMsaPreviewContent({
         {showMsaOverlay && !msaTerms && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
             <MotionReveal preset="fade-up" className="w-full max-w-md">
-              <div className="rounded-[var(--radius-soft)] border border-soft bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
+              <div className="rounded-[var(--radius-soft)] border border-soft bg-paper-2 p-8 text-center shadow-[var(--brutal-shadow-md)]">
                 <h2 className="font-syne text-xl font-bold text-[color:var(--color-ink)]">
                   Contract loading error
                 </h2>
@@ -455,7 +455,7 @@ export default function SharedMsaPreviewContent({
                   <button
                     type="button"
                     onClick={() => window.location.reload()}
-                    className="w-full rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-sm)]"
+                    className="w-full rounded-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-sm)]"
                   >
                     Refresh page
                   </button>

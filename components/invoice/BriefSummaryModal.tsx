@@ -664,7 +664,7 @@ export default function BriefSummaryModal({
             </div>
             <button
               onClick={() => onContinueManually(localData)}
-              className="flex h-9 w-9 items-center justify-center rounded-[9px] text-ink-3 transition-colors hover:bg-[#efe6d1] hover:text-ink"
+              className="is-interactive flex h-9 w-9 items-center justify-center rounded-[9px] text-ink-3 transition-colors hover:text-ink"
               aria-label="Close"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -969,7 +969,7 @@ export default function BriefSummaryModal({
                                     "rounded-[10px] border px-3 py-2 text-left transition-colors",
                                     option.selected
                                       ? "border-[#a5772a] bg-[#fbf6ec]"
-                                      : "border-soft bg-white hover:bg-[#efe6d1]",
+                                      : "is-interactive border-soft bg-paper-2",
                                   )}
                                 >
                                   <span className="block text-[11px] font-medium text-ink-3">
@@ -1051,7 +1051,7 @@ export default function BriefSummaryModal({
                                     "rounded-[10px] border px-3 py-2 text-left transition-colors",
                                     option.selected
                                       ? "border-[#c2502f] bg-[#f7ece6]"
-                                      : "border-soft bg-white hover:bg-[#efe6d1]",
+                                      : "is-interactive border-soft bg-paper-2",
                                   )}
                                 >
                                   <span className="block text-[11px] font-medium text-ink-3">
@@ -1262,7 +1262,7 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-start gap-1">
               <button
                 onClick={onParseAgain}
-                className="rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-[#efe6d1] hover:text-ink"
+                className="is-interactive rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
               >
                 Parse again
               </button>

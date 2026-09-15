@@ -1044,7 +1044,7 @@ function PreviewContent() {
               {/* Left: Invoice area (Hero) */}
               <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
                 {/* Zoom Toolbar - Truly Sticky */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 hidden sm:flex items-center gap-1 bg-white border border-[color:var(--color-soft)] shadow-md px-2 py-1 print:hidden">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 hidden sm:flex items-center gap-1 bg-paper-2 border border-[color:var(--color-soft)] shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
                       const newZoom = Math.max(zoom - 0.1, 0.2);
@@ -1119,7 +1119,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-2xl border border-[color:var(--color-ink)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-2xl border border-[color:var(--color-ink)] bg-paper-2 shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",
@@ -1137,7 +1137,7 @@ function PreviewContent() {
               </div>
 
               {/* Right: Slim Template Picker Bar */}
-              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--color-soft)] bg-white overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
+              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--color-soft)] bg-paper-2 overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
                 <div className="p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] mb-4">
                     Choose Template
@@ -1188,7 +1188,7 @@ function PreviewContent() {
         </section>
 
         {/* ─── Sticky Bottom Action Bar ─── */}
-        <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-white/80 px-4 py-4 backdrop-blur-xl print:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-paper-2/80 px-4 py-4 backdrop-blur-xl print:hidden">
           <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link

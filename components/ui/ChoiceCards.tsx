@@ -53,7 +53,7 @@ export default function ChoiceCards<T extends string>({
     if (variant === "minimal-segmented") {
       return `flex h-full min-w-0 items-center justify-center gap-2 rounded-2xl px-3 py-1 text-center text-[13px] font-normal transition-all duration-200 ${
         isSelected
-          ? "bg-white text-[color:var(--color-ink)] shadow-sm ring-1 ring-black/5"
+          ? "bg-paper-2 text-[color:var(--color-ink)] shadow-sm ring-1 ring-black/5"
           : "bg-transparent text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
       }`;
     }

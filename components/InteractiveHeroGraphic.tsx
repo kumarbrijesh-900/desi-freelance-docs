@@ -119,7 +119,7 @@ export default function InteractiveHeroGraphic() {
         style={{ x: cardX, y: cardY, rotateY: cardRotate }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none perspective-[1000px]"
       >
-        <div className="w-56 h-72 bg-white/40 border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-6 flex flex-col justify-between">
+        <div className="w-56 h-72 bg-paper-2/40 border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-6 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="h-2 w-1/2 bg-gray-200 rounded-full" />
             <div className="space-y-2">
@@ -280,7 +280,7 @@ export default function InteractiveHeroGraphic() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-2.5 rounded-full bg-white/80 border border-[color:var(--color-soft)] px-4 py-2 shadow-sm"
+            className="flex items-center gap-2.5 rounded-full bg-paper-2/80 border border-[color:var(--color-soft)] px-4 py-2 shadow-sm"
           >
             {isGreenText ? (
               <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />

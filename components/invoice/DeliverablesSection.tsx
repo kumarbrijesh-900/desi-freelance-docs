@@ -214,7 +214,7 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
-        <div className="mb-4 border-[3px] border-soft rounded-[14px] bg-white p-4 shadow-[var(--brutal-shadow-md)]">
+        <div className="mb-4 border-[3px] border-soft rounded-[14px] bg-paper-2 p-4 shadow-[var(--brutal-shadow-md)]">
           <div className="mb-3">
             <label className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
@@ -268,7 +268,7 @@ export default function DeliverablesSection({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  "overflow-visible border bg-white shadow-sm transition-all",
+                  "overflow-visible border bg-paper-2 shadow-sm transition-all",
                   isReadOnly
                     ? "border-[#D4D2CC] hover:shadow-sm"
                     : "border-[color:var(--color-soft)] hover:shadow-md",
@@ -306,7 +306,7 @@ export default function DeliverablesSection({
                         <button
                           type="button"
                           onClick={() => removeMilestone(milestone.id)}
-                          className="cursor-pointer p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-[#FF5C00]"
+                          className="cursor-pointer p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-coral"
                           aria-label={`Delete milestone ${mIdx + 1}`}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -377,7 +377,7 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-white py-6 text-[13px] font-bold text-[color:var(--color-ink-2)] transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 py-6 text-[13px] font-bold text-[color:var(--color-ink-2)] transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[color:var(--brand-indigo-deep)] hover:text-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5"
@@ -491,7 +491,7 @@ function LineItemCard({
 
   return (
     <div className={cn(
-      "group relative border-2 rounded-[14px] bg-white p-4 transition-all",
+      "group relative border-2 rounded-[14px] bg-paper-2 p-4 transition-all",
       isReadOnly
       ? "border-[#D4D2CC] hover:shadow-none"
       : "border-soft hover:shadow-[var(--brutal-shadow-sm)]",
@@ -501,7 +501,7 @@ function LineItemCard({
         <button
           type="button"
           onClick={onRemove}
-          className="absolute right-2 top-2 z-10 cursor-pointer p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-[#FF5C00]"
+          className="absolute right-2 top-2 z-10 cursor-pointer p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-coral"
           aria-label="Delete line item"
         >
           <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -590,7 +590,7 @@ function LineItemCard({
             }}
           />
           {!isReadOnly && showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s: string) => (
                 <button
                   key={s}
@@ -601,7 +601,7 @@ function LineItemCard({
                     onUpdate({ description: s });
                     setActiveDescriptionId(null);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] hover:bg-[color:var(--color-lime-warm)] hover:text-[color:var(--color-ink)] transition-colors"
+                  className="is-interactive w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink)]"
                 >
                   {s}
                 </button>
@@ -793,7 +793,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-soft rounded-[11px] bg-white text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft rounded-[11px] bg-paper-2 text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
@@ -802,7 +802,7 @@ function BrutalSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 w-full z-50 border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
+        <div className="absolute left-0 top-full mt-1 w-full z-50 border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
           {options.map((opt) => {
             const isSelected = opt.value === value;
             return (
@@ -816,8 +816,8 @@ function BrutalSelect({
                 className={cn(
                   "w-full text-left px-3 py-2.5 text-[14px] transition-colors border-b border-[color:var(--color-soft)] last:border-b-0",
                   isSelected
-                    ? "font-bold text-[color:var(--color-ink)] bg-[#F4FFE0]"
-                    : "text-[color:var(--color-ink)] hover:bg-[color:var(--color-lime-warm)] hover:text-[color:var(--color-ink)]"
+                    ? "font-bold text-[color:var(--color-ink)] bg-acc-soft"
+                    : "is-interactive text-[color:var(--color-ink)]"
                 )}
               >
                 {opt.label}

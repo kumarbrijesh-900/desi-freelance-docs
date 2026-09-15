@@ -44,7 +44,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
       onClick={onCancel}
     >
       <div
-        className="relative w-full max-w-xl overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-lg)]"
+        className="relative w-full max-w-xl overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-lg)]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="border-b border-soft bg-acc-soft px-6 py-5">
@@ -101,7 +101,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
           <button
             type="button"
             onClick={onChooseDownloadOffline}
-            className="w-full rounded-[var(--radius-box)] border border-soft bg-white px-5 py-4 text-left text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper)]"
+            className="w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 px-5 py-4 text-left text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper)]"
           >
             <div className="font-syne text-sm font-bold">
               Download &amp; manage offline

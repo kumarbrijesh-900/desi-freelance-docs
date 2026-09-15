@@ -85,13 +85,13 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
     }
     if (isScheduled) {
       return {
-        bg: "bg-white",
+        bg: "bg-paper-2",
         border: "border-2 border-dashed border-soft",
       };
     }
     // pending or msa not yet accepted -> hollow circle with 2px black border, 16px
     return {
-      bg: "bg-white",
+      bg: "bg-paper-2",
       border: "border border-soft",
     };
   };
@@ -160,7 +160,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
 
                 {/* Label under each node (small, 11px) */}
                 <div className="mt-3 space-y-0.5 max-w-[140px]">
-                  <p className="text-[11px] font-black text-[color:var(--color-ink)] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate">
+                  <p className="text-[11px] font-black text-[color:var(--color-ink)] uppercase tracking-tight group-hover:text-coral transition-colors leading-tight truncate">
                     {truncate(m.title, 20)}
                   </p>
                   <p className="text-[9px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
