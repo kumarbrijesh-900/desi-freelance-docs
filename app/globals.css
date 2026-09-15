@@ -59,6 +59,11 @@
   --state-press:    rgba(0,0,0,0.16);
   --state-focus:    var(--color-acid);
   --state-disabled: 0.45;
+  --state-success-bd:   #d2e0d2;
+  --state-warning-bd:   #ecd9b0;
+  --state-danger-bd:    #eccabc;
+  --state-info-bd:      #cfe0db;
+  --state-neutral-bd:   #ddd3bd;
 
   /* Legacy accent aliases → E */
   --color-lime-warm:    #e7c878;
@@ -1623,6 +1628,11 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-press:    rgba(0,0,0,0.16);
   --state-focus:    var(--color-acid);
   --state-disabled: 0.45;
+  --state-success-bd:   #d2e0d2;
+  --state-warning-bd:   #ecd9b0;
+  --state-danger-bd:    #eccabc;
+  --state-info-bd:      #cfe0db;
+  --state-neutral-bd:   #ddd3bd;
   --color-lime-warm:       #e7c878;
   --color-lime-300:        #157a54;
   --color-lime-400:        #28b681;
@@ -1714,6 +1724,11 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-press:    rgba(255,255,255,0.15);
   --state-focus:    var(--color-acid);
   --state-disabled: 0.45;
+  --state-success-bd:   #1f5540;
+  --state-warning-bd:   #5c4c18;
+  --state-danger-bd:    #6b2f26;
+  --state-info-bd:      #234a40;
+  --state-neutral-bd:   #3d3752;
 
   --color-lime-warm:    #d6f97a;
   --color-lime-300:     #d6f97a;

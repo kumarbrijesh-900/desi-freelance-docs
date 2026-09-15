@@ -999,7 +999,7 @@ export default function ClientsPage() {
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
-                            className="p-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-ink transition-all"
+                            className="p-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition-all"
                             title="Edit Client"
                           >
                             <EditIcon className="h-4 w-4" />

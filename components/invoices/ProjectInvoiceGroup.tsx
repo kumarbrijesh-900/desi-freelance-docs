@@ -170,7 +170,7 @@ export function ProjectInvoiceGroup({
               <Link
                 key={inv.id}
                 href={invoiceRowHref(inv.id, inv.status)}
-                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[11px] border border-soft bg-paper-2 hover:bg-white hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)] transition-all"
+                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[11px] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
               >
                 <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
                 <div

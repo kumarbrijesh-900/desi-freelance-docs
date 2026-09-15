@@ -48,9 +48,13 @@ export function getStatusTint(kind: StatusKind): StatusTint {
     case "locked":
       return { bg: "#e6edeb", fg: "#33655b", bd: "#cfe0db" }; // muted teal — distinct from live
     case "unanswered":
-      return { bg: "#f6ecd6", fg: "var(--color-ochre-deep)", bd: "#ecd9b0", dashed: true };
+      // Was a literal cream background with a TOKENISED foreground — the only
+      // mixed pair in this table, and the reason it resolved to 1.85:1 in
+      // cockpit where --color-ochre-deep goes bright. Both halves now come
+      // from the same per-theme family.
+      return { bg: "var(--state-warning-bg)", fg: "var(--state-warning-text)", bd: "var(--state-warning-bd)", dashed: true };
     case "awaiting":
-      return { bg: "#f6ecd6", fg: "#a5772a", bd: "#ecd9b0" }; // ochre
+      return { bg: "var(--state-warning-bg)", fg: "var(--state-warning-text)", bd: "var(--state-warning-bd)" }; // ochre
     case "viewed":
     case "partial":
       return { bg: "#efece2", fg: "#6f6757", bd: "#ddd3bd" }; // taupe
@@ -59,7 +63,7 @@ export function getStatusTint(kind: StatusKind): StatusTint {
     case "draft":
       return { bg: "transparent", fg: "var(--color-ink-2)", bd: "var(--color-soft)" }; // stone outline
     case "revision":
-      return { bg: "#f6e0d8", fg: "#bb4a2a", bd: "#eccabc" }; // rust
+      return { bg: "var(--state-danger-bg)", fg: "var(--state-danger-text)", bd: "var(--state-danger-bd)" }; // rust
     case "overdue":
       return { bg: "#f7dada", fg: "#9e2b2b", bd: "#edbcbc" }; // deep red
     case "cancelled":
