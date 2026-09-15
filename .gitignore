@@ -52,3 +52,4 @@ client_secret_*.json
 scratch/
 screenshot_*.png
 *.swp
+.gemini-scratch/
