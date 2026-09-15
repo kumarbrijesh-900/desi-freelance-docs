@@ -405,7 +405,7 @@ function DashboardContent() {
                         : a.dueDays === 0 ? 'DUE TODAY'
                         : `DUE IN ${a.dueDays} DAY${a.dueDays === 1 ? '' : 'S'}`;
                       return (
-                        <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 hover:bg-paper-2 transition-colors flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 is-interactive transition-colors flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between gap-3">
                           <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-ink">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
                           <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)]">
                             {timing}<span className="hidden sm:inline"> · NUDGE AVAILABLE</span>
@@ -436,11 +436,11 @@ function DashboardContent() {
                   <button
                     type="button"
                     onClick={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
-                    className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold text-[11px] uppercase tracking-widest transition-all text-[color:var(--color-coral)]"
+                    className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold text-[11px] uppercase tracking-widest transition-all text-[color:var(--color-coral)]"
                   >
                     Close project
                   </button>
-                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold text-[11px] uppercase tracking-widest transition-all">
+                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold text-[11px] uppercase tracking-widest transition-all">
                     ⤓ EXPORT
                   </button>
 

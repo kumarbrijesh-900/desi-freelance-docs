@@ -581,7 +581,7 @@ export default function InvoicesPage() {
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] hover:bg-paper-2 active:scale-[0.97] transition-transform"
+                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform"
               >
                 Cancel
               </button>
@@ -607,7 +607,7 @@ export default function InvoicesPage() {
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
-                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] hover:bg-paper-2 active:scale-[0.97] transition-transform">
+                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform">
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete}

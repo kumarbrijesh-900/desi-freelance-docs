@@ -187,7 +187,7 @@ export function ProjectRail({
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
                 className={`block min-h-[90px] p-4 pl-5 border-b border-soft relative cursor-pointer transition-colors
-                  ${isSelected ? "bg-soft" : "bg-paper hover:bg-paper-2"}
+                  ${isSelected ? "bg-soft" : "bg-paper is-interactive"}
                 `}
               >
                 {/* 10px colored left stripe */}

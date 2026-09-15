@@ -951,7 +951,7 @@ export default function ClientsPage() {
                   const msaOk = client.msa_effective_date;
 
                   return (
-                    <tr key={client.id} className="border-b border-soft last:border-b-0 hover:bg-paper-2 transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
+                    <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
                       <td className="py-4 px-6 border-r border-soft">
                         <div className="flex items-center gap-3">
                           <div className={`shrink-0 w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarStyle} shadow-none`}>

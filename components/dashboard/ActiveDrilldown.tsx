@@ -126,7 +126,7 @@ export function ActiveDrilldown({
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " bg-[color:var(--color-paper-2)] text-ink is-interactive";
       handler = onResend;
       break;
     case "finalize":
@@ -141,7 +141,7 @@ export function ActiveDrilldown({
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " bg-[color:var(--color-paper-2)] text-ink hover:bg-paper-2 active:scale-[0.97]";
+      btnClass += " bg-[color:var(--color-paper-2)] text-ink is-interactive";
       handler = onPreview;
       break;
   }
@@ -196,7 +196,7 @@ export function ActiveDrilldown({
             <button
               type="button"
               onClick={onFinalize}
-              className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-bold uppercase text-[11px] tracking-widest transition-all text-ink"
+              className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold uppercase text-[11px] tracking-widest transition-all text-ink"
             >
               EDIT
             </button>
@@ -204,7 +204,7 @@ export function ActiveDrilldown({
               <button
                 type="button"
                 onClick={onCloseProject}
-                className="px-4 py-2 border-2 border-transparent hover:border-coral hover:bg-paper-2 font-bold uppercase text-[11px] tracking-widest transition-all text-coral"
+                className="px-4 py-2 border-2 border-transparent hover:border-coral is-interactive font-bold uppercase text-[11px] tracking-widest transition-all text-coral"
               >
                 CLOSE PROJECT
               </button>
@@ -258,7 +258,7 @@ export function ActiveDrilldown({
                   type="button"
                   onClick={onResend}
                   title={nudgeTooltip}
-                  className="px-4 py-2 rounded-[11px] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+                  className="px-4 py-2 rounded-[11px] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] is-interactive transition-all group relative"
                 >
                   NUDGE CLIENT
                 </button>

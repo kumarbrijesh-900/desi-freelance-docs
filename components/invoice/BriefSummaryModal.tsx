@@ -694,7 +694,7 @@ export default function BriefSummaryModal({
                   <div className="flex flex-wrap gap-2.5">
                     <button
                       onClick={() => chooseClient(clientNameVal, agencyNameVal)}
-                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid hover:bg-paper active:scale-[0.98]"
+                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
                       <span className="block text-[11px] tracking-wide text-ink-3">
                         Client
@@ -705,7 +705,7 @@ export default function BriefSummaryModal({
                     </button>
                     <button
                       onClick={() => chooseClient(agencyNameVal, clientNameVal)}
-                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid hover:bg-paper active:scale-[0.98]"
+                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
                       <span className="block text-[11px] tracking-wide text-ink-3">
                         Client

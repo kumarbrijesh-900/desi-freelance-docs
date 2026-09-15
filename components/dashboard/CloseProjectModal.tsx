@@ -125,7 +125,7 @@ export function CloseProjectModal({
         <button
           type="button"
           onClick={handleClose}
-          className="px-4 py-2.5 rounded-[10px] font-extrabold uppercase text-[11px] tracking-widest text-ink hover:bg-paper-2 transition-all"
+          className="px-4 py-2.5 rounded-[10px] font-extrabold uppercase text-[11px] tracking-widest text-ink is-interactive transition-all"
         >
           Cancel
         </button>

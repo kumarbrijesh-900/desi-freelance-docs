@@ -168,7 +168,7 @@ export function InvoiceEventRow({
               🗑
             </button>
           )}
-          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-paper-2 text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all">
+          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-is-interactive text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all">
             VIEW →
           </button>
         </div>

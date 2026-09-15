@@ -47,6 +47,19 @@
   --state-neutral-bg:   #ebe7dd;
   --state-neutral-text: #5f574a;
 
+  /* --- Interaction states -------------------------------------------------
+     Hover and press are OVERLAYS, not colours: a translucent layer composited
+     over whatever surface is underneath, so a ledger row, a card and a menu
+     item all move by the same perceived step. Calibrated to ~1.20:1 against
+     their ground in both themes, matching acid -> acid-2 (1.19:1), which was
+     the only correctly-weighted hover in the app before this existed.
+     In cockpit the ground is near-black, so press cannot go darker and
+     deepens with more white instead. --------------------------------------- */
+  --state-hover:    rgba(0,0,0,0.09);
+  --state-press:    rgba(0,0,0,0.16);
+  --state-focus:    var(--color-acid);
+  --state-disabled: 0.45;
+
   /* Legacy accent aliases → E */
   --color-lime-warm:    #e7c878;
   --color-lime-300:     #157a54;
@@ -399,7 +412,53 @@ input:focus, select:focus, textarea:focus {
 
 .app-focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-acid);
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--state-focus);
+}
+
+/* --- Interactive surfaces -------------------------------------------------
+   One class for anything that responds to a pointer. The overlay rides on
+   background-image so it composites over whatever background-color the element
+   already has, without overwriting it and without needing a pseudo-element or
+   position:relative. Apply to rows, cards, list items, ghost buttons: anything
+   whose hover was previously a hand-picked colour.
+   Not for filled accent buttons -- those already step acid -> acid-2, which is
+   the reference this overlay is calibrated against. ----------------------- */
+
+.is-interactive {
+  transition:
+    background-image var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow       var(--app-duration-fast) var(--app-ease-standard),
+    transform        var(--app-duration-fast) var(--app-ease-standard);
+}
+
+.is-interactive:hover {
+  background-image: linear-gradient(var(--state-hover), var(--state-hover));
+}
+
+.is-interactive:active {
+  background-image: linear-gradient(var(--state-press), var(--state-press));
+}
+
+/* Press displacement only where a press is a discrete act. A table row that
+   scales on click reads as a glitch; a button that does not reads as dead. */
+button.is-interactive:active,
+a.is-interactive:active,
+[role="button"].is-interactive:active {
+  transform: scale(0.985);
+}
+
+.is-interactive:disabled,
+.is-interactive[aria-disabled="true"] {
+  opacity: var(--state-disabled);
+  pointer-events: none;
+  background-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-interactive { transition: none; }
+  button.is-interactive:active,
+  a.is-interactive:active,
+  [role="button"].is-interactive:active { transform: none; }
 }
 
 /* --- Dropzone --- */
@@ -1410,6 +1469,17 @@ input::placeholder, select::placeholder, textarea::placeholder {
   button {
     border-radius: var(--radius-box);
   }
+
+  /* Keyboard focus is the pointer's equivalent, so acid earns its one use
+     outside live money here. Wrapped in :where() so this carries ZERO
+     specificity: every existing component focus style still wins, and this
+     only fills the gap where nothing was defined -- which was 309 of the
+     app's 316 interactive elements. */
+  :where(a[href], button, select, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--state-focus);
+    border-radius: var(--radius-field);
+  }
 }
 
 /* ===== Editor surface softening (E) =====
@@ -1549,6 +1619,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-info-text:       #2f574e;
   --state-neutral-bg:      #ebe7dd;
   --state-neutral-text:    #5f574a;
+  --state-hover:    rgba(0,0,0,0.09);
+  --state-press:    rgba(0,0,0,0.16);
+  --state-focus:    var(--color-acid);
+  --state-disabled: 0.45;
   --color-lime-warm:       #e7c878;
   --color-lime-300:        #157a54;
   --color-lime-400:        #28b681;
@@ -1636,6 +1710,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --state-info-text:    #6bbfa8;
   --state-neutral-bg:   #1e1c26;
   --state-neutral-text: #b9a6ff;
+  --state-hover:    rgba(255,255,255,0.08);
+  --state-press:    rgba(255,255,255,0.15);
+  --state-focus:    var(--color-acid);
+  --state-disabled: 0.45;
 
   --color-lime-warm:    #d6f97a;
   --color-lime-300:     #d6f97a;
