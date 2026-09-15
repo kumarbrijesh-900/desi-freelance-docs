@@ -1,3 +1,396 @@
+# Session Log — September 14–15, 2026 (Money Engine — Phase 1)
+
+## Summary
+
+**Start `5f5ee6b` · End `7f64a60` · 6 commits, all verified byte-exact.
++1,777 / −66 across 15 files. No migrations, no data passes.**
+
+Phase 0 closed on Sept 11. This session built the engine the previous entry
+asked for, put every consumer on it, and fixed the two tax bugs that were
+actually reachable.
+
+| | |
+|---|---|
+| `f46733f` | engine + types + 19 golden fixtures |
+| `0700ccd` | `buildTaxContext` from live records + 14 fixtures |
+| `138c11c` | engine aligned to legacy across 11,664 cases + parity suite |
+| `27a8bcf` | `calculateInvoiceTotals` becomes an adapter, 34,992-case parity |
+| `8a6a611` | PROJECT VALUE becomes taxable value; `invoiceTaxFactor` deleted |
+| `7f64a60` | child invoices re-derive tax from live records + 10 fixtures |
+
+`npm run test:money` now runs five suites: **19 · 14 · 11,664 · 34,992 · 10**.
+
+---
+
+## READ FIRST: additions to the pinned orientation
+
+### The technique that worked: differential harnesses, not fixtures
+
+The engine passed 17 hand-written fixtures and was **wrong in three places**.
+All three were found by sweeping every input combination against the function
+being replaced and diffing the output — not by writing more fixtures.
+
+Fixtures test what you intended. A differential harness tests what the old code
+*did*. When the goal is "replace X without changing behaviour," only the second
+is evidence.
+
+Two are now permanent suites and should be deleted only with their subjects:
+
+- `run-legacy-parity-tests.ts` — 11,664 combinations against `computeInvoiceTax`
+- `run-calculate-totals-parity-tests.ts` — 34,992 form-data shapes against a
+  **frozen verbatim copy** of `calculateInvoiceTotals` as it stood at `138c11c`
+
+The frozen copy is duplicated on purpose. Once the real function is an adapter
+there is nothing left to compare against, and a parity test that compares new
+code to itself proves nothing. Do not "tidy" it, do not make it import anything.
+
+### Claude's recurring failure mode — unchanged from last session
+
+**Six false harness failures. Every one was Claude's assertion, not a defect.**
+Four were the same sub-pattern the previous entry already named:
+
+- **Substring-absence against prose.** `"grandTotal"` flagged in a comment
+  explaining why the field does not exist. `"amountPayable"` flagged in a
+  comment explaining why the shim does not use it. `"taxRate"` flagged in two
+  comments explaining why it is not overlaid.
+- **Unscoped `count()` on a whole file.** `.from("user_profiles")` asserted ==1;
+  it appears three times, two of them pre-existing `select("agency_name")`.
+- **An extractor artifact** read as a divergence — a blank line the prompt
+  builder inserted, not a byte the executor changed.
+
+→ **Assert on the construct.** `money.amountPayable` and `amountPayable:`, never
+the bare identifier. Slice to the function before counting.
+
+### Verification caught what review did not
+
+`tsc --noEmit` found a second `milestoneTaxFactor` call site in the milestone
+*checklist* panel — a different component from `LifecycleStepper` — after the
+symbol had been deleted. It was grossing milestone amounts too. **Two grossing
+sites existed, not one.** The symbol was deleted without grepping for its
+references first; the compiler found it.
+
+### Claude executed this session; AG did not
+
+AG quota ran out mid-phase. From `8a6a611` onward Claude wrote and verified the
+changes locally and delivered **`git` patches**, which were applied and pushed
+by hand. Both patches applied cleanly to a fresh clone and came back byte-exact.
+
+**Claude can clone and read the repo but cannot push.** The git proxy refuses:
+`kumarbrijesh-900/desi-freelance-docs is not in this session's authorized
+repository set`. Adding the repo to the session's sources would enable direct
+commits. Until then, patches.
+
+`npm run build` cannot be run in the Claude sandbox — `next/font` fails to fetch
+Google Fonts through the proxy. That is an environment artifact, not a defect.
+Verify builds against the Vercel deployment for the SHA instead.
+
+---
+
+## Architectural facts established (these will not survive a `git log` read)
+
+### `computeInvoiceMoney` is the only path to a number
+
+`lib/money/compute-invoice-money.ts`. Pure, imports nothing from the app.
+Every returned field is named for its **basis** — `taxableValue`, `taxTotal`,
+`roundOff`, `amountPayable`, `grossBeforeRounding`, `slabs[]`. There is
+deliberately **no field called `total`, `grandTotal` or `amount`**: each of
+those names has already meant two different things in this codebase, and every
+money bug so far has been a caller guessing which basis it held.
+
+`calculateInvoiceTotals` and `resolveInvoicePayable` are now adapters over it
+with unchanged names, signatures and return shapes. No consumer was touched, so
+the **14 call sites** of those two functions are on the engine transitively.
+
+**But three production sites still call `computeInvoiceTax` directly and bypass
+the engine entirely:**
+
+```
+app/dashboard/page.tsx:497                 settlement amount
+components/dashboard/ActiveDrilldown.tsx:151   drilldown grand total
+lib/templates/template-data.ts:182             the PDF's tax rows
+```
+
+They agree with the engine today — that is what the 11,664-case parity suite
+proves — but "everything is on the engine" is **not** true and should not be
+assumed. `template-data.ts` is the sharpest case: its `totals` come from the
+adapter while its `taxRows` come from legacy, in the same function.
+
+### Tax is computed per rate SLAB, not per line and not per invoice
+
+GSTR-1 reconciles rate-wise, so the return shape is an array of slabs even when
+it holds one entry. `MoneyLine.taxRate` is optional and always `undefined` in
+v1, so mixed slabs are a **schema** change, never an engine change. Cost of the
+array today: one `groupBy`. Cost of retrofitting it later: every consumer's read
+shape.
+
+### CGST/SGST splits in integer paise — legacy's split was a float accident
+
+The old code derived `cgst = Number((taxAmount / 2).toFixed(2))` and gave SGST
+the remainder. Which component received an odd paisa depended on the **binary
+representation of the half**:
+
+```
+(111.115).toFixed(2) -> "111.11"   odd paisa to SGST   (18% on 1234.61)
+(74.075).toFixed(2)  -> "74.08"    odd paisa to CGST   (12% on 1234.61)
+```
+
+Same invoice value, opposite rule, decided by a float. The engine now splits in
+integer paise: **CGST takes the lower half, SGST absorbs the odd paisa, always.**
+`cgst + sgst === taxAmount` exactly, asserted on every slab of every case.
+
+This is the one deliberate behaviour change in the adapter. `taxAmount`,
+`grandTotal` and `totalPayable` are byte-identical to legacy everywhere — no
+invoice total moves, only which of two adjacent lines carries a paisa. The
+parity suite asserts the real contract (sum-exact, permutation of legacy, within
+one paisa) rather than pretending to a parity that does not exist.
+
+Unreachable on current data: all six invoices are whole rupees at 18%, so the
+tax is whole rupees and there is no paisa to allocate. It becomes reachable the
+first time anyone enters a rate with paise.
+
+### `lutValidity` existed, was user-editable, and was read by nothing
+
+`AgencyDetails.lutValidity`, persisted as `user_profiles.lut_validity`, with a
+dropdown in `/profile` offering `fy_2025_26` / `fy_2026_27` / `fy_2027_28`.
+`computeInvoiceTax` never referenced it and had **no date parameter at all**.
+The LUT-lapse bug was not a bug; the check had never been written.
+
+An LUT covers one financial year: `fy_2026_27` means 2026-04-01 through
+2027-03-31 inclusive. The engine now resolves it against the date of supply.
+
+### Export/SEZ precedence is inherited verbatim from the old function
+
+Three of Claude's first-draft engine rules were wrong, all undercharging, all
+invisible to the fixtures written for them:
+
+1. `lutAvailability: "no"` on an export — old code charges IGST; the draft
+   zero-rated it, because it gated on `noLutHandling`, which defaults to
+   keep-zero-tax. An explicit "I have no LUT" was being read as "zero-rate it".
+2. SEZ without a LUT — same shape. Also: **the old SEZ branch never consults
+   `noLutTaxHandling`**, and the draft did.
+3. `noLutTaxHandling: "add-igst"` with a *valid* LUT — old code charges IGST
+   regardless; the explicit choice wins outright.
+
+Plus `"SEZ Supply"` vs `"SEZ supply"`, which would have silently changed
+client-facing invoice copy.
+
+The resolution order is now, verbatim:
+
+```
+export:  add-igst wins -> LUT valid ON THE DATE -> explicit "no" -> declared
+         but lapsed (NEW) -> nothing stated, zero-rate and warn
+SEZ:     LUT valid ON THE DATE -> declared but lapsed (NEW) -> IGST
+```
+
+Only the lapse rules are new. Everything else is what the old function did.
+
+### There are four money paths, not one
+
+1. `invoices.grand_total` — the column, holding the **pre-tax subtotal** despite
+   its name. Still written by `invoices.ts` and `milestones.ts`; still a
+   fallback read inside `resolveInvoicePayable`.
+2. `form_data.totals.total` — read by `InvoiceEventRow.tsx:83` and
+   `ProjectInvoiceGroup.tsx:24` when the resolver returns 0. **`null` on all six
+   production rows; the branch is dead.**
+3. A raw `qty × rate` sum over milestones, the second fallback in those same two
+   components. **Pre-tax** — so a zero-resolving invoice would render net beside
+   siblings rendering gross. Also dead today.
+4. `computeInvoiceMoney`.
+
+### `taxRate` has no live table
+
+It exists only on the invoice (`form_data.tax.taxRate`). `user_profiles` and
+`clients` hold registration, state, LUT and SEZ — not rate. So a **mid-project
+GST rate revision cannot be re-derived** by a child invoice and stays inherited.
+Fixture 5 of `run-live-tax-facts-tests.ts` asserts this explicitly rather than
+leaving it implied. Correcting it needs either a rates table or user action.
+
+### PROJECT VALUE meant two different things under one label
+
+| surface | was | computed from |
+|---|---|---|
+| `/dashboard` | gross | live milestones × `invoiceTaxFactor` |
+| `/invoices` | gross | sum of invoice payables |
+
+For Nilaya — four contracted milestones, one invoice raised — those were
+₹5,32,180 and ₹1,74,640 under the same words. The split is now explicit:
+
+- **`/dashboard` PROJECT VALUE** = net contracted value of live (non-CANCELLED)
+  milestones. Gross asserted that output GST is earnings; it is a liability
+  remitted to the government, and two of Halcyon's five milestones have no tax
+  invoice at all, so grossing them claimed a liability on a supply that has not
+  occurred.
+- **`/invoices`** is a receivables surface. Everything stays tax-inclusive and
+  the header is relabelled **INVOICED** — it is the sum of the rows beneath it.
+
+`invoiceTaxFactor` was deleted, not left dead. It invited exactly this mistake.
+
+### The engine's `warnings[]` are the UX half
+
+`LUT_LAPSED`, `LUT_NOT_YET_EFFECTIVE`, `LUT_VALIDITY_MISSING`,
+`STATE_UNRESOLVED`, `REGISTERED_BUT_ZERO_RATE`, `NEGATIVE_LINE`. Each carries
+client-ready copy. **No surface renders them yet.** That is the cheapest
+remaining win: the freelancer learns about an undercharge before the invoice
+goes out, instead of at assessment.
+
+`STATE_UNRESOLVED` also replaced a silent `exempt` fallback. The engine now
+charges zero **and says so**, rather than returning a figure that looks settled.
+
+---
+
+## Child invoices re-derive tax from live records (`7f64a60`)
+
+> The contract determines **what** is supplied and for how much.
+> The date of supply determines **how** it is taxed.
+> A child inherits the first and must re-derive the second.
+
+`fireMilestoneInvoice` now reads `user_profiles` and — via `projects.client_id`,
+since there is no direct `invoices → clients` FK (AUDIT-P0-002) — the `clients`
+row, and overlays today's tax facts onto the inherited snapshot before computing
+the child's money. `lib/money/live-tax-facts.ts`, pure and separately tested.
+
+Fixed: **registration acquired mid-project**, **client relocation** (with city,
+PIN and address lines moving with the state, or the document shows the old city
+beside the new one), and **LUT renewal** — a renewed FY now zero-rates correctly
+where the stale one would have lapsed into IGST.
+
+Not fixed: **rate revision** (see above).
+
+**A blank live value never overwrites a good snapshot.** Blank means "not on
+file", never "changed to blank" — a half-filled profile must not erase the
+supplier's state and drop the invoice into `indeterminate`, which charges zero.
+De-registration still applies, because it writes `"not-registered"`, a present
+value. Fixtures 6 and 7 pin both halves.
+
+The CA-3 guard moved from the parent to the overlaid child. The parent passing
+at finalize no longer implies the child will.
+
+**Effect on current data: none.** Simulated Halcyon M4 (₹75,000) firing today —
+every live field already matches the snapshot. `intrastate`, ₹13,500 tax,
+₹88,500 payable, before and after.
+
+---
+
+## What changed on screen
+
+Phases 1a–1b-iii changed **nothing**. Verified by reconciling the engine against
+both screens from the database — all six invoice rows, all four project values,
+Outstanding ₹4,76,012, Collected ₹5,25,100, total billed ₹10,01,112, GST
+Collected ₹80,100 — then again against screenshots of the deployed build.
+
+`8a6a611` changed four figures deliberately:
+
+| | dashboard PROJECT VALUE | · invoiced | /invoices INVOICED |
+|---|---|---|---|
+| Vermilion | ₹1,15,000 | ₹1,15,000 | ₹1,35,700 *(unchanged)* |
+| Halcyon | ₹6,05,000 | ₹4,75,000 | ₹5,60,500 *(unchanged)* |
+| Nilaya | ₹4,51,000 | ₹1,48,000 | ₹1,74,640 *(unchanged)* |
+| Kadamba | ₹1,10,400 | ₹1,10,400 | ₹1,30,272 *(unchanged)* |
+
+Kadamba's card is internally consistent for the first time: header ₹1,10,400,
+M1 ₹1,10,400. Halcyon and Nilaya correctly show contracted > invoiced.
+
+`7f64a60` changed nothing visible.
+
+---
+
+## Open findings — noticed, deliberately not fixed
+
+- **The CA-3 guard throws after the parent is already updated to `PARTIAL`.**
+  If it fires, the parent is mutated and the child never exists. Predates this
+  session. Moving the throw earlier changes failure semantics and deserves its
+  own verification pass.
+- **Three `user_profiles` round-trips in `fireMilestoneInvoice`** — one for tax
+  facts, two pre-existing `select("agency_name")`, one inside
+  `resolveAgencyName`. One query could serve all three.
+- **`grand_total` still lies.** The name says grand total; the value is the
+  pre-tax subtotal. Phase 2 below.
+- **`form_data.totals.total` and the raw milestone sum** remain as dead
+  fallbacks in two components (money paths 2 and 3 above).
+- **This entry originally claimed `computeInvoiceTax` had no production
+  callers.** It has three, listed above. The claim was written from memory of
+  the migration rather than from a grep, and was caught by fact-checking the
+  entry against the repo before committing it. Assert on the repo, including
+  when writing the log.
+
+---
+
+## NEXT SESSION — start here
+
+### 1. Surface the engine's warnings (cheapest win, highest value)
+
+`computeInvoiceMoney` already returns `warnings[]` with client-ready copy and
+nothing renders them. Show them in the invoice editor before finalize and on the
+milestone-fire path. A freelancer who is about to zero-rate an export on a
+lapsed LUT should be told while they can still fix it.
+
+### 2. Lint rule
+
+Ban bare `0.18` / `1.18` and any arithmetic on `grand_total` outside
+`lib/money/`. `gstCollected` was wrong for months because nothing stopped a raw
+multiply. The engine removes the excuse; the lint rule removes the possibility.
+
+### 3. Rename `grand_total` (additive migration)
+
+Add `taxable_value` and `amount_payable`, backfill both from the engine, make
+the engine the sole writer, deprecate `grand_total`. Six rows. This kills the
+name that lies and gives the ledger a stored figure that means what it says.
+
+Decided and not yet done: `grand_total` survives Phase 1 as a **write-only
+cache**. A persisted monetary figure is a useful audit artifact — you want a
+record of what the document said, independent of later engine changes — but it
+should be `amount_payable`, not a subtotal wearing the wrong name.
+
+### 4. Consumer migration (now cosmetic)
+
+Two different jobs, and only one of them is cosmetic.
+
+**Not cosmetic — do these first.** Three sites call `computeInvoiceTax` directly
+(`app/dashboard/page.tsx:497`, `components/dashboard/ActiveDrilldown.tsx:151`,
+`lib/templates/template-data.ts:182`). They bypass the engine, so they will not
+pick up date-aware LUT handling or the per-slab breakdown, and they are the only
+remaining places a future engine change could silently fail to reach. Moving
+them is the last step before `lib/invoice-tax.ts` can be deleted.
+
+**Cosmetic.** The 14 `resolveInvoicePayable` / `calculateInvoiceTotals` call
+sites already delegate to the engine, so moving them is renaming, not
+re-semanticising. Delete the adapters and their parity suites together, and only
+once nothing else reads `computeInvoiceTax`.
+
+### 5. Rounding, when you want it
+
+`resolveInvoicePayable` returns **unrounded gross** by decision, so the ledger
+and the PDF can differ by up to a rupee the first time an invoice has paise.
+`computeInvoiceMoney.amountPayable` is the Sec 170 whole-rupee figure and is
+wired to nothing. Flipping the adapter to it is a one-line change and is
+currently invisible — all six invoices are whole rupees.
+
+### 6. Known-broken, carried forward
+
+- **`activity_log` is empty** — the settlement drawer feed renders nothing.
+- **`/clients` says "MSAs signed 0 of 4"**, counting `msa_effective_date` (null
+  on all four) while the dashboard shows accepted MSAs. Contradictory.
+- **Bulk-delete confirmation copy** almost certainly does not say that deleting
+  a master takes its children and the project with it.
+- **A dead ternary** in the `/invoices` bulk bar — `selectedIds.size > 0 ? … :
+  null` inside a bar that only renders when that is true.
+- **Latent FK:** `projects.msa_accepted_via_invoice_id` is `NO ACTION`, not
+  `SET NULL`. Only ever written as `null` today, so it cannot fire — but once
+  populated, deleting the referenced invoice throws a raw FK error into the UI.
+- **Smoke-test P0s still open from May 2026** (verify before trusting): PROJECTS
+  link in top nav; M1 "fires" step gray-pending; NOW pill on the wrong stepper
+  row; ledger ordering inconsistent.
+- **Landing page** — sells the artifact, not the enforcement. Ranked plan in the
+  Sept 4–11 entry; start with items 1 and 3.
+
+### 7. v1.5 multi-milestone schema refactor
+
+Unchanged and still the next major phase. The engine is a prerequisite that is
+now in place: promoting Milestone to a real entity no longer has to carry the
+tax model with it.
+
+---
+
 # Session Log — September 4–11, 2026 (Phase 6.0f–6.0z)
 
 ## Summary
