@@ -15,20 +15,6 @@ export function flattenMilestonesToLineItems(
 }
 
 /**
- * Ratio between an invoice's payable and its pre-tax subtotal — i.e. its
- * effective tax multiplier, derived rather than hardcoded so it stays correct
- * at any GST rate, under RCM, and for exports. Used to put pre-tax
- * invoice_milestones.amount figures on the same basis as the money shown
- * everywhere else. Returns 1 when there is nothing to divide by.
- */
-export function invoiceTaxFactor(invoice: any): number {
-  const taxable = Number(invoice?.grand_total || 0);
-  if (taxable <= 0) return 1;
-  const payable = resolveInvoicePayable(invoice);
-  return payable > 0 ? payable / taxable : 1;
-}
-
-/**
  * The amount actually payable, tax inclusive. Derived from form_data via the
  * same calculateInvoiceTotals the invoice document uses, so a summary card can
  * never disagree with the PDF it summarises.

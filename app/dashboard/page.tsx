@@ -18,7 +18,6 @@ import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
-import { invoiceTaxFactor } from "@/lib/invoice-calculations";
 
 type TriggerMode = "immediate" | "scheduled" | "cancelled";
 
@@ -133,19 +132,21 @@ function DashboardContent() {
     [selectedProject]
   );
 
-  // Milestone amounts are pre-tax; everything else in the app shows payable.
-  // Derive the multiplier from this project's master invoice so the rows and
-  // the header reconcile at any tax rate.
-  const projectMaster = selectedProject?.invoices.find(
-    inv => !(inv as any).parent_invoice_id,
-  );
-  const milestoneTaxFactor = invoiceTaxFactor(projectMaster);
+  // Project value is the contracted TAXABLE value of the live milestones, and
+  // milestone amounts are already stored pre-tax — so there is nothing to
+  // convert. It was previously multiplied up to a payable, which asserted that
+  // output GST is earnings: it is a liability remitted to the government, and
+  // two of Halcyon's five milestones have no tax invoice at all, so grossing
+  // them claimed a liability on a supply that has not occurred. Gross belongs
+  // on the cash-flow surfaces (Outstanding, Collected, the invoice rows), where
+  // it is what the client actually owes.
   const liveMilestones = (selectedProject?.milestones ?? []).filter(
     m => String((m as any).status || "").toUpperCase() !== "CANCELLED",
   );
-  const projectContractedValue =
-    liveMilestones.reduce((sum, m) => sum + Number((m as any).amount || 0), 0) *
-    milestoneTaxFactor;
+  const projectContractedValue = liveMilestones.reduce(
+    (sum, m) => sum + Number((m as any).amount || 0),
+    0,
+  );
 
   const dueSoonAlerts = useMemo(() => {
     const alerts: { projectId: string; projectName: string; milestoneNumber: number; milestoneTitle: string; dueDays: number }[] = [];
@@ -428,7 +429,7 @@ function DashboardContent() {
                     <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">Project value</span>
                     <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {formatInr(selectedProject.metrics.billed)} invoiced</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {formatInr(selectedProject.metrics.billedTaxable)} invoiced</span>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-2">
@@ -707,7 +708,7 @@ function DashboardContent() {
                                   M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
                                 </div>
                                 <div className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
-                                  {formatInr(Number(milestone.amount || 0) * milestoneTaxFactor)}
+                                  {formatInr(Number(milestone.amount || 0))}
                                 </div>
                               </div>
                               <span className={`flex-none rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusPillClass}`}>

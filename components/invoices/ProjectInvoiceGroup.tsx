@@ -105,6 +105,10 @@ export function ProjectInvoiceGroup({
   if (items.some((it, i) => it.isMaster && labels[i] === "partial")) done += 1;
   done = Math.min(done, msCount);
 
+  // Gross, and labelled "invoiced" rather than "project value": this is a
+  // receivables surface, this number is the sum of the invoice rows directly
+  // beneath it, and what a client owes is what belongs here. Contracted project
+  // value — taxable, including milestones not yet invoiced — is on the dashboard.
   const projValue = items.reduce((s, it) => s + invoiceTotal(it.invoice), 0);
   const unlinked = !projectName;
   const pName = projectName || "Unlinked invoices";
@@ -145,7 +149,7 @@ export function ProjectInvoiceGroup({
         </div>
         <div className="flex flex-col items-end gap-[5px] shrink-0 text-right">
           <span className={`inline-block rounded-full px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(roll.key)}`}>{roll.text}</span>
-          <div className="font-display font-bold text-[16px] text-ink tabular-nums">{formatInr(projValue)}<span className="block text-[9px] font-bold text-ink/50 uppercase tracking-[0.08em] mt-px">project value</span></div>
+          <div className="font-display font-bold text-[16px] text-ink tabular-nums">{formatInr(projValue)}<span className="block text-[9px] font-bold text-ink/50 uppercase tracking-[0.08em] mt-px">invoiced</span></div>
         </div>
       </div>
 

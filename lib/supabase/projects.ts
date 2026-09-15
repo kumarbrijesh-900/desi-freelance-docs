@@ -4,7 +4,7 @@
  */
 
 import { supabase } from "@/lib/supabase/client";
-import { resolveInvoicePayable } from "@/lib/invoice-calculations";
+import { calculateInvoiceTotals, resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 export interface Project {
   id: string;
@@ -126,7 +126,10 @@ export interface ProjectWithInvoices {
   invoices: InvoiceRow[];
   milestones: MilestoneRow[];
   metrics: {
+    /** Tax-inclusive: what the client owes. Cash-flow surfaces. */
     billed: number;
+    /** Pre-tax: what the studio earns. Project-value surfaces. */
+    billedTaxable: number;
     collected: number;
     outstanding: number;
     daysActive: number;
@@ -251,12 +254,36 @@ function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): numbe
   return resolveInvoicePayable(invoice);
 }
 
+/**
+ * Taxable value of an invoice — the pre-tax figure the engine computes from
+ * form_data, with the same milestone fallback getInvoiceTotal uses.
+ */
+function getInvoiceTaxableValue(
+  invoice: InvoiceRow,
+  milestones: MilestoneRow[]
+): number {
+  try {
+    const fd = (invoice as any)?.form_data;
+    if (fd && (fd.milestones?.length || fd.lineItems?.length)) {
+      const taxable = Number(calculateInvoiceTotals(fd)?.subtotal || 0);
+      if (taxable > 0) return taxable;
+    }
+  } catch {
+    // fall through
+  }
+  if (milestones.length > 0) {
+    return milestones.reduce((sum, m) => sum + Number(m.amount || 0), 0);
+  }
+  return Number((invoice as any)?.grand_total || 0);
+}
+
 function getProjectMetrics(
   project: ProjectRow,
   invoices: InvoiceRow[],
   milestones: MilestoneRow[]
 ): ProjectWithInvoices["metrics"] {
   let billed = 0;
+  let billedTaxable = 0;
   let collected = 0;
   let outstanding = 0;
   const milestonesByInvoice = new Map<string, MilestoneRow[]>();
@@ -273,6 +300,10 @@ function getProjectMetrics(
 
     const invoiceMilestones = milestonesByInvoice.get(invoice.id) ?? [];
     billed += getInvoiceTotal(invoice, invoiceMilestones);
+    // Same invoices, taxable basis. `billed` is what the client owes; this is
+    // what the studio earns. Output GST is a liability, not revenue, so the two
+    // must never be used interchangeably.
+    billedTaxable += getInvoiceTaxableValue(invoice, invoiceMilestones);
 
     if (invoiceMilestones.length > 0) {
       invoiceMilestones.forEach((milestone) => {
@@ -303,7 +334,7 @@ function getProjectMetrics(
     ? 0
     : Math.max(0, Math.ceil((Date.now() - createdAt) / 86400000));
 
-  return { billed, collected, outstanding, daysActive };
+  return { billed, billedTaxable, collected, outstanding, daysActive };
 }
 
 /**
