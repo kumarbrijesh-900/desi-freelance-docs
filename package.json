@@ -13,7 +13,7 @@
     "test:extraction": "tsx tests/extraction/run-parsed-hydration-tests.ts",
     "test:compliance": "tsx tests/compliance/run-gst-compliance-tests.ts",
     "test:domain": "tsx tests/domain/run-merge-normalization-tests.ts",
-    "test:money": "tsx tests/money/run-money-engine-fixtures.ts && tsx tests/money/run-tax-context-fixtures.ts && tsx tests/money/run-legacy-parity-tests.ts && tsx tests/money/run-calculate-totals-parity-tests.ts"
+    "test:money": "tsx tests/money/run-money-engine-fixtures.ts && tsx tests/money/run-tax-context-fixtures.ts && tsx tests/money/run-legacy-parity-tests.ts && tsx tests/money/run-calculate-totals-parity-tests.ts && tsx tests/money/run-live-tax-facts-tests.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

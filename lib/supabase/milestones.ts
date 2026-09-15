@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { describeTaxFacts, overlayLiveTaxFacts } from "@/lib/money/live-tax-facts";
 import { renderLanceEmail } from "@/lib/email-template";
 
 export interface FireMilestoneInvoiceResult {
@@ -129,21 +130,7 @@ export async function fireMilestoneInvoice(
   }
   const newInvoiceNumber = `INV-${year}-${String(maxNum + 1).padStart(4, "0")}`;
 
-  // CA-3 defense-in-depth: a GST-registered supply must never fall into the
-  // tax engine's silent 'exempt' branch on this server money path. The parent
-  // was validated at finalize; this guards corrupted/legacy rows only.
-  if (formData?.agency?.gstRegistrationStatus === "registered") {
-    const clientStateOk =
-      formData?.client?.clientLocation === "international" ||
-      Boolean(formData?.client?.clientState);
-    if (!formData?.agency?.agencyState || !clientStateOk) {
-      throw new Error(
-        "fireMilestoneInvoice: missing agency/client state on a GST-registered invoice — refusing to compute child tax silently as exempt."
-      );
-    }
-  }
-
-  const childFormData = {
+  const inheritedChildFormData = {
     ...formData,
     milestones: [nextMilestone],
     meta: {
@@ -159,6 +146,69 @@ export async function fireMilestoneInvoice(
         : 1,
     },
   };
+
+  // The contract fixes WHAT is supplied and for how much; the date of supply
+  // fixes HOW it is taxed. This child is a new tax document issued today, so
+  // its tax facts come from the live records, not from the parent's snapshot.
+  // Without this a milestone billed months later inherits a registration status,
+  // a place of supply and an LUT that may all have moved — every one of which
+  // undercharges, out of the freelancer's own pocket.
+  const { data: liveSupplier } = await supabase
+    .from("user_profiles")
+    .select(
+      "gst_registration_status, gstin, state, lut_availability, lut_number, lut_validity, no_lut_tax_handling",
+    )
+    .eq("user_id", parent.user_id)
+    .maybeSingle();
+
+  // There is no direct invoices -> clients FK; the client is reached through
+  // the project (AUDIT-P0-002).
+  let liveRecipient: any = null;
+  if (effectiveProjectId) {
+    const { data: projectForClient } = await supabase
+      .from("projects")
+      .select("client_id")
+      .eq("id", effectiveProjectId)
+      .maybeSingle();
+    if (projectForClient?.client_id) {
+      const { data: clientRow } = await supabase
+        .from("clients")
+        .select(
+          "state, country, client_type, sez_status, gstin, address_line_1, address_line_2, city, pin_code",
+        )
+        .eq("id", projectForClient.client_id)
+        .maybeSingle();
+      liveRecipient = clientRow ?? null;
+    }
+  }
+
+  const { formData: childFormData, changes: taxFactChanges } =
+    overlayLiveTaxFacts(inheritedChildFormData, liveSupplier ?? null, liveRecipient);
+
+  if (taxFactChanges.length > 0) {
+    console.log(
+      `[fireMilestoneInvoice] ${newInvoiceNumber}: tax re-derived from live records — ` +
+        taxFactChanges
+          .map((c) => `${c.path}: ${c.from || "(blank)"} -> ${c.to}`)
+          .join("; ") +
+        ` | ${describeTaxFacts(childFormData)}`,
+    );
+  }
+
+  // CA-3 defense-in-depth: a GST-registered supply must never fall into the
+  // tax engine's silent 'exempt' branch on this server money path. Checked on
+  // the values this child is ACTUALLY taxed on, after the live overlay — the
+  // parent passing at finalize no longer implies the child will.
+  if (childFormData?.agency?.gstRegistrationStatus === "registered") {
+    const clientStateOk =
+      childFormData?.client?.clientLocation === "international" ||
+      Boolean(childFormData?.client?.clientState);
+    if (!childFormData?.agency?.agencyState || !clientStateOk) {
+      throw new Error(
+        "fireMilestoneInvoice: missing agency/client state on a GST-registered invoice — refusing to compute child tax silently as exempt.",
+      );
+    }
+  }
   const appliedSnapshot = computeAppliedMsaSnapshot(childFormData as any);
   const childGrandTotal = calculateInvoiceTotals(childFormData as any).subtotal;
 
