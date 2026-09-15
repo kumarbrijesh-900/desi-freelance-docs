@@ -23,6 +23,7 @@ import AppPageShell, {
   AppPageShellAction,
   AppPageShellDivider,
 } from "@/components/ui/AppPageShell";
+import AppStatLine from "@/components/ui/AppStatLine";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import {
@@ -859,20 +860,16 @@ export default function ClientsPage() {
           )}
         </AnimatePresence>
 
-        {/* Stat strip — calm tan (canonical: tan cards + one ink hero) */}
-        <div className="flex flex-wrap gap-4 mb-6">
-          {[
-            { l: "Clients", v: `${clients.length}`, s: "in your roster", hero: true },
-            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "contracts on file", hero: false },
-            { l: "Repeat clients", v: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, s: "billed more than once", hero: false },
-          ].map((s, i) => (
-            <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
-              <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>
-              <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.v}</div>
-              <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.s}</div>
-            </div>
-          ))}
-        </div>
+        {/* Ambient context for the roster below. No hero: a client count is not
+            live money, and acid is reserved for money that is. */}
+        <AppStatLine
+          className="mb-4"
+          stats={[
+            { label: "Clients", value: `${clients.length}`, sub: "in your roster" },
+            { label: "MSAs signed", value: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, sub: "contracts on file" },
+            { label: "Repeat clients", value: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, sub: "billed more than once" },
+          ]}
+        />
 
         {/* Filter / Search strip */}
         <div className="flex gap-3 mb-4">

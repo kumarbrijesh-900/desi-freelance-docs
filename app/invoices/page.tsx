@@ -8,6 +8,7 @@ import AppPageShell, {
   AppPageShellDivider,
   appPageShellContainerClass,
 } from "@/components/ui/AppPageShell";
+import AppStatLine from "@/components/ui/AppStatLine";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
@@ -423,20 +424,15 @@ export default function InvoicesPage() {
             Cards are for when the metric IS the task. Outstanding keeps its
             weight through type; acid is legitimate here because outstanding
             is live money owed. */}
-        <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 mb-4 px-4 py-2.5 bg-paper-2 border border-soft rounded-[12px] shrink-0">
-          {[
-            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, hero: true },
-            { l: "Collected", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, hero: false },
-            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
-            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
-          ].map((s, i) => (
-            <div key={i} className="flex items-baseline gap-2 min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-2 whitespace-nowrap">{s.l}</span>
-              <span className={`font-display font-bold tabular-nums leading-none whitespace-nowrap ${s.hero ? 'text-[22px] text-acid' : 'text-[16px] text-ink'}`}>{s.v}</span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-3 whitespace-nowrap">{s.s}</span>
-            </div>
-          ))}
-        </div>
+        <AppStatLine
+          className="mb-4 shrink-0"
+          stats={[
+            { label: "Outstanding", value: formatInr(outstandingSum), sub: `${outstandingInvoices.length} invoices`, hero: true },
+            { label: "Collected", value: formatInr(settledSum), sub: `${settledInvoices.length} invoices` },
+            { label: "Avg paid in", value: avgPaidDays !== null ? `${avgPaidDays} days` : "—", sub: avgPaidDays !== null ? "turnaround" : "none yet" },
+            { label: "GST collected", value: formatInr(gstCollected), sub: "FY 25-26" },
+          ]}
+        />
 
         {/* Filter tabs */}
         <div className="flex items-center gap-2 mb-4 flex-wrap shrink-0">

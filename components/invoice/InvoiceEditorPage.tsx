@@ -113,6 +113,9 @@ import {
   appPageContainerClass,
   appGridClass,
 } from "@/lib/layout-foundation";
+import AppPageShell, {
+  AppPageShellAction,
+} from "@/components/ui/AppPageShell";
 import {
   defaultInvoiceFormData,
   mergeInvoiceFormData,
@@ -2488,53 +2491,32 @@ return (
     <section
       className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[56px] pt-8 pb-32 relative z-10`}
     >
-      {/* Document bar — invoice identity as chrome. Step context is deliberately
-          omitted: the rail and the step card header both already show it. */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[color:var(--color-soft)] pb-3">
-        <h1 className="m-0 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 min-w-0 text-[13px] font-medium leading-none">
-          <span className="text-[color:var(--color-ink-2)]">
-            {isReadOnlyMode ? "Locked invoice" : invoiceId ? "Edit invoice" : "New invoice"}
-          </span>
-          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
-          <span className="text-[20px] font-medium tracking-[-0.01em] tabular-nums text-[color:var(--color-ink)]">
-            {formData.meta?.invoiceNumber || "—"}
-          </span>
-          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
-          <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)] sm:inline">
-            Issued
-          </span>
-          <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
-            {formData.meta?.invoiceDate || "—"}
-          </span>
-          <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
-            PO
-          </span>
-          <span className="text-[12px] tabular-nums text-[color:var(--color-ink-2)]">
-            {formData.meta?.poNumber || "—"}
-          </span>
-          {!isReadOnlyMode && (
-            <button
-              type="button"
-              onClick={() => setShowIdentityEditor((prev) => !prev)}
-              aria-expanded={showIdentityEditor}
-              aria-label={showIdentityEditor ? "Close invoice identity editor" : "Edit invoice identity"}
-              className="ml-2 inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-box)] border border-[color:var(--color-soft)] px-3 py-1.5 text-[11px] font-medium text-[color:var(--color-ink-2)] hover:border-[color:var(--color-strong)] hover:text-[color:var(--color-ink)] active:scale-[0.97] transition-[color,border-color,transform]"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-              </svg>
-              {showIdentityEditor ? "Done" : "Edit"}
-            </button>
-          )}
-        </h1>
-
-        {isReadOnlyMode && (
-          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
-            {readOnlyStateLabel}
-          </span>
-        )}
+      {/* Document bar — the same AppPageShell bar every other route uses, in
+          `bare` mode because the editor owns its own width and scroll. Step
+          context is deliberately omitted: the rail and the step card header
+          both already show it. */}
+      <div className="mb-6">
+        <AppPageShell
+          bare
+          title={formData.meta?.invoiceNumber || "—"}
+          meta={[
+            isReadOnlyMode ? "Locked invoice" : invoiceId ? "Edit invoice" : "New invoice",
+            `Issued ${formData.meta?.invoiceDate || "—"}`,
+            `PO ${formData.meta?.poNumber || "—"}`,
+            isReadOnlyMode ? readOnlyStateLabel : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+          actions={
+            !isReadOnlyMode ? (
+              <AppPageShellAction
+                onClick={() => setShowIdentityEditor((prev) => !prev)}
+              >
+                {showIdentityEditor ? "Done" : "✎ Edit"}
+              </AppPageShellAction>
+            ) : undefined
+          }
+        />
       </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
