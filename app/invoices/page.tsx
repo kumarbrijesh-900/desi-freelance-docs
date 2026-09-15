@@ -2,7 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import AppHeader from "@/components/AppHeader";
-import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
+import { appPageShellClass } from "@/lib/layout-foundation";
+import AppPageShell, {
+  AppPageShellAction,
+  AppPageShellDivider,
+  appPageShellContainerClass,
+} from "@/components/ui/AppPageShell";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
@@ -379,7 +384,7 @@ export default function InvoicesPage() {
   return (
     <div className={`${appPageShellClass} h-dvh overflow-hidden flex flex-col`}>
       <AppHeader />
-      <main className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
+      <main className={`${appPageShellContainerClass} pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
           <div className="mb-6 px-4 py-3 bg-ink text-acc-ink text-sm font-bold shadow-none">
@@ -388,29 +393,30 @@ export default function InvoicesPage() {
         )}
 
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 shrink-0">
-          <div className="flex items-baseline gap-3 min-w-0">
-            <h1 className="font-display font-bold text-[34px] tracking-[-0.02em] leading-none text-ink">Invoices</h1>
-            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-3 whitespace-nowrap">All time · {filteredInvoices.length} results</span>
-          </div>
-          <div className="flex gap-3 items-center w-full sm:w-auto sm:shrink-0">
-            <div className="relative flex-1 sm:flex-none sm:w-[300px]">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3">⌕</div>
-              <input
-                type="text"
-                placeholder="Search · #, client, project…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-soft rounded-[11px] font-semibold text-sm focus:outline-none focus:border-acid focus:ring-2 focus:ring-acid/15 placeholder:text-ink-3 transition-colors"
-              />
-            </div>
-            <a
-              href="/invoice/new?fresh=1"
-              className="sm:hidden bg-acid px-5 py-2.5 rounded-[11px] text-sm font-bold text-acc-ink shadow-[0_10px_22px_-12px_rgba(30,61,51,0.55)] transition-transform hover:-translate-y-px active:scale-[0.97] whitespace-nowrap"
-            >
-              + New invoice
-            </a>
-          </div>
+        <div className="mb-4 shrink-0">
+          <AppPageShell
+            bare
+            title="Invoices"
+            meta={`All time · ${filteredInvoices.length} results`}
+            actions={
+              <>
+                <div className="relative w-[200px] lg:w-[260px]">
+                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3">⌕</div>
+                  <input
+                    type="text"
+                    placeholder="Search · #, client, project…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full rounded-[var(--radius-pill)] border border-soft bg-paper py-1 pl-7 pr-3 text-[12px] font-semibold placeholder:text-ink-3 focus:border-acid focus:outline-none"
+                  />
+                </div>
+                <AppPageShellDivider />
+                <AppPageShellAction href="/invoice/new?fresh=1" tone="act">
+                  + New invoice
+                </AppPageShellAction>
+              </>
+            }
+          />
         </div>
 
         {/* Stat line — on a ledger these are ambient context, not the task.

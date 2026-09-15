@@ -17,11 +17,8 @@ import {
   MotionButton,
   SuccessPulse,
 } from "@/components/ui/motion-primitives";
-import {
-  appGridClass,
-  appPageContainerClass,
-  appPageShellClass,
-} from "@/lib/layout-foundation";
+import { appPageShellClass } from "@/lib/layout-foundation";
+import AppPageShell from "@/components/ui/AppPageShell";
 import {
   getAppButtonClass,
   getAppFieldClass,
@@ -33,7 +30,7 @@ import {
   appFieldHelperTextClass,
   cn,
 } from "@/lib/ui-foundation";
-import { ChevronLeftIcon, SaveIcon } from "@/components/ui/app-icons";
+import { SaveIcon } from "@/components/ui/app-icons";
 import {
   getClient,
   upsertClient,
@@ -411,22 +408,12 @@ export default function ClientDetailPage() {
         }
       />
 
-      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            {/* Header */}
-            <MotionReveal preset="fade-up">
-              <Link
-                href="/clients"
-                className="mb-3 inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
-              >
-                <ChevronLeftIcon className="h-3.5 w-3.5" />
-                All Clients
-              </Link>
-              <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
-                {clientName || "Client"}
-              </h1>
-            </MotionReveal>
+      <AppPageShell
+        title={clientName || "Client"}
+        meta={clientEmail || undefined}
+        back="/clients"
+        backLabel="All clients"
+      >
 
             {/* Client Details */}
             <MotionReveal preset="fade-up" delay={10}>
@@ -826,9 +813,7 @@ export default function ClientDetailPage() {
                 </div>
               </div>
             </MotionReveal>
-          </div>
-        </div>
-      </section>
+      </AppPageShell>
     </main>
   );
 }

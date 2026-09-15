@@ -10,18 +10,14 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import {
   MotionReveal,
   MotionButton,
   SuccessPulse,
 } from "@/components/ui/motion-primitives";
-import {
-  appGridClass,
-  appPageContainerClass,
-  appPageShellClass,
-} from "@/lib/layout-foundation";
+import { appPageShellClass } from "@/lib/layout-foundation";
+import AppPageShell from "@/components/ui/AppPageShell";
 import { Marker } from "@/components/ui/Marker";
 import {
   getAppButtonClass,
@@ -103,7 +99,6 @@ function FieldRow({
 type ProfileTab = 'agency' | 'banking' | 'contract' | 'compliance';
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -717,29 +712,15 @@ export default function ProfilePage() {
     <main className={cn(appPageShellClass, "pb-24")}>
       <AppHeader />
 
-      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            {/* Header */}
-            <MotionReveal preset="fade-up">
-              <div className="mb-8">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors mb-4"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7l7-7" /></svg>
-                  Back
-                </button>
-                <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
-                  Your profile
-                </h1>
-                <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
-                  Agency details saved here auto-fill every new invoice you
-                  create.
-                </p>
-              </div>
-            </MotionReveal>
+      <AppPageShell
+        title="Your profile"
+        meta="Auto-fills every new invoice"
+        back="/dashboard"
+        backLabel="Dashboard"
+      >
+        <p className="mb-6 text-[13px] text-[color:var(--color-ink-2)]">
+          Agency details saved here auto-fill every new invoice you create.
+        </p>
 
             {/* Tabs */}
             <div className="sticky top-[64px] z-20 bg-white mb-8">
@@ -1301,9 +1282,7 @@ export default function ProfilePage() {
                 </div>
               </MotionReveal>
             )}
-          </div>
-        </div>
-      </section>
+      </AppPageShell>
 
       {/* Sticky Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--color-soft)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">

@@ -4,6 +4,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } fr
 import { useSearchParams, useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
+import AppPageShell, {
+  AppPageShellAction,
+  AppPageShellDivider,
+} from "@/components/ui/AppPageShell";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { supabase } from "@/lib/supabase/client";
 import { formatProjectedDate } from "@/lib/lifecycle/timing";
@@ -416,36 +420,31 @@ function DashboardContent() {
                   </div>
                 </div>
               )}
-              {/* Title Section */}
-              <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-start mb-4">
-                <div>
-                  <h1 className="font-display font-semibold text-2xl md:text-3xl leading-tight tracking-tight mb-1 text-ink max-w-[800px]">
-                    {selectedProject.project.name}
-                  </h1>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-ink/70">
-                    CLIENT · {selectedProject.project.client?.client_name || "Unknown"} · {selectedProject.project.client?.city || "Unknown"}
-                  </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">Project value</span>
-                    <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-ink/70">· {formatInr(selectedProject.metrics.billedTaxable)} invoiced</span>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
-                    className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold text-[11px] uppercase tracking-widest transition-all text-[color:var(--color-coral)]"
-                  >
-                    Close project
-                  </button>
-                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold text-[11px] uppercase tracking-widest transition-all">
-                    ⤓ EXPORT
-                  </button>
+              <AppPageShell
+                bare
+                titleAs="h2"
+                title={selectedProject.project.name}
+                meta={`Client · ${selectedProject.project.client?.client_name || "Unknown"} · ${selectedProject.project.client?.city || "Unknown"}`}
+                actions={
+                  <>
+                    <AppPageShellAction>⤓ Export</AppPageShellAction>
+                    <AppPageShellDivider />
+                    <AppPageShellAction
+                      tone="danger"
+                      onClick={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
+                    >
+                      Close project
+                    </AppPageShellAction>
+                  </>
+                }
+              />
 
-
-                </div>
+              {/* Project value — data, not chrome, so it sits below the bar. */}
+              <div className="mt-3 mb-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">Project value</span>
+                <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">· {formatInr(selectedProject.metrics.billedTaxable)} invoiced</span>
               </div>
 
               {/* Vertical layout per spec */}

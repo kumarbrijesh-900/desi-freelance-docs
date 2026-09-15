@@ -1,0 +1,6 @@
+{
+  "version": "5",
+  "redirects": {
+    "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts": "https://esm.sh/@supabase/functions-js@2.110.8/src/edge-runtime.d.ts"
+  }
+}

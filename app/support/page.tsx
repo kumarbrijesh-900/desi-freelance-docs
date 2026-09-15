@@ -2,13 +2,9 @@ import React from "react";
 import { Metadata } from "next";
 import FaqSection from "@/components/faq/FaqSection";
 import AppHeader from "@/components/AppHeader";
-import {
-  appPageShellClass,
-  appPageContainerClass,
-  appGridClass,
-} from "@/lib/layout-foundation";
+import { appPageContainerClass } from "@/lib/layout-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import { Marker } from "@/components/ui/Marker";
+import AppPageShell from "@/components/ui/AppPageShell";
 
 export const metadata: Metadata = {
   title: "Freelance Invoicing Support & GST FAQs | Lance",
@@ -21,22 +17,14 @@ export default function SupportPage() {
     <main data-theme="cockpit" className="relative min-h-screen w-full bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
       <AppHeader />
 
-      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            <MotionReveal className="mb-8" preset="fade-up">
-              <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
-                Support & <Marker tone="butter">FAQ</Marker>
-              </h1>
-              <p className="mt-1 text-sm text-[color:var(--color-ink)]">
-                Everything you need to know about professional billing and Lance.
-              </p>
-            </MotionReveal>
-
-            <FaqSection />
-          </div>
-        </div>
-      </section>
+      <AppPageShell title="Support &amp; FAQ" meta="GST · international · Lance">
+        <MotionReveal preset="fade-up">
+          <p className="mb-6 text-sm text-[color:var(--color-ink-2)]">
+            Everything you need to know about professional billing and Lance.
+          </p>
+          <FaqSection />
+        </MotionReveal>
+      </AppPageShell>
 
       {/* Footer */}
       <footer className="border-t-2 border-soft mt-12 bg-[color:var(--color-paper-2)]">

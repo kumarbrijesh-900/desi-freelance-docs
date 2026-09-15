@@ -37,15 +37,7 @@ export default async function FaqSection() {
   }, {});
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold tracking-tight text-[color:var(--color-ink)] mb-4">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-lg text-[color:var(--color-ink)]">
-          Everything you need to know about professional billing with Lance.
-        </p>
-      </div>
+    <div className="w-full">
 
       <div className="space-y-12">
         {Object.entries(groupedFaqs).map(([category, items]) => (
