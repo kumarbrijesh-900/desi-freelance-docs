@@ -86,6 +86,23 @@ Verify builds against the Vercel deployment for the SHA instead.
 
 ---
 
+## The page shell contract lives in `docs/page-shell-contract.md`
+
+Every in-app route renders `AppPageShell` (`components/ui/AppPageShell.tsx`) and,
+where it shows numbers above a list, `AppStatLine`. Shipped `eb43500`.
+
+Read that doc before adding a route, changing a page heading, or touching a
+content width. The three rules it exists to stop you breaking:
+
+- **No page sets its own content width.** `appPageShellContainerClass` is the
+  one value. A page that needs to be wider needs `bare`, not a second width.
+- **`hero` on a stat means acid, and acid means money that is live.** Exactly one
+  stat in the app sets it. A count of things is never hero.
+- **`/dashboard` keeps its `sr-only` h1.** The bar there carries the project name
+  as `h2` via `titleAs`. Delete the sr-only h1 and the route has no h1 at all.
+
+---
+
 ## Architectural facts established (these will not survive a `git log` read)
 
 ### `computeInvoiceMoney` is the only path to a number
