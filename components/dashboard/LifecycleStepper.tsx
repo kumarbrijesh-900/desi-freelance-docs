@@ -17,7 +17,26 @@ interface StopDef {
   originalIndex?: number;
 }
 
-export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWithInvoices; onSettleLive?: () => void }) {
+export function LifecycleStepper({
+  project,
+  onSettleLive,
+  canSettle = false,
+}: {
+  project: ProjectWithInvoices;
+  onSettleLive?: () => void;
+  /**
+   * Whether a settle is actually available right now. Derived from
+   * computeActiveDrilldown().primary_action === "mark_settled", which is the
+   * single source of truth for what this project can do next.
+   *
+   * A stop's own `state === "live"` is NOT that truth: PROJECT START is marked
+   * live whenever nothing else is (line ~56), so without this gate the start
+   * dot offered "Settle Agreement accepted" on a project whose client has not
+   * even accepted the MSA — and the handler then failed with "Could not find an
+   * active milestone to settle."
+   */
+  canSettle?: boolean;
+}) {
   const [listOpen, setListOpen] = useState(false);
   React.useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth >= 768) setListOpen(true);
@@ -177,7 +196,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
     <div className="mb-6">
       {focusData && (
         <div className="mb-4 max-w-[760px]">
-          <MilestoneFocusCard data={focusData} onSettle={onSettleLive} />
+          <MilestoneFocusCard data={focusData} onSettle={onSettleLive} isReadOnly={!canSettle} />
         </div>
       )}
 
@@ -224,7 +243,7 @@ export function LifecycleStepper({ project, onSettleLive }: { project: ProjectWi
               )}
               <div className={dotClass}>
                 <span className="text-[12px] font-bold font-display">{dotContent}</span>
-                {stop.state === "live" && onSettleLive && (
+                {canSettle && stop.type === "milestone" && stop.state === "live" && onSettleLive && (
                   <button
                     type="button"
                     onClick={onSettleLive}

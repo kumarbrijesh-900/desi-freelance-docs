@@ -452,6 +452,7 @@ function DashboardContent() {
               <LifecycleStepper
                 project={selectedProject}
                 onSettleLive={() => handleMarkSettled(drilldownState)}
+                canSettle={drilldownState?.primary_action === "mark_settled"}
               />
 
             </div>
