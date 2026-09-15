@@ -220,9 +220,12 @@ export function ProjectRail({
                   <div className="flex items-center justify-between">
                     <div
                       className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border rounded-full"
-                      style={isSelected
-                        ? { backgroundColor: "rgba(255,255,255,0.10)", color: "#f2f4ea", borderColor: "rgba(255,255,255,0.30)" }
-                        : { backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
+                      // Selection is already carried by the row background, the
+                      // left stripe and the arrow. It must not also overwrite the
+                      // pill, which is the only place the project's status is
+                      // spelled out — a selected project was losing its status
+                      // colour, its hue and its dashed stroke all at once.
+                      style={{ backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
                     >
                       {summary.replace(/^LIVE/, "IN PROGRESS")}
                     </div>
