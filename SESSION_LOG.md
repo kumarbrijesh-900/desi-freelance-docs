@@ -1,15 +1,22 @@
-# Session Log — September 15–16, 2026 (Design track D1–D3, then the backlog)
+# Session Log — September 15–16, 2026 (Design track D1–D3, the backlog, and the GST bug)
 
 ## Summary
 
-**Start `18b3d42` · End `8fbb8b9` · 20 commits, all verified byte-exact against
-a rebuilt tree. +1,846 / −1,290 across 79 files. One production DB change
-(a lockdown, see below). No migrations.**
+**Start `18b3d42` · End `609ba4c` · 27 commits, all verified byte-exact against
+a rebuilt tree. +2,496 / −1,343 across 89 files. Four production DB changes
+(a security lockdown, two migrations, two table drops). Seven money suites
+green at the end: 19 · 14 · 11,664 · 12,960 · 7 · 34,992 · 10.**
 
-Two halves. The first finished the design track: one header contract, then
+Three parts. The first finished the design track: one header contract, then
 every scale — colour pairs, radius, type, control heights, spacing, transitions
-— reduced to a declared set. The second started on the functional backlog and
-found that two of the three items were not the bug they were filed as.
+— reduced to a declared set. The second worked the functional backlog and found
+that two of the three items were not the bug they were filed as. The third was
+not planned: a screenshot of an invoice preview turned out to show **GST stated
+on the face of the document and excluded from the total**, and the rest of the
+session went there.
+
+**If you read one section, read [The invoice total was missing its own
+GST](#the-invoice-total-was-missing-its-own-gst).**
 
 | | |
 |---|---|
@@ -23,6 +30,12 @@ found that two of the three items were not the bug they were filed as.
 | `5bef00e` | header gets a declared height |
 | `ab4a5ac` | `/clients` counts MSAs that were actually accepted |
 | `8fbb8b9` | bulk delete tells the truth about the cascade |
+| `763c521` | this log's first half |
+| `3b6ee37` | status types match the database; two migrations written |
+| `87ef70a` | pills stop fragmenting when they wrap |
+| `01cb13e` | **the invoice total was missing its own GST** |
+| `1e36712` `3f4b162` | one tax implementation, not two |
+| `609ba4c` | the engine's warnings finally reach a screen |
 
 Measured across the track, all re-verified against `8fbb8b9`: type 36 sizes → 6
 · radius 19 → 5 · hardcoded foregrounds on themed fills 11 → 0 · sub-pixel
@@ -107,6 +120,123 @@ sub-pattern) but the new one is **scope**:
 Rule: scope the audit *wider* than the change, and make "wider" mean the repo's
 own idea of its files.
 
+### And, later in the same session, five more — all the same family
+
+Every one is a check that looked right and measured the wrong thing:
+
+- **Told the user to run `npx tsc --noEmit`, then handed them the commit chain
+  without seeing its output.** A TS2352 shipped. `tsx` strips types rather than
+  checking them, so all six money suites passed while the build gate failed.
+  A typecheck I do not read is not a gate.
+- **Asserted the CGST/SGST *split*** when the engine's contract is *sum-exact*
+  — on an odd paisa the engine gives the spare to SGST by design. 522 false
+  failures. The existing suite already said "sum-exact" for exactly this reason.
+- **Compared `wc -c` (bytes) against `len(str)` (characters)** in a guard, and
+  aborted a correct file over 81 multi-byte dashes.
+- **Backticks inside a double-quoted `git commit -m`** — zsh ran `` `totals` ``
+  as a command and ate the word. `1e36712`'s message has a hole in it.
+- **macOS `base64` takes no positional filename.** The `>` redirect created an
+  empty file *before* the command failed, so the script cheerfully prepended
+  nothing and reported success. A no-op that announces success is worse than
+  an error.
+
+The pattern across all of them: **verification that is not itself verified.**
+The tree-hash discipline caught none of these, because each produced a tree
+that matched what I built — the build was wrong, not the transfer.
+
+---
+
+## The invoice total was missing its own GST
+
+Found by looking at a screenshot, not by looking for it. The client-facing
+document for INV-2026-9996 read:
+
+```
+Subtotal      ₹2,04,000
+CGST 9%          ₹18,360
+SGST 9%          ₹18,360
+───────────────────────
+TOTAL DUE     ₹2,04,000     <- 2,04,000 + 36,720 = 2,40,720
+Rupees Two Lakh Four Thousand Only
+```
+
+The tax is computed correctly, printed correctly, and left out of the total.
+The amount in words agrees with the wrong figure, so nothing on the page
+contradicts itself. A client pays the total.
+
+### Root cause: an argument shape, not a rule
+
+`calculateInvoiceTotals(formData)` builds its tax context by reading
+`formData.agency`, `formData.client` and `formData.tax`. Two callers handed it
+a **flattened** object instead — `agencyState`, `gstRegistered`, `taxRate` at
+the top level. All three lookups found `undefined`, the context came back
+`supplierRegistered: false`, and `grandTotal` collapsed to the subtotal.
+
+Run against the real stored record, both ways:
+
+| | as called | correct shape |
+|---|---|---|
+| `registered` | false | true |
+| `taxType` | exempt | cgst_sgst |
+| `taxAmount` | 0 | 36,720 |
+| `grandTotal` | 204,000 | **240,720** |
+
+The engine was never wrong. The CGST/SGST rows came from `computeInvoiceTax`
+— a *different* function, fed the real `formData` — which is exactly why the
+rows were right while the total was not.
+
+### Why it survived every test
+
+Three things had to line up, and all three did:
+
+1. **The two broken callers are the only two that display a total to a human**
+   (`lib/templates/template-data.ts`, `InvoiceEditorPage`). The other three
+   callers pass correct `formData` and read only `.subtotal`.
+2. **`.subtotal` is shape-insensitive.** `billableLineItems` reads `milestones`
+   / `lineItems`, which the flattened shape also supplies. So the only field
+   the broken callers got wrong is the one nobody else reads.
+3. **The 34,992-case parity suite calls the function with the correct shape.**
+   It proves the adapter matches the frozen legacy implementation. It cannot
+   see a caller passing the wrong argument.
+
+> **A parity harness validates the function, not its callers.** Last session's
+> entry said a differential harness beats fixtures for "replace X without
+> changing behaviour". True, and it has a blind spot: it exercises the callee.
+> Nothing in 46,699 cases was looking at the call sites.
+
+### What was done about it
+
+- `01cb13e` — both callers pass `formData`. Verified against the real record:
+  subtotal 204000, CGST 18360, SGST 18360, grandTotal **240720**.
+- `1e36712` — the deeper fix. `computeInvoiceTax` is a SECOND implementation of
+  the tax rules; the bug was those two implementations disagreeing where nobody
+  could see it. All three production callers moved to the engine:
+  `template-data` now derives its rows from the same `totals` object that
+  produces TOTAL DUE (they cannot disagree), and the two dashboard surfaces
+  — which tax a milestone amount rather than the invoice's own line items — use
+  a new engine-backed `computeTaxOnAmount`. **No production code calls
+  `computeInvoiceTax` now.** It and its parity suites stay until they are
+  deleted together.
+- `609ba4c` — the engine has emitted `warnings[]` since it was written and
+  nothing displayed them. They now render in the editor's action bar, against
+  the totals they concern. Operator-facing only: the client cannot renew your
+  LUT, so they never reach the document or the share page.
+
+### Scope, for the record
+
+Six invoices had been shared, all domestic, all registered, all 18%:
+**₹1,52,712 of GST stated and not billed**, ₹43,380 of it on invoices already
+marked settled. **All of it test data — nothing had gone to a real client.**
+Confirmed with the owner before any of it was treated as an incident.
+
+### The engine is stricter about LUTs, deliberately
+
+Moving the callers changes one behaviour: `lutAvailability: "yes"` with no
+valid financial year now charges IGST instead of zero-rating, because a LUT
+that does not cover the supply date is not a LUT. That is the divergence
+`run-legacy-parity-tests` already pins as intended. Checked before shipping:
+zero invoices claim a LUT, zero are international, zero are SEZ.
+
 ---
 
 ## The backlog items were not what they were filed as
@@ -178,7 +308,7 @@ is still live and nothing restores from it.
 
 ---
 
-## Schema drift found along the way — none of it fixed
+## Schema drift found along the way — half of it fixed (`3b6ee37`)
 
 - **`types/supabase.ts` is wrong about `msa_status`.** It declares
   `'PENDING' | 'ACCEPTED' | 'REVISION ASKED'`. The real Postgres enum is
@@ -195,15 +325,47 @@ is still live and nothing restores from it.
   the FK should be `SET NULL`.
 - **`invoices.status` casing is mixed** in live data: `draft`, `finalized`,
   `settled` lowercase, `PARTIAL` uppercase. Every consumer `.toLowerCase()`s
-  defensively, which is why nothing has broken yet.
+  defensively, which is why nothing has broken yet. STILL OPEN — needs the
+  canon migration `invoice_milestones` got in July.
+
+**Fixed in `3b6ee37`:** the `msa_status` and `msa_response` types, the missing
+`'proposed'` migration, and the `SET NULL` migration (both applied and
+verified). `InvoiceStatus` was wrong the same way and worse — six
+`"draft" as InvoiceStatus` casts compiled against a union with no `"draft"` in
+it, because **TypeScript permits asserting any string literal into a union of
+other string literals**. That type constrained nothing. Both unions now list
+what the column can actually hold.
+
+**Still open:** `projects.msa_accepted_at` is never written; the
+`invoices.status` canon; and the big one — **the repo's `supabase/migrations/`
+and the database's applied-migration history are two different, partially
+overlapping sets.** 15 migrations applied, several with no file in the repo,
+most repo files never applied, matching ones under different timestamps.
+Rebuilding an environment from that directory would not produce this database.
+`'proposed'` was not an exception, it was a sample.
 
 ---
 
 ## Carried forward
 
-- Money-engine roadmap, untouched: render the engine's `warnings[]`; lint rule
-  banning bare `0.18`/`1.18`; `grand_total` rename migration; move the three
-  direct `computeInvoiceTax` callers.
+- **`grand_total` is still pre-tax**, and on a master it is only milestone `[0]`
+  (`createInvoice` does `formMilestones[0]`). `lib/money/types.ts` already
+  documents that the column holds the taxable value despite its name. The
+  rename migration is no longer cosmetic — anything reading `grand_total` as a
+  payable amount is reporting a pre-tax number.
+- **`invoices.status` canon migration** — mirrors `20260707120000` for
+  milestones. Highest-value item left.
+- **Migrations directory vs database.** See the schema-drift section. Blocking
+  if a second environment is ever needed.
+- Money-engine roadmap remainder: lint rule banning bare `0.18`/`1.18`.
+  (`warnings[]` and the three `computeInvoiceTax` callers are DONE.)
+- **The editor offers to change a locked invoice** — "AI AUTOFILL / Ready to
+  scan your brief" and "Complete your profile" both render on a read-only
+  archive the same screen labels LOCKED three times.
+- Anon key rotation (exposure window 4–16 Sept, see the security section).
+- `/clients` name column scrolls out of view; `sticky left-0` would pin it.
+- `globals.css` carries ~15 `[data-theme="cockpit"] .bg-[#hex]` overrides —
+  rule 1's anti-pattern at scale. D2 swept `bg-white` and missed these.
 - CA-3 guard throws after the parent is set to `PARTIAL`.
 - Three `user_profiles` round-trips in `fireMilestoneInvoice`.
 - `/clients` meta reads "0 intl · 1 no GSTIN" — composition where `/invoices`
