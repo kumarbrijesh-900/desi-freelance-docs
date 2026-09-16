@@ -101,7 +101,7 @@ export function getAppPanelClass(
   tone: "default" | "success" | "warning" | "muted" = "default",
 ) {
   return cn(
-    "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[color:var(--brutal-border-color)] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
+    "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[color:var(--brutal-border-color)] p-5",
     tone === "success"
       ? "app-soft-panel-success"
       : tone === "warning"

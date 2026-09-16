@@ -63,7 +63,7 @@ export default function AppPageShell({
       {back && (
         <Link
           href={back}
-          className="is-interactive -ml-2 inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 font-mono type-label uppercase tracking-[0.08em] text-ink-2 transition-colors hover:text-ink"
+          className="is-interactive -ml-2 inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 font-mono type-label uppercase tracking-[0.08em] text-ink-2 hover:text-ink"
         >
           <span aria-hidden="true">&lsaquo;</span>
           {backLabel}

@@ -166,7 +166,39 @@ touched them — `lib/ui-foundation.ts` is `.ts`, the glob was `*.tsx`, and the
 gap was invisible to its own check.
 
 Strip comments, match the construct exactly, and scope the audit *wider* than the
-change.
+change - and make "wider" mean the repo's own idea of its files. A directory walk
+reaches build output; `git ls-files` reaches exactly what is tracked. A migration
+preflight that counted with the first and verified with the second disagreed by
+eleven, all of them compiled copies under `.next/`.
+
+### 5. Unlayered CSS beats every utility on the same element
+
+`.is-interactive` and the four `.app-interactive-*` classes are declared outside
+any `@layer`. Tailwind emits its utilities inside `@layer utilities`. In the
+cascade, unlayered wins - so on any element carrying one of those classes, a
+`transition-all`, `transition-colors` or `duration-100` written in the markup
+**never fires**. Twenty-four such utilities were in the codebase, written by
+people who saw no change and left them there.
+
+This is the accent-pair bug wearing different clothes: two individually correct
+things that cancel in combination. The rule that follows has the same shape as
+rule 1 - **one owner per property**. If a class owns `transition`, it owns the
+whole list, and the fix for "the colour snaps" lives in that class, not in the
+markup. Adding a utility beside it is not a smaller fix; it is no fix.
+
+Before writing a utility that sets a property, check whether an unlayered class
+on the same element already sets it.
+
+### 6. Mirror a token only when its value is theme-dependent
+
+Rule 1 says colour tokens must exist in all three blocks. That is not a rule
+about *tokens*, it is a rule about **theme-dependence**, and reading it too
+broadly produces ceremony: 44px is 44px in both themes.
+
+So the 39 `--color-*` and 7 `--on-*` are declared three times, and the geometry
+families - 5 `--radius-*`, 6 `--text-*`, 6 `--leading-*`, 3 `--control-*` - are
+declared once in `@theme` and nowhere else. Mirroring those would assert they
+*could* diverge per theme, which is the opposite of what a shared scale is for.
 
 ## Known follow-ups
 

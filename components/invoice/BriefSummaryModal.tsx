@@ -664,7 +664,7 @@ export default function BriefSummaryModal({
             </div>
             <button
               onClick={() => onContinueManually(localData)}
-              className="is-interactive flex h-9 w-9 items-center justify-center rounded-[var(--radius-chip)] text-ink-3 transition-colors hover:text-ink"
+              className="is-interactive flex h-9 w-9 items-center justify-center rounded-[var(--radius-chip)] text-ink-3 hover:text-ink"
               aria-label="Close"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -694,7 +694,7 @@ export default function BriefSummaryModal({
                   <div className="flex flex-wrap gap-2.5">
                     <button
                       onClick={() => chooseClient(clientNameVal, agencyNameVal)}
-                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
+                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left hover:border-acid is-interactive"
                     >
                       <span className="block type-label tracking-wide text-ink-3">
                         Client
@@ -705,7 +705,7 @@ export default function BriefSummaryModal({
                     </button>
                     <button
                       onClick={() => chooseClient(agencyNameVal, clientNameVal)}
-                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
+                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left hover:border-acid is-interactive"
                     >
                       <span className="block type-label tracking-wide text-ink-3">
                         Client
@@ -1262,7 +1262,7 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-start gap-1">
               <button
                 onClick={onParseAgain}
-                className="is-interactive rounded-[var(--radius-field)] px-4 py-2.5 type-body font-semibold text-ink-2 transition-colors hover:text-ink"
+                className="is-interactive rounded-[var(--radius-field)] px-4 py-2.5 type-body font-semibold text-ink-2 hover:text-ink"
               >
                 Parse again
               </button>

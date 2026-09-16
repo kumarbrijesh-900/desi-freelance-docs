@@ -115,7 +115,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                       return (
                         <Link
                           href={rowHref}
-                          className="inline-block type-label uppercase font-bold tracking-wide border border-soft rounded-[var(--radius-chip)] px-3 py-1 bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] is-interactive transition-colors text-ink"
+                          className="inline-block type-label uppercase font-bold tracking-wide border border-soft rounded-[var(--radius-chip)] px-3 py-1 bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] is-interactive text-ink"
                         >
                           VIEW
                         </Link>

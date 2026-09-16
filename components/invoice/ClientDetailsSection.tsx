@@ -1106,7 +1106,7 @@ export default function ClientDetailsSection({
                               e.stopPropagation();
                               updateField("msaNotesBoilerplate", "");
                             }}
-                            className="is-interactive inline-flex items-center justify-center border border-soft rounded-[var(--radius-chip)] bg-paper-2 px-3 py-1.5 type-label font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] transition-colors"
+                            className="is-interactive inline-flex items-center justify-center border border-soft rounded-[var(--radius-chip)] bg-paper-2 px-3 py-1.5 type-label font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)]"
                           >
                             Clear
                           </button>
