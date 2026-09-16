@@ -15,9 +15,7 @@ import { amountToWords } from "@/lib/amount-to-words";
 import {
   getClientFacingTaxComplianceNote,
   getClientTaxIdLabel,
-  getEffectiveExportTaxHandling,
   isAgencyGstRegistered,
-  isDomesticSezClient,
   isInternationalClient,
   shouldShowAgencyGstin,
 } from "@/lib/invoice-compliance";
@@ -137,25 +135,24 @@ function clientSafeNotes(value?: string | null): string {
 export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
   const international = isInternationalClient(formData.client);
   const gstRegistered = isAgencyGstRegistered(formData.agency);
-  const exportTaxHandling = getEffectiveExportTaxHandling(formData.agency);
 
   const displayCurrency = getInvoiceDisplayCurrency({
     clientLocation: formData.client.clientLocation,
     clientCurrency: formData.client.clientCurrency,
   });
 
-  const totals = calculateInvoiceTotals({
-    lineItems: formData.lineItems,
-    milestones: formData.milestones?.length > 0 ? formData.milestones : undefined,
-    agencyState: formData.agency.agencyState,
-    clientState: formData.client.clientState,
-    isInternational: international,
-    isClientSezUnit: isDomesticSezClient(formData.client),
-    gstRegistered,
-    lutAvailability: formData.agency.lutAvailability,
-    noLutTaxHandling: exportTaxHandling,
-    taxRate: formData.tax?.taxRate,
-  });
+  // calculateInvoiceTotals reads formData.agency / .client / .tax to build the
+  // tax context. It used to be handed a FLATTENED object - agencyState,
+  // gstRegistered, taxRate at the top level - so those three lookups all found
+  // undefined, the context came back supplierRegistered:false, and grandTotal
+  // silently equalled the subtotal. The CGST/SGST rows below are computed by a
+  // different function from the real formData, so the invoice printed correct
+  // tax lines under a TOTAL DUE that excluded them.
+  //
+  // Pass the whole formData. Every value the flattened call derived by hand
+  // (isInternational, isClientSezUnit, gstRegistered, the effective export-tax
+  // decision) is derived identically inside buildTaxContext.
+  const totals = calculateInvoiceTotals(formData);
 
   const showGstin = shouldShowAgencyGstin(formData.agency);
   const clientTaxLabel = getClientTaxIdLabel(formData.client, formData.agency);

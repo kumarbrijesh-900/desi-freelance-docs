@@ -913,30 +913,12 @@ function EditorContent() {
 
   const computedTotals = useMemo(
     () =>
-      calculateInvoiceTotals({
-        lineItems: formData.milestones.flatMap((m) => m.lineItems),
-        milestones: formData.milestones,
-        agencyState: formData.agency.agencyState,
-        clientState: formData.client.clientState,
-        isInternational: clientIsInternational,
-        isClientSezUnit: isDomesticSezClient(formData.client),
-        gstRegistered: agencyIsGstRegistered,
-        lutAvailability: formData.agency.lutAvailability,
-        noLutTaxHandling: effectiveExportTaxDecision,
-        taxRate: formData.tax.taxRate,
-        isRcmEnabled: formData.tax.isRcmEnabled,
-      }),
-    [
-      formData.milestones,
-      formData.agency.agencyState,
-      clientIsInternational,
-      formData.client,
-      agencyIsGstRegistered,
-      formData.agency.lutAvailability,
-      effectiveExportTaxDecision,
-      formData.tax.taxRate,
-      formData.tax.isRcmEnabled,
-    ],
+      // Same flattened-argument bug as lib/templates/template-data.ts had: this
+      // built the tax context from keys calculateInvoiceTotals does not read,
+      // so the editor footer showed TAX 0 on every taxable invoice.
+      calculateInvoiceTotals(formData),
+    // The whole of formData now, because that is what is read.
+    [formData],
   );
 
   const hasItems = useMemo(() => {
