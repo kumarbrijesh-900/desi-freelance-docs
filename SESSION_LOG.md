@@ -1,3 +1,218 @@
+# Session Log — September 15–16, 2026 (Design track D1–D3, then the backlog)
+
+## Summary
+
+**Start `18b3d42` · End `8fbb8b9` · 20 commits, all verified byte-exact against
+a rebuilt tree. +1,846 / −1,290 across 79 files. One production DB change
+(a lockdown, see below). No migrations.**
+
+Two halves. The first finished the design track: one header contract, then
+every scale — colour pairs, radius, type, control heights, spacing, transitions
+— reduced to a declared set. The second started on the functional backlog and
+found that two of the three items were not the bug they were filed as.
+
+| | |
+|---|---|
+| `ad7f084` `eb43500` `8699af0` | `AppPageShell` + `AppStatLine`, all in-app routes, contract doc |
+| `41252c2` `96c4db2` | `bg-white` → tokens; radius scale; `--on-<accent>` pairs |
+| `07515e9` `e28ae33` `4ba1bb9` `65ce10c` | six-step type scale, 36 sizes → 6 paired roles |
+| `a28ef44` | `/clients` table scrolls instead of clipping; leading paired everywhere |
+| `666c094` `107a3f9` | one control scale; 46 heights onto `--control-*` |
+| `18d8b0e` | 31 spacing values onto the 4px grid |
+| `9b8c938` `3835f59` | 67 `transition-all` → 0; 24 inert utilities deleted |
+| `5bef00e` | header gets a declared height |
+| `ab4a5ac` | `/clients` counts MSAs that were actually accepted |
+| `8fbb8b9` | bulk delete tells the truth about the cascade |
+
+Measured across the track, all re-verified against `8fbb8b9`: type 36 sizes → 6
+· radius 19 → 5 · hardcoded foregrounds on themed fills 11 → 0 · sub-pixel
+borders 11 → 0 · text with no line-height 546 → 0 in the operator app · raw
+control heights 72 → 26 (every survivor a square icon container) ·
+`transition-all` 67 → 0.
+
+`bg-white` went 108 → 0 **in the operator app**. Nine remain and should:
+seven in `lib/templates/*`, where the page really is white paper, and two in
+`_archived/`. Three `print:bg-white` are likewise correct. A count of zero
+would have meant someone had tokenised a printed page, which is the opposite
+of right.
+
+---
+
+## READ FIRST
+
+### The bug that kept coming back, and what finally stopped it
+
+One shape, now **six** variants. Someone writes a literal, it breaks in the
+other theme or state, and the next person adds an override instead of removing
+the literal:
+
+| | |
+|---|---|
+| `hover:bg-white` | a variant class; the `[data-theme]` override cannot match it |
+| `hover:bg-[#efe6d1]` | same, via an arbitrary value |
+| `hover:bg-[var(--color-lime-warm)]` + `text-ink` | **both tokens properly mirrored** — still 1.07:1 |
+| `text-white` on `bg-acid` | 1.27:1 |
+| `.bg-ink.text-white { … }` | compound selector; the classes sit on different elements |
+| `transition-colors` beside `.is-interactive` | **unlayered CSS beats `@layer utilities`** — the utility never fires |
+
+Mirroring each token independently is necessary and not sufficient. What has
+to hold is the **pair**: a fill and its text, a size and its leading, a class
+and the properties it owns. So `--on-<accent>` for every accent that can be a
+background, `.type-*` carrying size *and* leading, and one owner per transition
+property. You can still write something unreadable; you can no longer do it by
+accident.
+
+Full write-ups, with the evidence for each, are in `docs/page-shell-contract.md`
+under **Rules earned the hard way** (six rules as of this session).
+
+### Geometry is declared once; only theme-dependent values are mirrored
+
+The three-block mirror rule is about *theme-dependence*, not about tokens. The
+39 `--color-*` and 7 `--on-*` live in all three blocks. The geometry families —
+5 `--radius-*`, 6 `--text-*`, 6 `--leading-*`, 3 `--control-*`, `--app-header-h`
+— are declared once in `@theme`. Mirroring them would assert they could diverge
+per theme, which is the opposite of what a shared scale is for.
+
+### A value derived from another element is not off-grid, it is dependent
+
+31 of 46 arbitrary spacing values snapped to the 4px grid. The other 14 were
+left alone deliberately: `left-[16px] top-[34px]` on the lifecycle rail is half
+an icon width and one icon-plus-gap down; `-left-[31px]` centres a 20px circle
+on a rail; `top-[8px]` is half a dot. Snapping those would misalign each by
+1–3px. The grid has no claim on a value that another element's geometry
+determines.
+
+The right fix for a dependency is to *publish* it. `AppHeader` had no height at
+all — `py-3` around its tallest child, so 57px normally, 61px when Chrome offers
+the PWA install button, 69px on `/clients/[id]` where Save sits in `rightSlot`.
+`/profile` guessed `top-[64px]`. No constant could have been right.
+`--app-header-h: 60px` is now the header's height and the offset everything
+below it reads.
+
+### Claude's failure mode this session: scope, not assertions
+
+Last session's entry named assertion errors. Those recurred (four, same
+sub-pattern) but the new one is **scope**:
+
+- A migration counted `transition-all` with a directory walk and verified in a
+  clean worktree. The user's tree had `.next/` build output: 78 vs 67. The
+  preflight caught it; nothing was written. Every migration script now
+  enumerates with `git ls-files`.
+- D2c globbed `*.tsx`; `lib/ui-foundation.ts` is `.ts`. The audit checked the
+  same paths the migration had touched, so it could only confirm the change.
+- Three tree hashes drifted from the verified build because em dashes were
+  retyped as hyphens for the shell. Inserted prose in a migration script is now
+  ASCII-only.
+
+Rule: scope the audit *wider* than the change, and make "wider" mean the repo's
+own idea of its files.
+
+---
+
+## The backlog items were not what they were filed as
+
+### `/clients` "MSAs signed 0 of 4" — two things sharing one name
+
+Not a sync bug. `clients.msa_effective_date` is an **offline** contract's start
+date, typed in by hand; nothing in the acceptance flow writes it.
+`invoices.msa_status = 'accepted'` is the client accepting through the share
+link, and is what the dashboard lifecycle reads. `/clients` counted the first
+and labelled it "MSAs signed".
+
+Verified against production: 4 clients, **0** with `msa_effective_date`, **2**
+with an accepted master invoice (Halcyon Brew Co. 2026-05-24, Vermilion Press
+2026-06-06). `listClients` now returns `ClientWithMsa` with `has_msa` = either
+source, since both mean terms are in force.
+
+### Bulk delete — the protection did not survive the cascade
+
+`invoices.parent_invoice_id` is `ON DELETE CASCADE`, but `isInvoiceRowDeletable`
+was evaluated only on *selected* rows. A `finalized` master (label `live`,
+therefore deletable) would take its **settled** children with it, past a dialog
+promising settled invoices are protected. The plan now evaluates the whole
+cascade, names the children that will vanish, and skips a master holding a
+protected child. Proved with a fixture harness before and after.
+
+`deleteInvoice` was worse: three statements, no transaction — line items,
+milestones, then the invoice. A failed third step left a shell with everything
+under it destroyed, and there is a live way to fail
+(`projects_msa_accepted_via_invoice_id_fkey` is `NO ACTION` and blocks the
+delete). The FK chain already cascades atomically, so the first two statements
+are gone. The fix was a deletion.
+
+### `activity_log` — dead schema, not an empty table
+
+Zero references in the codebase: no insert, no select, no type, no migration.
+8 columns, RLS on, 2 policies, 0 rows. The need it was created for is met twice
+over by `notifications` (live) and the derived `computeProjectLifecycle`
+timeline. Filling it would duplicate two working surfaces. **Recommend dropping
+it**; not done, needs a decision.
+
+---
+
+## SECURITY: `_demo_backup_20260904` was world-readable and world-writable
+
+Found while looking for `activity_log`. A JSONB snapshot table in `public`,
+53 rows taken 4–6 Sept, holding full row snapshots of `clients`, `invoices`,
+`invoices_v2`, `invoice_line_items`, `invoice_milestones`, `projects`,
+`projects_v2` and `user_profiles` — including `client_email`, `gstin`,
+`shared_to_email`, and the operator's own `pan` and `gstin`.
+
+**RLS was disabled and `anon` held SELECT, INSERT, UPDATE, DELETE and
+TRUNCATE.** The anon key ships in the browser bundle, so the table was a public
+endpoint. Supabase's linter flagged it ERROR / EXTERNAL.
+
+Remediated 2026-09-16, with the user's go-ahead:
+
+```sql
+revoke all on table public._demo_backup_20260904 from anon, authenticated;
+alter table public._demo_backup_20260904 enable row level security;  -- no policies
+```
+
+Verified after: RLS on, 0 policies, 0 anon/authenticated grants, 53 rows intact,
+linter ERROR cleared. Only `service_role` and `postgres` reach it now.
+
+**Still open:** rotating the anon key (exposure window 4–16 Sept, no access log
+to say whether anyone looked), and dropping the table — it snapshots data that
+is still live and nothing restores from it.
+
+---
+
+## Schema drift found along the way — none of it fixed
+
+- **`types/supabase.ts` is wrong about `msa_status`.** It declares
+  `'PENDING' | 'ACCEPTED' | 'REVISION ASKED'`. The real Postgres enum is
+  `msa_acceptance_status = ('pending','accepted','rejected','proposed')`, all
+  lowercase. Anyone trusting the type writes a value the DB rejects.
+- **`'proposed'` exists in the database but in no migration.** Added
+  out-of-band. A fresh environment built from `supabase/migrations/` will not
+  have it, and `proposeMsaChanges` will fail there.
+- **`projects.msa_accepted_at` is never written** — 0 rows have it.
+  `computeProjectLifecycle` uses it as a date fallback that can only be null.
+- **`projects_msa_accepted_via_invoice_id_fkey` is `NO ACTION`**, so it blocks
+  invoice deletion rather than nulling. Currently 0 projects set it, so it is
+  latent. `deleteInvoice` is now atomic, so a blocked delete is harmless — but
+  the FK should be `SET NULL`.
+- **`invoices.status` casing is mixed** in live data: `draft`, `finalized`,
+  `settled` lowercase, `PARTIAL` uppercase. Every consumer `.toLowerCase()`s
+  defensively, which is why nothing has broken yet.
+
+---
+
+## Carried forward
+
+- Money-engine roadmap, untouched: render the engine's `warnings[]`; lint rule
+  banning bare `0.18`/`1.18`; `grand_total` rename migration; move the three
+  direct `computeInvoiceTax` callers.
+- CA-3 guard throws after the parent is set to `PARTIAL`.
+- Three `user_profiles` round-trips in `fireMilestoneInvoice`.
+- `/clients` meta reads "0 intl · 1 no GSTIN" — composition where `/invoices`
+  describes scope.
+- `/clients/[id]` puts Save in `AppHeader`'s slot while `/profile` uses a sticky
+  bottom bar. Two answers to "where does save live"; unresolved.
+
+---
+
 # Session Log — September 14–15, 2026 (Money Engine — Phase 1)
 
 ## Summary
