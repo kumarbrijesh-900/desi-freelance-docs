@@ -80,7 +80,7 @@ for (const amount of AMOUNTS) {
     meta: { invoiceDate: SUPPLY_DATE },
   };
 
-  const legacy = computeInvoiceTax(formData, amount) as Record<string, unknown>;
+  const legacy = computeInvoiceTax(formData, amount) as unknown as Record<string, unknown>;
   const engine = computeTaxOnAmount(formData, amount) as unknown as Record<string, unknown>;
   swept++;
 
