@@ -97,6 +97,77 @@ it generalises.
    Check the child components first — `FaqSection` carried its own title block and
    produced a duplicate heading when the page's was removed.
 
+## Rules earned the hard way
+
+Each of these cost a wrong diagnosis or a shipped bug. They are written down so
+the next one costs neither.
+
+### 1. The pair is the unit, not the token
+
+Mirroring every token across `@theme`, `[data-theme="cockpit"]` and
+`[data-theme="lance-light"]` is necessary and **not sufficient**. A fill and the
+text on it are a *pair*: each half can be a correctly mirrored token and the pair
+still be unreadable. Five variants of the same bug shipped before this was
+understood:
+
+| What was written | Why it broke |
+|---|---|
+| `hover:bg-white` | a variant class — the `[data-theme]` override cannot match it |
+| `hover:bg-[#efe6d1]` | same, via an arbitrary value |
+| `hover:bg-[var(--color-lime-warm)]` with `text-ink` | **both tokens properly mirrored** — still 1.07:1 |
+| `text-white` on `bg-acid` | 1.27:1 |
+| `.bg-ink.text-white { … }` | compound selector; the two classes sit on different elements |
+
+The fix is structural, not another override. Every accent that can be a
+background has an `--on-<accent>` partner — `--on-acid`, `--on-coral`,
+`--on-grass`, `--on-ochre`, `--on-gold`, `--on-strong`, `--on-ink`. Set the fill,
+set its partner. Type works the same way: `.type-*` carries size **and** leading,
+because a size chosen without its leading is half a decision.
+
+You can still write something unreadable. You can no longer do it by accident.
+
+### 2. `overflow-hidden` hides overflow — it does not fix it
+
+`/clients` was reported as "the circular icon is bleeding out of the border".
+Three diagnoses were wrong — the avatar's `border-[1.5px]`, then the `ACTIONS`
+column being 2px narrower than its contents — before a DevTools screenshot showed
+the header word "ACTIONS" *sliced*. The wrapper was `overflow-hidden` around a
+table wider than its container. The clipping was not a rounding artifact: the
+container was amputating the table's right edge, and every round element near
+that edge read as a half-circle.
+
+A wrapper around content that can exceed its width gets `overflow-x-auto`, and
+the child declares an honest `min-w-[…]`. `overflow-hidden` there is correct only
+when the content is *guaranteed* to fit — and if it were, the wrapper would not
+need the rule.
+
+Corollary: when clipping is reported, measure the container before touching the
+element. The element is almost never the cause.
+
+### 3. A fixed-width cell must be ≥ content + padding + ring
+
+An explicit width is a promise about the content that nothing enforces. `ACTIONS`
+was `w-[100px]` holding two 36px buttons, a gap and `px-3` — over budget before
+focus rings, which draw *outside* the box and are the part everyone forgets.
+
+Budget every fixed-width cell as **content + padding + focus ring + border**, or
+do not fix the width at all. Anything sized by its own icon (`h-10 w-10` squares)
+is exempt: it is sized by its content by construction, which is the point.
+
+### 4. Verify the construct, not the prose
+
+Every audit in this track that passed while the change was incomplete failed the
+same way — it matched text instead of code. `"46px"` matched the doc comments
+explaining it. `<AppPageShell` matched `<AppPageShellAction`. `grep -c
+"text-white"` matched a comment saying why `text-white` is wrong.
+`--leading-\w+` missed `--leading-body-lg`, because `-` is not `\w`. And an audit
+scoped to the files the migration touched confirmed only that the migration
+touched them — `lib/ui-foundation.ts` is `.ts`, the glob was `*.tsx`, and the
+gap was invisible to its own check.
+
+Strip comments, match the construct exactly, and scope the audit *wider* than the
+change.
+
 ## Known follow-ups
 
 - `/clients` meta reads "0 intl · 1 no GSTIN" — describes composition where
