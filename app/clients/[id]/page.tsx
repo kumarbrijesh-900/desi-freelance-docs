@@ -158,14 +158,14 @@ function MsaCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-bold text-[color:var(--color-ink)]">
+            <h3 className="type-body font-bold text-[color:var(--color-ink)]">
               {msa.title}
             </h3>
             <span className={getAppStatusPillClass(statusColor(msa.status))}>
               {msa.status}
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-[color:var(--color-ink-2)]">
+          <p className="mt-1 type-label text-[color:var(--color-ink-2)]">
             Updated{" "}
             {new Date(msa.updated_at).toLocaleDateString("en-IN", {
               day: "2-digit",
@@ -178,7 +178,7 @@ function MsaCard({
 
       {msa.content && (
         <div className="mt-3 max-h-32 overflow-hidden border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 py-2">
-          <p className="line-clamp-4 whitespace-pre-wrap text-[12px] leading-5 text-[color:var(--color-ink)]">
+          <p className="line-clamp-4 whitespace-pre-wrap type-body leading-5 text-[color:var(--color-ink)]">
             {msa.content}
           </p>
         </div>
@@ -501,10 +501,10 @@ export default function ClientDetailPage() {
                 {/* Master Services Agreement (MSA) Defaults Section */}
                 <div className="mt-8 border-t border-[color:var(--color-soft)] pt-6">
                   <div className="mb-4">
-                    <h3 className="text-[14px] font-bold text-[color:var(--color-ink)]">
+                    <h3 className="type-body font-bold text-[color:var(--color-ink)]">
                       Master Services Agreement (MSA) Defaults
                     </h3>
-                    <p className="text-[11px] text-[color:var(--color-ink-2)] mt-1">
+                    <p className="type-label text-[color:var(--color-ink-2)] mt-1">
                       Note: Invoice-specific briefs will override these defaults
                       during AI extraction.
                     </p>
@@ -641,7 +641,7 @@ export default function ClientDetailPage() {
                        <label className={appFieldLabelClass}>
                          EXTRA FEE PER ROUND (% OF LINE ITEM)
                        </label>
-                       <p className="text-[10px] text-[color:var(--color-ink-2)] mb-1">
+                       <p className="type-label text-[color:var(--color-ink-2)] mb-1">
                          Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
                        </p>
                       <input
@@ -691,7 +691,7 @@ export default function ClientDetailPage() {
 
                             setMsaNotesBoilerplate(template);
                           }}
-                          className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                          className="type-label font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
                         >
                           + Generate Smart Template
                         </button>
@@ -804,7 +804,7 @@ export default function ClientDetailPage() {
                   ))}
                   {msas.length === 0 && !isAddingMsa && (
                     <div className={`${getAppPanelClass("muted")} text-center`}>
-                      <p className="text-[13px] text-[color:var(--color-ink-2)]">
+                      <p className="type-body text-[color:var(--color-ink-2)]">
                         No agreements yet. Add an MSA to gate invoice access for
                         this client.
                       </p>

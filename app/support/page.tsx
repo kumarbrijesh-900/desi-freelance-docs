@@ -19,7 +19,7 @@ export default function SupportPage() {
 
       <AppPageShell title="Support &amp; FAQ" meta="GST · international · Lance">
         <MotionReveal preset="fade-up">
-          <p className="mb-6 text-sm text-[color:var(--color-ink-2)]">
+          <p className="mb-6 type-body text-[color:var(--color-ink-2)]">
             Everything you need to know about professional billing and Lance.
           </p>
           <FaqSection />
@@ -31,7 +31,7 @@ export default function SupportPage() {
         <div
           className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
         >
-          <p className="text-xs font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
+          <p className="type-body font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
             © {new Date().getFullYear()} Lance. Built for Indian freelancers.
           </p>
         </div>

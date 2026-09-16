@@ -57,7 +57,7 @@ import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 function FormSectionLabel({ title }: { title: string }) {
   return (
     <div className="mt-8 mb-4 border-b border-[color:var(--color-soft)] pb-2 first:mt-0">
-      <h4 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
+      <h4 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
         {title}
       </h4>
     </div>
@@ -199,7 +199,7 @@ function ClientForm({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] p-6">
-          <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
+          <h3 className="type-title font-bold text-[color:var(--color-ink)]">
             {initial ? "Edit Client" : "Add New Client"}
           </h3>
           <button
@@ -259,7 +259,7 @@ function ClientForm({
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
-                      "flex-1 py-1.5 text-[12px] font-bold transition-all",
+                      "flex-1 py-1.5 type-body font-bold transition-all",
                       clientEntityType === "agency"
                         ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
@@ -271,7 +271,7 @@ function ClientForm({
                     type="button"
                     onClick={() => setClientEntityType("freelancer")}
                     className={cn(
-                      "flex-1 py-1.5 text-[12px] font-bold transition-all",
+                      "flex-1 py-1.5 type-body font-bold transition-all",
                       clientEntityType === "freelancer"
                         ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
@@ -367,7 +367,7 @@ function ClientForm({
                       onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
                       className={cn(fc({ hasValue: true }), "!w-20")}
                     />
-                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">days</span>
+                    <span className="type-body text-[color:var(--color-ink-2)] shrink-0">days</span>
                   </div>
                 </div>
                 <div className="col-span-1">
@@ -381,7 +381,7 @@ function ClientForm({
                       onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
                       className={cn(fc({ hasValue: true }), "!w-16")}
                     />
-                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">%</span>
+                    <span className="type-body text-[color:var(--color-ink-2)] shrink-0">%</span>
                   </div>
                 </div>
                 <div className="col-span-1">
@@ -435,7 +435,7 @@ function ClientForm({
                   <button
                     type="button"
                     onClick={() => setShowEffectiveDate(true)}
-                    className="text-[12px] font-normal text-[color:var(--brand-indigo)] hover:underline"
+                    className="type-body font-normal text-[color:var(--brand-indigo)] hover:underline"
                   >
                     Set effective date →
                   </button>
@@ -466,14 +466,14 @@ function ClientForm({
                       }
                       className={cn(fc({ hasValue: true }), "!w-16")}
                     />
-                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
+                    <span className="type-body text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                   </div>
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>
                     Extra Fee Per Round
                   </label>
-                  <p className="text-[10px] text-[color:var(--color-ink-2)] mb-1">
+                  <p className="type-label text-[color:var(--color-ink-2)] mb-1">
                     Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round.
                   </p>
                   <div className="flex items-center gap-2">
@@ -487,7 +487,7 @@ function ClientForm({
                       }
                       className={cn(fc({ hasValue: true }), "!w-20")}
                     />
-                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
+                    <span className="type-body text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                   </div>
                 </div>
               </div>
@@ -524,7 +524,7 @@ function ClientForm({
 
                       setMsaNotesBoilerplate(template);
                     }}
-                    className="text-[11px] font-bold text-[color:var(--brand-indigo)] hover:text-acid transition-colors"
+                    className="type-label font-bold text-[color:var(--brand-indigo)] hover:text-acid transition-colors"
                   >
                     + Generate Smart Template
                   </button>
@@ -795,10 +795,10 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
+          <p className="type-title font-black tracking-tight text-[color:var(--color-ink)]">
             Could not load your clients
           </p>
-          <p className="max-w-md text-[13px] leading-6 text-[color:var(--color-ink-2)]">
+          <p className="max-w-md type-body leading-6 text-[color:var(--color-ink-2)]">
             {loadError} Check your connection and try again.
           </p>
           <button
@@ -818,7 +818,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
+          <p className="type-title font-black tracking-tight text-[color:var(--color-ink)]">
             Sign in to manage your clients
           </p>
           <Link
@@ -880,18 +880,18 @@ export default function ClientsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="⌕ Search clients by name, email or GSTIN…"
-              className="w-full h-full pl-10 pr-4 py-3 bg-transparent font-bold text-sm focus:outline-none placeholder:text-ink/50"
+              className="w-full h-full pl-10 pr-4 py-3 bg-transparent font-bold type-body focus:outline-none placeholder:text-ink/50"
             />
           </div>
           <div className="relative w-[180px] border border-soft rounded-[var(--radius-field)] shadow-none bg-paper-2">
-            <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
+            <select className="w-full h-full px-4 py-3 bg-transparent font-bold type-body focus:outline-none appearance-none uppercase type-label tracking-widest">
               <option>Location · All ▼</option>
               <option>Domestic</option>
               <option>International</option>
             </select>
           </div>
           <div className="relative w-[180px] border border-soft rounded-[var(--radius-field)] shadow-none bg-paper-2">
-            <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
+            <select className="w-full h-full px-4 py-3 bg-transparent font-bold type-body focus:outline-none appearance-none uppercase type-label tracking-widest">
               <option>Type · All ▼</option>
               <option>Agency</option>
               <option>Individual</option>
@@ -909,7 +909,7 @@ export default function ClientsPage() {
         <div className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-x-auto mb-6">
           <table className="w-full min-w-[980px] text-left border-collapse">
             <thead>
-              <tr className="bg-paper-2 border-b border-soft text-[10px] font-extrabold uppercase tracking-widest text-ink">
+              <tr className="bg-paper-2 border-b border-soft type-label font-extrabold uppercase tracking-widest text-ink">
                 <th className="py-3 px-6 w-[240px] border-r border-soft">Client</th>
                 <th className="py-3 px-6 border-r border-soft">Email</th>
                 <th className="py-3 px-6 border-r border-soft">City</th>
@@ -924,7 +924,7 @@ export default function ClientsPage() {
               {clients.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
-                    <div className="text-[14px] font-bold text-ink/60 uppercase tracking-widest">No clients found. Add one above!</div>
+                    <div className="type-body font-bold text-ink/60 uppercase tracking-widest">No clients found. Add one above!</div>
                   </td>
                 </tr>
               ) : (
@@ -938,38 +938,38 @@ export default function ClientsPage() {
                     <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
                       <td className="py-4 px-6 border-r border-soft">
                         <div className="flex items-center gap-3">
-                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border border-ink flex items-center justify-center text-[11px] font-black ${avatarStyle} shadow-none`}>
+                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border border-ink flex items-center justify-center type-label font-black ${avatarStyle} shadow-none`}>
                             {initial}
                           </div>
-                          <div className="font-bold text-[13px] uppercase tracking-wide group-hover:underline">{client.client_name}</div>
+                          <div className="font-bold type-body uppercase tracking-wide group-hover:underline">{client.client_name}</div>
                         </div>
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
-                        <span className="text-[12px] font-bold uppercase tracking-widest text-ink/70">{client.client_email || "—"}</span>
+                        <span className="type-body font-bold uppercase tracking-widest text-ink/70">{client.client_email || "—"}</span>
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
-                        <span className="text-[12px] font-bold uppercase tracking-widest text-ink/70">{client.city || client.state || "—"}</span>
+                        <span className="type-body font-bold uppercase tracking-widest text-ink/70">{client.city || client.state || "—"}</span>
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
                         {client.gstin ? (
-                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
+                          <span className="px-2 py-1 type-label font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
                         ) : (
-                          <span className="text-[12px] font-bold uppercase tracking-widest text-ink/40">—</span>
+                          <span className="type-body font-bold uppercase tracking-widest text-ink/40">—</span>
                         )}
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
-                        <span className={`px-2 py-1 rounded-[var(--radius-chip)] text-[9px] font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
+                        <span className={`px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
                           {client.client_type === "international" ? "INTL" : "INDIA"}
                         </span>
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
-                        <span className="font-black text-[14px] text-ink">{client.invoice_count || 0}</span>
+                        <span className="font-black type-body text-ink">{client.invoice_count || 0}</span>
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
                         {msaOk ? (
-                          <span className="px-2 py-1 rounded-[var(--radius-chip)] text-[9px] font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
+                          <span className="px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
                         ) : (
-                          <span className="px-2 py-1 rounded-[var(--radius-chip)] text-[9px] font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
+                          <span className="px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
                         )}
                       </td>
                       <td className="py-4 px-4 text-center">
@@ -1001,7 +1001,7 @@ export default function ClientsPage() {
         {/* Pagination below table */}
         {filteredClients.length > 0 && (
           <div className="flex justify-between items-center mb-12">
-            <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+            <div className="flex items-center gap-2 type-label font-extrabold uppercase tracking-widest text-ink/70">
               <span>Rows per page:</span>
               <select 
                 value={itemsPerPage} 
@@ -1027,22 +1027,22 @@ export default function ClientsPage() {
       {deletingClientId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-sm border border-soft rounded-[var(--radius-soft)] bg-paper-2 shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete client?</h3>
-            <p className="text-sm font-bold text-neutral-600 mb-5">
+            <h3 className="type-title font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete client?</h3>
+            <p className="type-body font-bold text-neutral-600 mb-5">
               This will permanently delete this client. Invoices associated with this client will not be deleted but they will lose the client association.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={handleDeleteCancel}
-                className="is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)]"
+                className="is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 px-4 py-2 type-body font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteConfirm}
-                className="border border-soft rounded-[var(--radius-field)] bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                className="border border-soft rounded-[var(--radius-field)] bg-coral px-4 py-2 type-body font-extrabold uppercase tracking-wide text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
               >
                 Delete permanently
               </button>

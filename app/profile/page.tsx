@@ -66,7 +66,7 @@ function SectionLabel({
 }) {
   return (
     <div className="mb-6">
-      <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
+      <h2 className="type-label font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
         {title}
       </h2>
       <p className={`mt-1.5 ${appSectionDescriptionClass}`}>{description}</p>
@@ -380,10 +380,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="min-w-0 overflow-hidden">
-                    <p className="truncate text-[13px] font-normal text-[color:var(--color-ink)]">
+                    <p className="truncate type-body font-normal text-[color:var(--color-ink)]">
                       {label} Attached
                     </p>
-                    <p className="truncate text-[11px] text-[color:var(--color-ink-2)]">
+                    <p className="truncate type-label text-[color:var(--color-ink-2)]">
                       Optimized for invoice placement
                     </p>
                   </div>
@@ -447,7 +447,7 @@ export default function ProfilePage() {
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                    <span className="type-body font-bold text-[color:var(--color-ink)]">
                       Processing...
                     </span>
                   </div>
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-ink)]">
+                    <span className="type-body font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-ink)]">
                       Upload {label}
                     </span>
                   </>
@@ -504,7 +504,7 @@ export default function ProfilePage() {
                 </button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
-                <p className="mb-4 text-[13px] text-[color:var(--color-ink-2)] text-center">
+                <p className="mb-4 type-body text-[color:var(--color-ink-2)] text-center">
                   Crop your image to remove unnecessary margins for a perfect
                   fit on the invoice.
                 </p>
@@ -527,7 +527,7 @@ export default function ProfilePage() {
               <div className="border-t border-[color:var(--color-soft)] p-4 bg-[color:var(--color-paper)] flex justify-end gap-3">
                 <button
                   onClick={() => setCropModalOpen(false)}
-                  className="px-4 py-2 text-sm font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
+                  className="px-4 py-2 type-body font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                 >
                   Cancel
                 </button>
@@ -656,10 +656,10 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
+          <p className="type-title font-black tracking-tight text-[color:var(--color-ink)]">
             Could not load your profile
           </p>
-          <p className="max-w-md text-[13px] leading-6 text-[color:var(--color-ink-2)]">
+          <p className="max-w-md type-body leading-6 text-[color:var(--color-ink-2)]">
             {loadError} Check your connection and try again.
           </p>
           <button
@@ -679,10 +679,10 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
+          <p className="type-title font-black tracking-tight text-[color:var(--color-ink)]">
             Sign in to manage your profile
           </p>
-          <p className="text-[13px] text-[color:var(--color-ink-2)]">
+          <p className="type-body text-[color:var(--color-ink-2)]">
             Your profile auto-fills agency details on every invoice.
           </p>
           <Link
@@ -718,7 +718,7 @@ export default function ProfilePage() {
         back="/dashboard"
         backLabel="Dashboard"
       >
-        <p className="mb-6 text-[13px] text-[color:var(--color-ink-2)]">
+        <p className="mb-6 type-body text-[color:var(--color-ink-2)]">
           Agency details saved here auto-fill every new invoice you create.
         </p>
 
@@ -729,7 +729,7 @@ export default function ProfilePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                    className={`px-3 py-1.5 type-label font-bold uppercase tracking-widest transition-colors ${
                       activeTab === tab.id
                         ? "bg-black text-white border border-soft"
                         : "bg-transparent text-neutral-600 border-2 border-transparent hover:border-ink hover:bg-neutral-100"
@@ -744,10 +744,10 @@ export default function ProfilePage() {
             {(!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
               <div className="mb-6 border border-amber-200 bg-amber-50 p-4 shadow-sm">
                 <div className="flex gap-3">
-                  <span className="text-amber-600 text-lg">⚠️</span>
+                  <span className="text-amber-600 type-title">⚠️</span>
                   <div>
-                    <h3 className="text-sm font-bold text-amber-800">Complete your profile</h3>
-                    <p className="mt-1 text-sm text-amber-700">
+                    <h3 className="type-body font-bold text-amber-800">Complete your profile</h3>
+                    <p className="mt-1 type-body text-amber-700">
                       Please fill in your agency name, address, state, and account number to ensure your invoices are compliant.
                     </p>
                   </div>
@@ -1039,7 +1039,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-20")}
                           />
-                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">days</span>
+                          <span className="type-body text-[color:var(--color-ink-2)] shrink-0">days</span>
                         </div>
                       </FieldRow>
 
@@ -1056,7 +1056,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-16")}
                           />
-                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">%</span>
+                          <span className="type-body text-[color:var(--color-ink-2)] shrink-0">%</span>
                           <select
                             value={msaLateFeeUnit}
                             onChange={(e) => {
@@ -1131,7 +1131,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-16")}
                           />
-                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
+                          <span className="type-body text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                         </div>
                       </FieldRow>
 
@@ -1151,7 +1151,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-20")}
                           />
-                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">
+                          <span className="type-body text-[color:var(--color-ink-2)] shrink-0">
                             % of line item
                           </span>
                         </div>
@@ -1159,10 +1159,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mt-6 border-l-4 border-[color:var(--color-lime-warm)] bg-[color:var(--color-paper)] p-4">
-                      <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)] mb-1">
+                      <p className="type-body font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)] mb-1">
                         Preview Clause
                       </p>
-                      <p className="text-[13px] italic text-[color:var(--color-ink)]">
+                      <p className="type-body italic text-[color:var(--color-ink)]">
                         &quot;The quoted fee includes up to {freeRevisionRounds} rounds of revisions per deliverable. Each additional round beyond the included {freeRevisionRounds} will incur a surcharge of {extraRevisionFeePercent}% of that specific line item&apos;s total.&quot;
                       </p>
                     </div>
@@ -1176,18 +1176,18 @@ export default function ProfilePage() {
                       className="flex w-full items-center justify-between text-left"
                     >
                       <div className="flex items-center gap-2">
-                        <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
+                        <h2 className="type-label font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
                           Global MSA Document
                         </h2>
                       </div>
-                      <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-acid">
+                      <span className="text-[color:var(--color-ink)] font-bold type-body underline underline-offset-2 hover:text-acid">
                         {isMsaExpanded ? "Hide" : "View/Edit MSA Document →"}
                       </span>
                     </button>
 
                     {isMsaExpanded && (
                       <div className="mt-6 space-y-4">
-                        <p className="text-[12px] text-[color:var(--color-ink-2)]">
+                        <p className="type-body text-[color:var(--color-ink-2)]">
                           Your default Master Services Agreement. Automatically attached to invoices when no client-specific MSA exists.
                         </p>
 
@@ -1229,7 +1229,7 @@ export default function ProfilePage() {
                       title="Export Compliance"
                       description="Details for zero-tax international or SEZ billing."
                     />
-                    <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-acid">
+                    <span className="text-[color:var(--color-ink)] font-bold type-body underline underline-offset-2 hover:text-acid">
                       {isLutExpanded ? "Hide" : "Expand LUT Details →"}
                     </span>
                   </button>
@@ -1290,7 +1290,7 @@ export default function ProfilePage() {
           {saveFeedback && (
             <div
               className={cn(
-                "w-full border border-soft px-3 py-2 text-[12px] font-bold shadow-[var(--brutal-shadow-md)] sm:flex-1",
+                "w-full border border-soft px-3 py-2 type-body font-bold shadow-[var(--brutal-shadow-md)] sm:flex-1",
                 saveState === "partial"
                   ? "bg-[#FFFBE6] text-[color:var(--color-ink)]"
                   : saveState === "error"
@@ -1313,7 +1313,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

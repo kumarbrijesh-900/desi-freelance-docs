@@ -392,14 +392,14 @@ function DashboardContent() {
             <div className="flex flex-col min-h-full p-5 md:p-6 relative overflow-x-hidden">
               <button
                 onClick={() => router.replace('/dashboard')}
-                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
+                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] px-3 py-1.5 type-label font-bold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
               >
                 ← Projects
               </button>
               {dueSoonAlerts.length > 0 && (
                 <div className="mb-6 rounded-[var(--radius-box)] border border-soft bg-acc-soft shadow-[var(--elev-1)]">
-                  <div className="px-4 py-2 border-b border-soft text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
-                    <span className="w-4 h-4 flex items-center justify-center rounded-full bg-[color:var(--color-coral)] text-acc-ink text-[10px] font-bold">!</span>
+                  <div className="px-4 py-2 border-b border-soft type-label font-bold uppercase tracking-widest text-ink flex items-center gap-2">
+                    <span className="w-4 h-4 flex items-center justify-center rounded-full bg-[color:var(--color-coral)] text-acc-ink type-label font-bold">!</span>
                     PAYMENTS DUE SOON · {dueSoonAlerts.length}
                   </div>
                   <div className="divide-y divide-ink/15">
@@ -410,8 +410,8 @@ function DashboardContent() {
                         : `DUE IN ${a.dueDays} DAY${a.dueDays === 1 ? '' : 'S'}`;
                       return (
                         <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 is-interactive transition-colors flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between gap-3">
-                          <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-ink">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
-                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-coral)]">
+                          <span className="min-w-0 flex-1 truncate type-body font-bold text-ink">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
+                          <span className="shrink-0 type-label font-bold uppercase tracking-widest text-[color:var(--color-coral)]">
                             {timing}<span className="hidden sm:inline"> · NUDGE AVAILABLE</span>
                           </span>
                         </button>
@@ -441,10 +441,10 @@ function DashboardContent() {
 
               {/* Project value — data, not chrome, so it sits below the bar. */}
               <div className="mt-3 mb-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">Project value</span>
-                <span className="text-[18px] font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-ink-2">· {formatInr(selectedProject.metrics.billedTaxable)} invoiced</span>
+                <span className="type-label font-bold uppercase tracking-widest text-ink-2">Project value</span>
+                <span className="type-title font-bold tabular-nums text-ink">{formatInr(projectContractedValue)}</span>
+                <span className="type-label font-bold uppercase tracking-widest text-ink-2">· {liveMilestones.length} milestone{liveMilestones.length === 1 ? "" : "s"}</span>
+                <span className="type-label font-bold uppercase tracking-widest text-ink-2">· {formatInr(selectedProject.metrics.billedTaxable)} invoiced</span>
               </div>
 
               {/* Vertical layout per spec */}
@@ -457,7 +457,7 @@ function DashboardContent() {
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[var(--radius-soft)] m-8">
-              <div className="text-2xl font-semibold mb-2 tracking-tight">Select a project</div>
+              <div className="type-heading font-semibold mb-2 tracking-tight">Select a project</div>
               <p className="text-neutral-500 font-bold tracking-wide">
                 Or click + New invoice to start
               </p>
@@ -467,7 +467,7 @@ function DashboardContent() {
       </main>
 
       {actionMessage && (
-        <div className="fixed bottom-5 right-5 z-50 border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-3 text-sm font-bold shadow-[var(--brutal-shadow-md)]">
+        <div className="fixed bottom-5 right-5 z-50 border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-3 type-body font-bold shadow-[var(--brutal-shadow-md)]">
           <button
             type="button"
             onClick={() => setActionMessage(null)}
@@ -541,20 +541,20 @@ function DashboardContent() {
             >
               <div className="flex items-start justify-between border-b border-soft bg-[color:var(--color-paper)] px-5 py-4">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                  <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     Settlement drawer
                   </div>
-                  <h2 className="mt-1 font-syne text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">
+                  <h2 className="mt-1 font-syne type-heading font-bold tracking-tight text-[color:var(--color-ink)]">
                     Settle M{settlementChoice.milestoneNumber}?
                   </h2>
-                  <p className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
+                  <p className="mt-1 type-body font-bold text-[color:var(--color-ink-2)]">
                     {settlementChoice.milestoneTitle}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-1 text-xl font-bold leading-none text-ink transition-colors hover:bg-[color:var(--color-paper-2)]"
+                  className="rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-1 type-title font-bold leading-none text-ink transition-colors hover:bg-[color:var(--color-paper-2)]"
                   aria-label="Close settlement drawer"
                 >
                   ×
@@ -564,39 +564,39 @@ function DashboardContent() {
               <div className="flex-1 overflow-y-auto px-5 py-5">
                 <section className="rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-sm)]">
                   <div className="border-b border-soft px-4 py-3">
-                    <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                    <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                       Settlement checkpoint
                     </div>
                   </div>
                   <div className="grid grid-cols-1 border-b border-soft sm:grid-cols-3">
                     <div className="border-b border-soft px-4 py-3 sm:border-b-0 sm:border-r">
-                      <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                      <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         Clear ({taxLabel})
                       </div>
-                      <div className="mt-1 font-syne text-xl font-bold text-[color:var(--color-ink)] tabular-nums">
+                      <div className="mt-1 font-syne type-title font-bold text-[color:var(--color-ink)] tabular-nums">
                         {formatInr(settlementAmount)}
                       </div>
                     </div>
                     <div className="border-b border-soft px-4 py-3 sm:border-b-0 sm:border-r">
-                      <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                      <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         Timing
                       </div>
-                      <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
+                      <div className="mt-1 type-body font-bold text-[color:var(--color-ink)]">
                         {formatTimingLabel(timingSource)}
                       </div>
                     </div>
                     <div className="px-4 py-3">
-                      <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                      <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         After
                       </div>
-                      <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
+                      <div className="mt-1 type-body font-bold text-[color:var(--color-ink)]">
                         {afterCopy}
                       </div>
                     </div>
                   </div>
                   <div className="border-t border-soft px-4 py-3">
                     <div className="flex items-center justify-between gap-3">
-                      <label htmlFor="tds-percent-input" className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                      <label htmlFor="tds-percent-input" className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         TDS deducted by client
                       </label>
                       <div className="flex items-center gap-1.5">
@@ -612,46 +612,46 @@ function DashboardContent() {
                             const next = Math.max(0, Math.min(100, Number(event.target.value) || 0));
                             setSettlementChoice(choice => (choice ? { ...choice, tdsPercent: next } : choice));
                           }}
-                          className="h-9 w-16 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right text-sm font-semibold tabular-nums outline-none app-focus-ring"
+                          className="h-9 w-16 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right type-body font-semibold tabular-nums outline-none app-focus-ring"
                         />
-                        <span className="text-sm font-bold text-[color:var(--color-ink-2)]">%</span>
+                        <span className="type-body font-bold text-[color:var(--color-ink-2)]">%</span>
                       </div>
                     </div>
                     {tdsPercent > 0 && (
                       <div className="mt-3 space-y-1 border-t border-dashed border-[color:var(--color-soft)] pt-2">
-                        <div className="flex items-center justify-between text-xs text-[color:var(--color-ink-2)]">
+                        <div className="flex items-center justify-between type-body text-[color:var(--color-ink-2)]">
                           <span>TDS on {formatInr(milestoneAmount)} base (−{tdsPercent}%)</span>
                           <span className="tabular-nums">−{formatInr(tdsAmount)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-[color:var(--color-ink)]">Net you&apos;ll receive</span>
-                          <span className="font-syne text-lg font-bold tabular-nums text-[color:var(--color-ink)]">{formatInr(netReceived)}</span>
+                          <span className="type-body font-bold text-[color:var(--color-ink)]">Net you&apos;ll receive</span>
+                          <span className="font-syne type-title font-bold tabular-nums text-[color:var(--color-ink)]">{formatInr(netReceived)}</span>
                         </div>
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 border-t border-soft px-4 py-3 text-sm font-bold text-[color:var(--color-ink)]">
+                  <div className="flex items-center gap-2 border-t border-soft px-4 py-3 type-body font-bold text-[color:var(--color-ink)]">
                     <span className="h-2 w-2 flex-none rounded-full bg-[color:var(--color-ochre)]" />
                     Confirm only after the payment is visible in your bank account.
                   </div>
                 </section>
 
                 <section className="mt-5 rounded-[var(--radius-soft)] border border-[color:var(--color-soft)] bg-acc-soft p-4 shadow-[var(--brutal-shadow-sm)]">
-                  <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-sky)]">
+                  <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-sky)]">
                     Contract authority
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-chip)] border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] font-syne text-base font-bold text-[color:var(--color-acid)]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-chip)] border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] font-syne type-body-lg font-bold text-[color:var(--color-acid)]">
                       §
                     </div>
-                    <div className="font-syne text-base font-bold text-[color:var(--color-ink)]">
+                    <div className="font-syne type-body-lg font-bold text-[color:var(--color-ink)]">
                       {contractTitle}
                     </div>
                   </div>
-                  <p className="mt-2 text-sm font-normal leading-relaxed text-[color:var(--color-ink-2)]">
+                  <p className="mt-2 type-body font-normal leading-relaxed text-[color:var(--color-ink-2)]">
                     {contractCopy}
                   </p>
-                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-[color:var(--color-soft)] pt-3 text-sm sm:grid-cols-2">
+                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-[color:var(--color-soft)] pt-3 type-body sm:grid-cols-2">
                     <div>
                       <span className="font-bold text-[color:var(--color-sky)]">Payment:</span>{" "}
                       <span className="font-bold text-[color:var(--color-ink)]">{getPaymentTermsLabel(masterInvoice as any)}</span>
@@ -664,7 +664,7 @@ function DashboardContent() {
                 </section>
 
                 <section className="mt-5 rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-4 shadow-[var(--brutal-shadow-sm)]">
-                  <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                  <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     Milestone progress checklist
                   </div>
                   {settlementMilestones.length > 0 ? (
@@ -699,19 +699,19 @@ function DashboardContent() {
 
                         return (
                           <div key={milestone.id} className="relative pb-5 last:pb-0">
-                            <div className={`absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${markerClass}`}>
+                            <div className={`absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center rounded-full border type-label font-bold ${markerClass}`}>
                               {isSettled ? "✓" : isCurrent ? "●" : ""}
                             </div>
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <div className="font-syne text-sm font-semibold text-[color:var(--color-ink)]">
+                                <div className="font-syne type-body font-semibold text-[color:var(--color-ink)]">
                                   M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
                                 </div>
-                                <div className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
+                                <div className="mt-1 type-body font-bold text-[color:var(--color-ink-2)]">
                                   {formatInr(Number(milestone.amount || 0))}
                                 </div>
                               </div>
-                              <span className={`flex-none rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusPillClass}`}>
+                              <span className={`flex-none rounded-full border px-2.5 py-0.5 type-label font-bold uppercase tracking-wide ${statusPillClass}`}>
                                 {statusLabel}
                               </span>
                             </div>
@@ -720,7 +720,7 @@ function DashboardContent() {
                       })}
                     </div>
                   ) : (
-                    <div className="mt-4 rounded-[var(--radius-box)] border border-dashed border-soft bg-[color:var(--color-paper-2)] p-3 text-sm font-bold text-[color:var(--color-ink-2)]">
+                    <div className="mt-4 rounded-[var(--radius-box)] border border-dashed border-soft bg-[color:var(--color-paper-2)] p-3 type-body font-bold text-[color:var(--color-ink-2)]">
                       No milestone checklist found for this invoice.
                     </div>
                   )}
@@ -728,7 +728,7 @@ function DashboardContent() {
 
                 {drawerActivity.length > 0 && (
                   <div className="rounded-[var(--radius-box)] border border-soft bg-[color:var(--color-paper-2)] p-4 mb-4">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-3">
+                    <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-3">
                       Activity
                     </div>
                     <div className="flex flex-col gap-2.5">
@@ -740,14 +740,14 @@ function DashboardContent() {
                           item.type === "invoice_settled" || item.type === "milestone_settled" ? "✓" : "✉";
                         return (
                           <div key={`${item.type}|${item.title}`} className="flex items-start gap-2.5">
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-soft bg-[color:var(--color-acc-soft)] text-[11px] font-bold text-[color:var(--color-ink)]">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-soft bg-[color:var(--color-acc-soft)] type-label font-bold text-[color:var(--color-ink)]">
                               {glyph}
                             </span>
                             <span className="flex-1 min-w-0">
-                              <span className="block text-[12px] font-bold text-[color:var(--color-ink)]">
+                              <span className="block type-body font-bold text-[color:var(--color-ink)]">
                                 {item.title}{item.count > 1 ? ` ×${item.count}` : ""}
                               </span>
-                              <span className="block text-[11px] text-[color:var(--color-ink-2)]">
+                              <span className="block type-label text-[color:var(--color-ink-2)]">
                                 {item.count > 1 ? "Most recent " : ""}{new Date(item.latest).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                               </span>
                             </span>
@@ -759,7 +759,7 @@ function DashboardContent() {
                 )}
 
                 <fieldset className="mt-5 rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-4 shadow-[var(--brutal-shadow-sm)]">
-                  <legend className="px-2 text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                  <legend className="px-2 type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     What happens next?
                   </legend>
                   <div className="mt-2 flex flex-col gap-3">
@@ -794,15 +794,15 @@ function DashboardContent() {
                           className="mt-1 h-4 w-4 accent-[color:var(--color-forest)]"
                         />
                         <span className="flex-1">
-                          <span className="block text-sm font-bold text-[color:var(--color-ink)]">{option.title}</span>
-                          <span className="mt-0.5 block text-xs font-medium text-[color:var(--color-ink-2)]">{option.copy}</span>
+                          <span className="block type-body font-bold text-[color:var(--color-ink)]">{option.title}</span>
+                          <span className="mt-0.5 block type-body font-medium text-[color:var(--color-ink-2)]">{option.copy}</span>
                           {option.value === "scheduled" && settlementChoice.triggerMode === "scheduled" && (
                             <input
                               type="date"
                               min={formatDateInputValue(0)}
                               value={settlementChoice.triggerDate}
                               onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
-                              className="mt-3 w-full rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-sm font-semibold outline-none app-focus-ring"
+                              className="mt-3 w-full rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 type-body font-semibold outline-none app-focus-ring"
                             />
                           )}
                         </span>
@@ -816,7 +816,7 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="rounded-full border border-soft bg-[color:var(--color-paper-2)] px-5 py-2.5 text-xs font-bold tracking-wide transition-colors hover:bg-[color:var(--color-paper-2)]"
+                  className="rounded-full border border-soft bg-[color:var(--color-paper-2)] px-5 py-2.5 type-body font-bold tracking-wide transition-colors hover:bg-[color:var(--color-paper-2)]"
                 >
                   Cancel
                 </button>
@@ -824,7 +824,7 @@ function DashboardContent() {
                   type="button"
                   onClick={confirmSettlement}
                   disabled={scheduleDateInvalid}
-                  className="rounded-full border border-acid bg-acid text-acc-ink px-5 py-2.5 text-xs font-bold tracking-wide shadow-[var(--brutal-shadow-sm)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:cursor-not-allowed disabled:border-soft disabled:bg-soft disabled:text-ink/50 disabled:shadow-none"
+                  className="rounded-full border border-acid bg-acid text-acc-ink px-5 py-2.5 type-body font-bold tracking-wide shadow-[var(--brutal-shadow-sm)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:cursor-not-allowed disabled:border-soft disabled:bg-soft disabled:text-ink/50 disabled:shadow-none"
                 >
                   Confirm settlement
                 </button>
@@ -854,26 +854,26 @@ function DashboardContent() {
               <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-ink bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-md)]">
                 <span className="text-4xl text-acid">✓</span>
               </div>
-              <h2 className="relative z-10 text-3xl font-bold uppercase tracking-tight text-[color:var(--color-acc-ink)] drop-shadow-[var(--brutal-shadow-sm)]">
+              <h2 className="relative z-10 type-display font-bold uppercase tracking-tight text-[color:var(--color-acc-ink)] drop-shadow-[var(--brutal-shadow-sm)]">
                 Project Complete!
               </h2>
             </div>
             
             {/* Body Area */}
             <div className="px-8 py-6">
-              <div className="text-center text-sm font-bold text-neutral-700">
+              <div className="text-center type-body font-bold text-neutral-700">
                 You successfully closed all milestones for
               </div>
-              <div className="mt-2 text-center text-xl font-bold uppercase text-[color:var(--color-ink)]">
+              <div className="mt-2 text-center type-title font-bold uppercase text-[color:var(--color-ink)]">
                 {projectClosureData.projectName}
               </div>
               
               <div className="my-6 border-y-2 border-dashed border-neutral-300 py-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                  <span className="type-body font-bold uppercase tracking-widest text-neutral-500">
                     Total Billed
                   </span>
-                  <span className="text-2xl font-bold text-acid drop-shadow-[var(--brutal-shadow-sm)]">
+                  <span className="type-heading font-bold text-acid drop-shadow-[var(--brutal-shadow-sm)]">
                     {projectClosureData.cost}
                   </span>
                 </div>
@@ -882,7 +882,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border border-soft rounded-[var(--radius-field)] bg-ink py-4 text-[13px] font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border border-soft rounded-[var(--radius-field)] bg-ink py-4 type-body font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>

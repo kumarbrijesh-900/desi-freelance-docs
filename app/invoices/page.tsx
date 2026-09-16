@@ -388,7 +388,7 @@ export default function InvoicesPage() {
       <main className={`${appPageShellContainerClass} pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
-          <div className="mb-6 px-4 py-3 bg-ink text-acc-ink text-sm font-bold shadow-none">
+          <div className="mb-6 px-4 py-3 bg-ink text-acc-ink type-body font-bold shadow-none">
             {actionMessage}
           </div>
         )}
@@ -408,7 +408,7 @@ export default function InvoicesPage() {
                     placeholder="Search · #, client, project…"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="w-full rounded-[var(--radius-pill)] border border-soft bg-paper py-1 pl-7 pr-3 text-[12px] font-semibold placeholder:text-ink-3 focus:border-acid focus:outline-none"
+                    className="w-full rounded-[var(--radius-pill)] border border-soft bg-paper py-1 pl-7 pr-3 type-body font-semibold placeholder:text-ink-3 focus:border-acid focus:outline-none"
                   />
                 </div>
                 <AppPageShellDivider />
@@ -464,7 +464,7 @@ export default function InvoicesPage() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3.5 py-1.5 text-[11px] font-semibold border transition-colors ${toneClass} rounded-full`}
+                className={`px-3.5 py-1.5 type-label font-semibold border transition-colors ${toneClass} rounded-full`}
               >
                 {f} · {count}
               </button>
@@ -485,12 +485,12 @@ export default function InvoicesPage() {
                 }}
                 className="w-4 h-4 border border-soft accent-ink cursor-pointer"
               />
-              <span className="text-[11px] font-semibold tracking-tight text-ink-2">
+              <span className="type-label font-semibold tracking-tight text-ink-2">
                 Select all {filteredInvoices.length}
               </span>
             </label>
           )}
-          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-3">Newest first ▾</div>
+          <div className="type-label font-semibold uppercase tracking-[0.1em] text-ink-3">Newest first ▾</div>
         </div>
 
         {/* Bulk selection toolbar */}
@@ -499,17 +499,17 @@ export default function InvoicesPage() {
 
             {selectedIds.size > 0 ? (
               <>
-                <span className="text-[11px] font-bold tracking-tight text-ink">{selectedIds.size} selected</span>
+                <span className="type-label font-bold tracking-tight text-ink">{selectedIds.size} selected</span>
                 <button type="button" onClick={handleExportXls}
-                  className="px-3 py-1.5 rounded-[var(--radius-chip)] text-[11px] font-semibold border border-soft bg-paper-2 text-ink hover:-translate-y-px active:scale-[0.97] transition-transform">
+                  className="px-3 py-1.5 rounded-[var(--radius-chip)] type-label font-semibold border border-soft bg-paper-2 text-ink hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
-                  className="px-3 py-1.5 rounded-[var(--radius-chip)] text-[11px] font-semibold bg-coral text-[color:var(--color-acc-ink)] hover:-translate-y-px active:scale-[0.97] transition-transform">
+                  className="px-3 py-1.5 rounded-[var(--radius-chip)] type-label font-semibold bg-coral text-[color:var(--color-acc-ink)] hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Delete
                 </button>
                 <button type="button" onClick={clearSelection}
-                  className="px-2 py-1.5 text-[11px] font-semibold text-ink-3 hover:text-ink">
+                  className="px-2 py-1.5 type-label font-semibold text-ink-3 hover:text-ink">
                   Clear
                 </button>
               </>
@@ -518,13 +518,13 @@ export default function InvoicesPage() {
         )}
 
         {loading ? (
-          <div className="py-20 text-center font-display font-bold tracking-tight text-xl text-ink-3">
+          <div className="py-20 text-center font-display font-bold tracking-tight type-title text-ink-3">
             Loading invoices…
           </div>
         ) : filteredInvoices.length === 0 ? (
           <div className="py-20 text-center flex flex-col items-center justify-center bg-paper-2 border border-soft rounded-[var(--radius-soft)]">
-            <div className="text-[28px] font-display font-bold tracking-tight mb-2 text-ink">No invoices yet</div>
-            <p className="text-[12px] font-medium text-ink-2">
+            <div className="type-display font-display font-bold tracking-tight mb-2 text-ink">No invoices yet</div>
+            <p className="type-body font-medium text-ink-2">
               Create your first invoice to get started
             </p>
           </div>
@@ -546,7 +546,7 @@ export default function InvoicesPage() {
             </div>
             {totalPages > 1 && (
             <div className="flex justify-between items-center mt-4 shrink-0">
-              <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-2">
+              <div className="flex items-center gap-2 type-label font-semibold text-ink-2">
                 <span>Projects per page:</span>
                 <select 
                   value={itemsPerPage} 
@@ -575,22 +575,22 @@ export default function InvoicesPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[var(--radius-soft)] shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
-            <p className="text-sm font-medium text-ink-2 mb-5">
+            <h3 className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
+            <p className="type-body font-medium text-ink-2 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="border border-soft bg-paper-2 px-4 py-2 rounded-[var(--radius-field)] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform"
+                className="border border-soft bg-paper-2 px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteInvoice}
-                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] text-xs font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform"
+                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform"
               >
                 Delete permanently
               </button>
@@ -603,17 +603,17 @@ export default function InvoicesPage() {
       {bulkDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[var(--radius-soft)] shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
-            <p className="text-sm font-medium text-ink-2 mb-5">
+            <h3 className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
+            <p className="type-body font-medium text-ink-2 mb-5">
               Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
-                className="border border-soft bg-paper-2 px-4 py-2 rounded-[var(--radius-field)] text-xs font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform">
+                className="border border-soft bg-paper-2 px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold shadow-[var(--brutal-shadow-md)] is-interactive transition-transform">
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete}
-                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] text-xs font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform">
+                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform">
                 Delete selected
               </button>
             </div>
