@@ -157,6 +157,17 @@
        display  the largest type in the app
      Marketing surfaces (the landing hero) keep their own larger range and are
      deliberately NOT on this scale. */
+  /* Line-height, paired to the size below it. A size and its leading are a
+     PAIR — setting one without the other is why 546 of 659 text elements
+     currently inherit whatever leading an ancestor happens to give them.
+     Every value lands on the 4px grid so text blocks stack predictably. */
+  --leading-label:   16px;   /* 11 / 16 = 1.45 — uppercase micro-copy needs air */
+  --leading-body:    20px;   /* 13 / 20 = 1.54 */
+  --leading-body-lg: 24px;   /* 15 / 24 = 1.60 */
+  --leading-title:   24px;   /* 18 / 24 = 1.33 */
+  --leading-heading: 32px;   /* 24 / 32 = 1.33 */
+  --leading-display: 40px;   /* 32 / 40 = 1.25 — tighter as the size grows */
+
   --text-label:   11px;
   --text-body:    13px;
   --text-body-lg: 15px;
@@ -1514,6 +1525,21 @@ input::placeholder, select::placeholder, textarea::placeholder {
    and override this base rule, so switches/pills/icon buttons keep their
    intended shape. Labels and badges are spans/divs, not <button>, so their
    square boxes are untouched. */
+/* ── Type roles ───────────────────────────────────────
+   One class per role, carrying size AND leading together so the pair cannot
+   come apart. Declared in @layer components, so a Tailwind utility (@layer
+   utilities) still wins: a deliberate `leading-relaxed` on a specific element
+   keeps overriding the paired value, while everything else gets the rhythm for
+   free. Use these instead of naming a pixel size. */
+@layer components {
+  .type-label   { font-size: var(--text-label);   line-height: var(--leading-label); }
+  .type-body    { font-size: var(--text-body);    line-height: var(--leading-body); }
+  .type-body-lg { font-size: var(--text-body-lg); line-height: var(--leading-body-lg); }
+  .type-title   { font-size: var(--text-title);   line-height: var(--leading-title); }
+  .type-heading { font-size: var(--text-heading); line-height: var(--leading-heading); }
+  .type-display { font-size: var(--text-display); line-height: var(--leading-display); }
+}
+
 @layer base {
   button {
     border-radius: var(--radius-box);

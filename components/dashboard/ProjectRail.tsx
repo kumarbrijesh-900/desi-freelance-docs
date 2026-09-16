@@ -191,7 +191,7 @@ export function ProjectRail({
                 `}
               >
                 {/* 10px colored left stripe */}
-                <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-ink ${
+                <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r border-ink ${
                   summary.startsWith("DRAFT") ? "bg-soft" :
                   summary === "CLOSED" ? "bg-ink-3" :
                   summary === "COMPLETE" ? "bg-forest" :

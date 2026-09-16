@@ -157,7 +157,7 @@ export function AppTooltip({
         >
           <div
             className={cn(
-              "relative bg-ink text-paper rounded-[var(--radius-chip)] p-[8px_12px] text-[length:var(--text-label)] font-medium leading-[1.4] whitespace-normal text-left shadow-[var(--brutal-shadow-md)]",
+              "relative bg-ink text-paper rounded-[var(--radius-chip)] p-[8px_12px] type-label font-medium leading-[1.4] whitespace-normal text-left shadow-[var(--brutal-shadow-md)]",
               contentClassName
             )}
           >
@@ -194,7 +194,7 @@ export function AppTooltip({
             <button
               type="button"
               aria-label="More information"
-              className="relative inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-paper-2 text-[length:var(--text-label)] font-bold is-interactive transition-colors app-focus-ring after:absolute after:left-1/2 after:top-1/2 after:h-[40px] after:w-[40px] after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
+              className="relative inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border-2 border-ink bg-paper-2 type-label font-bold is-interactive transition-colors app-focus-ring after:absolute after:left-1/2 after:top-1/2 after:h-[40px] after:w-[40px] after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
             >
               {icon || "?"}
             </button>

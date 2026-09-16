@@ -38,19 +38,19 @@ export default function AppStatLine({
     >
       {stats.map((s, i) => (
         <div key={i} className="flex min-w-0 items-baseline gap-2">
-          <span className="whitespace-nowrap text-[length:var(--text-label)] font-bold uppercase tracking-[0.1em] text-ink-2">
+          <span className="whitespace-nowrap type-label font-bold uppercase tracking-[0.1em] text-ink-2">
             {s.label}
           </span>
           <span
             className={cn(
               "whitespace-nowrap font-display font-bold leading-none tabular-nums",
-              s.hero ? "text-[length:var(--text-heading)] text-acid" : "text-[length:var(--text-body-lg)] text-ink",
+              s.hero ? "type-heading text-acid" : "type-body-lg text-ink",
             )}
           >
             {s.value}
           </span>
           {s.sub && (
-            <span className="whitespace-nowrap text-[length:var(--text-label)] font-bold uppercase tracking-[0.1em] text-ink-3">
+            <span className="whitespace-nowrap type-label font-bold uppercase tracking-[0.1em] text-ink-3">
               {s.sub}
             </span>
           )}

@@ -63,19 +63,19 @@ export default function AppPageShell({
       {back && (
         <Link
           href={back}
-          className="is-interactive -ml-2 inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 font-mono text-[length:var(--text-label)] uppercase tracking-[0.08em] text-ink-2 transition-colors hover:text-ink"
+          className="is-interactive -ml-2 inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 font-mono type-label uppercase tracking-[0.08em] text-ink-2 transition-colors hover:text-ink"
         >
           <span aria-hidden="true">&lsaquo;</span>
           {backLabel}
         </Link>
       )}
 
-      <TitleTag className="min-w-0 truncate font-display text-[length:var(--text-body-lg)] font-bold leading-none text-ink">
+      <TitleTag className="min-w-0 truncate font-display type-body-lg font-bold leading-none text-ink">
         {title}
       </TitleTag>
 
       {meta && (
-        <span className="hidden min-w-0 truncate font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-3 sm:block">
+        <span className="hidden min-w-0 truncate font-mono type-label uppercase tracking-[0.1em] text-ink-3 sm:block">
           {meta}
         </span>
       )}
@@ -124,7 +124,7 @@ export function AppPageShellAction({
 }) {
   const base = cn(
     "is-interactive inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] px-2.5 py-1.5",
-    "font-mono text-[length:var(--text-label)] uppercase tracking-[0.08em] transition-colors",
+    "font-mono type-label uppercase tracking-[0.08em] transition-colors",
     tone === "act" && "text-acid",
     tone === "danger" && "text-coral",
     tone === "quiet" && "text-ink-2 hover:text-ink",

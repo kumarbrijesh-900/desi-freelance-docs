@@ -222,7 +222,7 @@ export function ActiveDrilldown({
             return (
               <div key={idx} className={`flex justify-between items-center py-2 ${idx < items.length - 1 ? 'border-b border-ink/20 border-dashed' : ''}`}>
                 <div className="flex items-center gap-2.5 flex-1">
-                  <div className={`w-3 h-3 rounded-full border-[1.5px] border-ink ${dotBg}`} />
+                  <div className={`w-3 h-3 rounded-full border border-ink ${dotBg}`} />
                   <div className="text-[13px] font-bold text-ink">{item.description || item.name || "Item"}</div>
                 </div>
                 <div className="flex items-center gap-8">
@@ -314,7 +314,7 @@ export function ActiveDrilldown({
 
             return (
               <div key={act.id} className="flex items-start gap-2.5" title={act.message || ""}>
-                <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] shrink-0 ${bgClass}`}>
+                <div className={`w-7 h-7 flex items-center justify-center border border-ink font-bold text-[13px] shrink-0 ${bgClass}`}>
                   {ic}
                 </div>
                 <div className="flex-1 min-w-0">

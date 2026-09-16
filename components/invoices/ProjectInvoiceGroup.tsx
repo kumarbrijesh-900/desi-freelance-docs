@@ -152,7 +152,7 @@ export function ProjectInvoiceGroup({
                   {Array.from({ length: msCount }).map((_, i) => (
                     <React.Fragment key={i}>
                       {i > 0 && <span className={`w-[14px] h-[2px] ${i <= done ? "bg-grass" : "bg-strong"}`} />}
-                      <span className={`w-[9px] h-[9px] rounded-full shrink-0 ${i < done ? "bg-grass" : i === done ? "bg-acid" : "bg-paper-2 border-[1.5px] border-strong"}`} />
+                      <span className={`w-[9px] h-[9px] rounded-full shrink-0 ${i < done ? "bg-grass" : i === done ? "bg-acid" : "bg-paper-2 border border-strong"}`} />
                     </React.Fragment>
                   ))}
                 </span>

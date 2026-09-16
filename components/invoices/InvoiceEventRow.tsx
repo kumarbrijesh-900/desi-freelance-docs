@@ -120,7 +120,7 @@ export function InvoiceEventRow({
         </div>
       )}
       {/* Color stripe */}
-      <div className={`w-[10px] ${statusInfo.side} border-r-[1.5px] border-ink shrink-0`} />
+      <div className={`w-[10px] ${statusInfo.side} border-r border-ink shrink-0`} />
 
       <div className="flex flex-1 items-center px-6 py-3">
         {/* Col 1 */}
@@ -133,7 +133,7 @@ export function InvoiceEventRow({
         <div className="flex-1 min-w-[200px]">
           <div className="text-[14px] font-bold text-ink mb-1 truncate pr-4">{pName}</div>
           <div className="flex items-center gap-2">
-            <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[8px] font-black ${statusInfo.side} ${avatarText}`}>
+            <div className={`w-[18px] h-[18px] rounded-full border border-ink flex items-center justify-center text-[8px] font-black ${statusInfo.side} ${avatarText}`}>
               {clientInitial}
             </div>
             <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 truncate">{cName}</div>

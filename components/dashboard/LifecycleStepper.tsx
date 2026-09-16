@@ -229,8 +229,8 @@ export function LifecycleStepper({
           let chipNode = null;
           if (stop.type === "milestone") {
             if (stop.state === "live") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest font-mono">LIVE</span>;
-            else if (stop.state === "cancelled") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-soft border-[1.5px] border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] text-[10px] font-bold uppercase tracking-widest font-mono">CANCELLED</span>;
-            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-bold uppercase tracking-widest font-mono">PENDING</span>;
+            else if (stop.state === "cancelled") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-soft border border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] text-[10px] font-bold uppercase tracking-widest font-mono">CANCELLED</span>;
+            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-bold uppercase tracking-widest font-mono">PENDING</span>;
             else if (stop.state === "done") chipNode = <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-ink-2 font-mono">SETTLED</span>;
           }
 

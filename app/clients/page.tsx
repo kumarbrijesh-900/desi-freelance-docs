@@ -900,8 +900,14 @@ export default function ClientsPage() {
         </div>
 
         {/* Table */}
-        <div className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-hidden mb-6">
-          <table className="w-full text-left border-collapse">
+        {/* overflow-x-auto, NOT overflow-hidden: eight columns holding a 40-char
+            email, a GSTIN chip and two pills can demand more width than the
+            container gives, and overflow-hidden turns that into a silent clip off
+            the right edge — it was eating the ACTIONS column. Auto still clips to
+            the rounded corners but scrolls instead of hiding, and the min-width
+            stops the columns squashing below the point where they are readable. */}
+        <div className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-x-auto mb-6">
+          <table className="w-full min-w-[980px] text-left border-collapse">
             <thead>
               <tr className="bg-paper-2 border-b border-soft text-[10px] font-extrabold uppercase tracking-widest text-ink">
                 <th className="py-3 px-6 w-[240px] border-r border-soft">Client</th>
@@ -911,7 +917,7 @@ export default function ClientsPage() {
                 <th className="py-3 px-6 border-r border-soft">Type</th>
                 <th className="py-3 px-6 w-[80px] text-right border-r border-soft">Invoices</th>
                 <th className="py-3 px-6 w-[120px] text-right border-r border-soft">MSA</th>
-                <th className="py-3 px-4 w-[100px] text-center">ACTIONS</th>
+                <th className="py-3 px-4 w-[120px] text-center">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -932,7 +938,7 @@ export default function ClientsPage() {
                     <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
                       <td className="py-4 px-6 border-r border-soft">
                         <div className="flex items-center gap-3">
-                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarStyle} shadow-none`}>
+                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border border-ink flex items-center justify-center text-[11px] font-black ${avatarStyle} shadow-none`}>
                             {initial}
                           </div>
                           <div className="font-bold text-[13px] uppercase tracking-wide group-hover:underline">{client.client_name}</div>
@@ -970,14 +976,14 @@ export default function ClientsPage() {
                         <div className="flex items-center justify-center gap-1.5">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
-                            className="p-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-coral transition-all"
+                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-coral transition-all"
                             title="Delete Client"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
-                            className="p-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition-all"
+                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition-all"
                             title="Edit Client"
                           >
                             <EditIcon className="h-4 w-4" />
