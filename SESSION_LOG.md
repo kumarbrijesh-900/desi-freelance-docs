@@ -346,32 +346,106 @@ Rebuilding an environment from that directory would not produce this database.
 
 ---
 
-## Carried forward
+## NEXT SESSION — start here
 
-- **`grand_total` is still pre-tax**, and on a master it is only milestone `[0]`
-  (`createInvoice` does `formMilestones[0]`). `lib/money/types.ts` already
-  documents that the column holds the taxable value despite its name. The
-  rename migration is no longer cosmetic — anything reading `grand_total` as a
-  payable amount is reporting a pre-tax number.
-- **`invoices.status` canon migration** — mirrors `20260707120000` for
-  milestones. Highest-value item left.
-- **Migrations directory vs database.** See the schema-drift section. Blocking
-  if a second environment is ever needed.
-- Money-engine roadmap remainder: lint rule banning bare `0.18`/`1.18`.
-  (`warnings[]` and the three `computeInvoiceTax` callers are DONE.)
-- **The editor offers to change a locked invoice** — "AI AUTOFILL / Ready to
+Two items from the previous entry's roadmap closed today: **#1 surface the
+engine's warnings** (`609ba4c`) and the not-cosmetic half of **#4 consumer
+migration** (`1e36712`). What follows replaces the rest.
+
+### 1. `invoices.status` canon migration (highest value)
+
+`invoice_milestones` got this in July — `20260707120000_milestone_status_canon`
+uppercased every value and added a CHECK fence. `invoices.status` was left
+behind, which is why it holds `draft`, `finalized`, `settled` and `PARTIAL`
+side by side, why `createInvoice` defaults to `"DRAFT"` while the editor writes
+`"draft"`, and why every consumer must `.toLowerCase()` defensively. The type
+now documents the mess (`3b6ee37`); the migration would end it.
+
+Shape: audit every writer and reader, write the migration, prove the mapping
+against all live rows, land code and constraint together. Touches money-bearing
+rows — do it in one change, not two.
+
+### 2. `grand_total` — no longer cosmetic
+
+The previous entry called this a rename. It is not. The column holds the
+**pre-tax** taxable value, and on a master it holds only milestone `[0]`
+(`createInvoice` does `formMilestones[0]`). On INV-2026-9996 that is 204,000
+against a five-milestone invoice totalling 605,000. Anything reading it as a
+payable amount — the dashboard's outstanding figure, exports — is reporting a
+pre-tax number for one milestone.
+
+Plan unchanged from the last entry: add `taxable_value` and `amount_payable`,
+backfill both from the engine, make the engine the sole writer, deprecate
+`grand_total`. Seven rows.
+
+### 3. Reconcile `supabase/migrations/` with the database
+
+The repo directory and the applied-migration history are two different,
+partially overlapping sets: 15 applied, several with no file in the repo, most
+repo files never applied, matching ones under different timestamps. **A fresh
+environment built from that directory would not produce this database.**
+
+Not urgent while there is one environment. Blocking the moment there are two.
+
+### 4. Lint rule (last money-engine roadmap item)
+
+Ban bare `0.18` / `1.18` and arithmetic on `grand_total` outside `lib/money/`.
+The engine removes the excuse; the lint rule removes the possibility.
+
+### 5. Delete `computeInvoiceTax` — now unblocked
+
+No production code calls it as of `1e36712`. It survives only for
+`run-legacy-parity-tests` and `run-tax-on-amount-tests`, which exist to pin it.
+Delete the function and both suites **together**, or the suites start comparing
+the engine to nothing.
+
+### 6. Rounding, when you want it
+
+Unchanged and still invisible: `resolveInvoicePayable` returns unrounded gross
+by decision, `computeInvoiceMoney.amountPayable` is the Sec 170 whole-rupee
+figure and is wired to nothing. One-line change. All live invoices are whole
+rupees, so nothing moves until one has paise.
+
+### 7. Product and UI, in rough order of how much they annoy
+
+- **The editor offers to change a locked invoice.** "AI AUTOFILL / Ready to
   scan your brief" and "Complete your profile" both render on a read-only
   archive the same screen labels LOCKED three times.
-- Anon key rotation (exposure window 4–16 Sept, see the security section).
+- **`globals.css` carries ~15 `[data-theme="cockpit"] .bg-[#hex]` overrides** —
+  rule 1's anti-pattern at scale. D2 swept `bg-white` and missed these because
+  they are arbitrary hex values, not a variant class.
 - `/clients` name column scrolls out of view; `sticky left-0` would pin it.
-- `globals.css` carries ~15 `[data-theme="cockpit"] .bg-[#hex]` overrides —
-  rule 1's anti-pattern at scale. D2 swept `bg-white` and missed these.
-- CA-3 guard throws after the parent is set to `PARTIAL`.
-- Three `user_profiles` round-trips in `fireMilestoneInvoice`.
 - `/clients` meta reads "0 intl · 1 no GSTIN" — composition where `/invoices`
   describes scope.
-- `/clients/[id]` puts Save in `AppHeader`'s slot while `/profile` uses a sticky
-  bottom bar. Two answers to "where does save live"; unresolved.
+- `/clients/[id]` puts Save in `AppHeader`'s slot while `/profile` uses a
+  sticky bottom bar. Two answers to "where does save live"; unresolved.
+
+### 8. Operational
+
+- **Rotate the anon key.** Exposure window 4–16 Sept on the backup table (see
+  the security section). Owner's data, no access log, low practical risk.
+  Settings → API, then redeploy.
+- Leaked-password protection is off (Supabase linter, WARN). One toggle.
+
+---
+
+## Known-broken, carried forward
+
+Everything actionable is in the roadmap above. These are the two that are
+genuinely broken rather than merely untidy, and neither was touched this
+session or the last:
+
+- **The CA-3 guard throws after the parent is already set to `PARTIAL`.** The
+  write happens, then the guard rejects — so a failure leaves the parent
+  advanced. Ordering bug, not a rules bug.
+- **Three `user_profiles` round-trips in `fireMilestoneInvoice`.** One read
+  would do. Only a performance smell today, but it is three chances for the
+  same record to be read at three different moments.
+
+Also still true, and recorded here so it is not rediscovered a third time:
+`projects.msa_accepted_at` is never written by anything — 0 rows have it — and
+`computeProjectLifecycle` uses it as a date fallback that can only ever be
+null.
 
 ---
 
