@@ -626,28 +626,19 @@ export async function deleteInvoice(
     .maybeSingle();
   const affectedProjectId = invoiceRow?.project_id ?? null;
 
-  // 1. Fetch milestone IDs first to safely clear their nested line items
-  const { data: milestones } = await supabase
-    .from("invoice_milestones")
-    .select("id")
-    .eq("invoice_id", invoiceId);
-
-  if (milestones && milestones.length > 0) {
-    const milestoneIds = milestones.map(m => m.id);
-    await supabase
-      .from("invoice_line_items")
-      .delete()
-      .in("milestone_id", milestoneIds);
-  }
-
-  // 2. Clear milestones
-  await supabase
-    .from("invoice_milestones")
-    .delete()
-    .eq("invoice_id", invoiceId);
-
-  // 3. Delete parent invoice. Child invoices go with it via the
-  //    parent_invoice_id ON DELETE CASCADE.
+  // 1. Delete the invoice. Everything below it goes in the SAME statement,
+  //    through the foreign keys:
+  //      invoices.parent_invoice_id        ON DELETE CASCADE  (child invoices)
+  //      invoice_milestones.invoice_id     ON DELETE CASCADE
+  //      invoice_line_items.milestone_id   ON DELETE CASCADE
+  //
+  //    This used to clear line items and milestones in two separate calls
+  //    first. Those calls were redundant - the cascade already does exactly
+  //    that - and they made failure destructive: these are three unrelated
+  //    statements with no transaction, so if the invoice delete failed (an
+  //    inbound FK such as projects.msa_accepted_via_invoice_id is NO ACTION,
+  //    and would block it) the invoice survived with its milestones and line
+  //    items already gone. One statement cannot half-succeed.
   const { error } = await supabase
     .from("invoices")
     .delete()

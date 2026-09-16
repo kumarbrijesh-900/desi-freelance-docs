@@ -80,21 +80,20 @@ export default function InvoicesPage() {
   const clearSelection = () => setSelectedIds(new Set());
 
   const handleBulkDelete = async () => {
-    const deletable = flattenedInvoices.filter(
-      item => selectedIds.has(item.invoice.id) &&
-        isInvoiceRowDeletable(item.invoice, item.masterMsaStatus, item.masterHasClientMsaNote)
-    );
+    const { roots, cascadeCount, skipped } = bulkDeletePlan;
     let ok = 0;
     let failed = 0;
-    for (const item of deletable) {
+    for (const item of roots) {
       const { error } = await deleteInvoice(item.invoice.id);
       if (error) failed++; else ok++;
     }
-    const skipped = selectedIds.size - deletable.length;
     await loadProjects();
     clearSelection();
     setBulkDeleteConfirm(false);
     const parts = [`${ok} deleted`];
+    if (ok > 0 && cascadeCount > 0) {
+      parts.push(`${cascadeCount} milestone ${cascadeCount === 1 ? "invoice" : "invoices"} with them`);
+    }
     if (skipped > 0) parts.push(`${skipped} protected skipped`);
     if (failed > 0) parts.push(`${failed} failed`);
     setActionMessage(parts.join(" · "));
@@ -296,6 +295,42 @@ export default function InvoicesPage() {
       masterInvoice: master
     }));
   }).sort((a, b) => new Date(b.invoice.created_at).getTime() - new Date(a.invoice.created_at).getTime());
+
+  /**
+   * What a bulk delete would actually destroy.
+   *
+   * `invoices.parent_invoice_id` is ON DELETE CASCADE, so deleting a project
+   * invoice deletes its milestone invoices too. Checking `isInvoiceRowDeletable`
+   * on the selected rows alone never sees those children - which means a
+   * settled milestone could be destroyed through a master that was itself
+   * deletable, while the dialog promised settled invoices are protected.
+   * The cascade is the unit here, not the row.
+   */
+  const bulkDeletePlan = (() => {
+    const childrenOf = (id: string) =>
+      flattenedInvoices.filter(i => (i.invoice as any).parent_invoice_id === id);
+    const canDelete = (item: { invoice: any; masterMsaStatus?: string | null; masterHasClientMsaNote?: boolean }) =>
+      isInvoiceRowDeletable(item.invoice, item.masterMsaStatus, item.masterHasClientMsaNote);
+
+    const selected = flattenedInvoices.filter(i => selectedIds.has(i.invoice.id));
+    const deletable = selected.filter(i => canDelete(i) && childrenOf(i.invoice.id).every(canDelete));
+    const deletableIds = new Set(deletable.map(d => d.invoice.id));
+
+    // A selected child whose master is also going is taken by the cascade.
+    // Deleting it separately would just report a spurious failure.
+    const roots = deletable.filter(d => !deletableIds.has((d.invoice as any).parent_invoice_id));
+
+    const cascadeIds = new Set<string>();
+    for (const r of roots) for (const c of childrenOf(r.invoice.id)) cascadeIds.add(c.invoice.id);
+
+    return {
+      roots,
+      // Children that vanish without having been selected - the part the
+      // operator cannot see from their own selection.
+      cascadeCount: [...cascadeIds].filter(id => !selectedIds.has(id)).length,
+      skipped: selected.length - deletable.length,
+    };
+  })();
 
   const filteredInvoices = flattenedInvoices.filter(item => {
     if (search) {
@@ -605,14 +640,27 @@ export default function InvoicesPage() {
           <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[var(--radius-soft)] shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
             <p className="type-body font-medium text-ink-2 mb-5">
-              Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
+              {bulkDeletePlan.roots.length > 0 ? (
+                <>
+                  Permanently deletes <strong>{bulkDeletePlan.roots.length}</strong> of the {selectedIds.size} selected.
+                  {bulkDeletePlan.cascadeCount > 0 && (
+                    <> Also deletes <strong>{bulkDeletePlan.cascadeCount}</strong> milestone {bulkDeletePlan.cascadeCount === 1 ? "invoice" : "invoices"} you did not select - a project invoice takes its milestones with it.</>
+                  )}
+                </>
+              ) : (
+                <>Nothing here can be deleted.</>
+              )}
+              {bulkDeletePlan.skipped > 0 && (
+                <> {bulkDeletePlan.skipped} {bulkDeletePlan.skipped === 1 ? "is" : "are"} protected and skipped: settled or partial, or holding a settled milestone.</>
+              )}
+              {bulkDeletePlan.roots.length > 0 && <> This cannot be undone.</>}
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
                 className="border border-soft bg-paper-2 px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold shadow-[var(--brutal-shadow-md)] is-interactive">
                 Cancel
               </button>
-              <button type="button" onClick={handleBulkDelete}
+              <button type="button" onClick={handleBulkDelete} disabled={bulkDeletePlan.roots.length === 0}
                 className="bg-coral px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform">
                 Delete selected
               </button>
