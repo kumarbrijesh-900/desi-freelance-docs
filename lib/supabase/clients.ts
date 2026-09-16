@@ -52,6 +52,18 @@ export interface SavedClient {
 
 export type ClientRow = SavedClient;
 
+/**
+ * A client row plus the MSA state that does NOT live on it. Two different
+ * things are called "the MSA": `msa_effective_date` is an offline contract's
+ * start date, typed in by the operator; `msa_accepted_at` is the client
+ * accepting through the share link. `has_msa` is either one - both mean there
+ * are terms in force, which is the question a roster is actually asking.
+ */
+export interface ClientWithMsa extends SavedClient {
+  msa_accepted_at: string | null;
+  has_msa: boolean;
+}
+
 /* ─── Converters ──────────────────────────────────── */
 
 /** Convert a DB client row to ClientDetails for the invoice form */
@@ -225,7 +237,7 @@ export async function createClientFromInvoice(
 /* ─── List ────────────────────────────────────────── */
 
 export async function listClients(): Promise<{
-  data: SavedClient[];
+  data: ClientWithMsa[];
   error: string | null;
 }> {
   const {
@@ -241,7 +253,43 @@ export async function listClients(): Promise<{
     .order("updated_at", { ascending: false });
 
   if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as SavedClient[], error: null };
+
+  const clients = (data ?? []) as SavedClient[];
+  if (clients.length === 0) return { data: [], error: null };
+
+  // In-product MSA acceptance lives on the MASTER invoice, not on the client
+  // row. `clients.msa_effective_date` is a different thing: the date an
+  // offline contract took effect, typed in by hand. Nothing in the acceptance
+  // flow writes it, so a page that counts it is not counting acceptances.
+  // Child invoices inherit their master's MSA, so they are excluded.
+  const { data: accepted } = await supabase
+    .from("invoices")
+    .select("client_id, msa_accepted_at")
+    .eq("user_id", user.id)
+    .eq("msa_status", "accepted")
+    .is("parent_invoice_id", null)
+    .not("client_id", "is", null);
+
+  const acceptedAt = new Map<string, string | null>();
+  for (const row of (accepted ?? []) as {
+    client_id: string;
+    msa_accepted_at: string | null;
+  }[]) {
+    const prev = acceptedAt.get(row.client_id);
+    // Earliest acceptance is when the relationship actually came under terms.
+    if (prev === undefined || (row.msa_accepted_at && prev && row.msa_accepted_at < prev)) {
+      acceptedAt.set(row.client_id, row.msa_accepted_at);
+    }
+  }
+
+  return {
+    data: clients.map((c) => ({
+      ...c,
+      msa_accepted_at: acceptedAt.get(c.id) ?? null,
+      has_msa: acceptedAt.has(c.id) || Boolean(c.msa_effective_date),
+    })),
+    error: null,
+  };
 }
 
 /* ─── Get Single ──────────────────────────────────── */

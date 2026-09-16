@@ -41,6 +41,7 @@ import {
   upsertClient,
   deleteClient,
   type SavedClient,
+  type ClientWithMsa,
 } from "@/lib/supabase/clients";
 import { createMsa } from "@/lib/supabase/msas";
 import {
@@ -666,7 +667,7 @@ export default function ClientsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [clients, setClients] = useState<SavedClient[]>([]);
+  const [clients, setClients] = useState<ClientWithMsa[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
@@ -693,7 +694,7 @@ export default function ClientsPage() {
 
       setIsAuthenticated(true);
       const { data, error } = await withTimeoutFallback(listClients(), 4000, {
-        data: [] as SavedClient[],
+        data: [] as ClientWithMsa[],
         error: "Timed out while loading clients.",
       });
       if (!isActive) return;
@@ -734,8 +735,16 @@ export default function ClientsPage() {
   const handleSave = (saved: SavedClient) => {
     setClients((prev) => {
       const exists = prev.find((c) => c.id === saved.id);
-      if (exists) return prev.map((c) => (c.id === saved.id ? saved : c));
-      return [saved, ...prev];
+      // Acceptance lives on the invoice, not on what this form saves. Editing
+      // a client must not silently drop it.
+      const acceptedAt = exists?.msa_accepted_at ?? null;
+      const merged: ClientWithMsa = {
+        ...saved,
+        msa_accepted_at: acceptedAt,
+        has_msa: Boolean(acceptedAt) || Boolean(saved.msa_effective_date),
+      };
+      if (exists) return prev.map((c) => (c.id === saved.id ? merged : c));
+      return [merged, ...prev];
     });
     setShowForm(false);
     setEditingClient(null);
@@ -866,7 +875,7 @@ export default function ClientsPage() {
           className="mb-4"
           stats={[
             { label: "Clients", value: `${clients.length}`, sub: "in your roster" },
-            { label: "MSAs signed", value: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, sub: "contracts on file" },
+            { label: "MSAs signed", value: `${clients.filter(c => c.has_msa).length} of ${clients.length}`, sub: "contracts on file" },
             { label: "Repeat clients", value: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, sub: "billed more than once" },
           ]}
         />
@@ -932,7 +941,7 @@ export default function ClientsPage() {
                   const initial = (client.client_name || "U").slice(0, 2).toUpperCase();
                   const avatarStyles = ["bg-rose text-ink", "bg-grass text-[color:var(--color-acc-ink)]", "bg-sky text-[color:var(--color-acc-ink)]", "bg-lav text-[color:var(--color-acc-ink)]", "bg-butter text-[color:var(--color-acc-ink)]", "bg-coral text-[color:var(--color-acc-ink)]"];
                   const avatarStyle = avatarStyles[i % avatarStyles.length];
-                  const msaOk = client.msa_effective_date;
+                  const msaOk = client.has_msa;
 
                   return (
                     <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
