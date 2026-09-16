@@ -155,7 +155,7 @@ export default function OnboardingPage() {
             e.preventDefault();
             handleStart();
           }}
-          className="rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-[22px] shadow-[0_18px_44px_-26px_rgba(30,61,51,0.5)]"
+          className="rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-6 shadow-[0_18px_44px_-26px_rgba(30,61,51,0.5)]"
         >
           <div className="mb-4">
             <label className={appFieldLabelClass} htmlFor="agencyName">Studio / brand name</label>

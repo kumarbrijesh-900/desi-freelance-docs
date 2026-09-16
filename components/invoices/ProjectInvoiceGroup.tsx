@@ -132,7 +132,7 @@ export function ProjectInvoiceGroup({
       {/* Project header (click to collapse) */}
       <div
         onClick={() => setExpanded(v => !v)}
-        className="relative flex items-center gap-3 px-[18px] py-[15px] cursor-pointer select-none"
+        className="relative flex items-center gap-3 px-5 py-4 cursor-pointer select-none"
       >
         <span className="absolute left-0 top-3 bottom-3 w-[4px] rounded-r-full" style={{ background: accent }} />
         <span className={`text-ink/40 type-body w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>
@@ -160,15 +160,15 @@ export function ProjectInvoiceGroup({
             )}
           </div>
         </div>
-        <div className="flex flex-col items-end gap-[5px] shrink-0 text-right">
-          <span className={`inline-block rounded-full px-[9px] py-[3px] type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(roll.key)}`}>{roll.text}</span>
+        <div className="flex flex-col items-end gap-1 shrink-0 text-right">
+          <span className={`inline-block rounded-full px-2 py-1 type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(roll.key)}`}>{roll.text}</span>
           <div className="font-display font-bold type-body-lg text-ink tabular-nums">{formatInr(projValue)}<span className="block type-label font-bold text-ink/50 uppercase tracking-[0.08em] mt-px">invoiced</span></div>
         </div>
       </div>
 
       {/* Nested invoices */}
       {expanded && (
-        <div className="relative px-3 sm:pl-[40px] sm:pr-[18px] pb-[14px]">
+        <div className="relative px-3 sm:pl-10 sm:pr-5 pb-4">
           <div className="absolute left-[25px] top-0 bottom-5 w-px bg-soft hidden sm:block" />
           {items.map((it, i) => {
             const inv = it.invoice;
@@ -183,7 +183,7 @@ export function ProjectInvoiceGroup({
               <Link
                 key={inv.id}
                 href={invoiceRowHref(inv.id, inv.status)}
-                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[var(--radius-field)] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
+                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 mb-2 rounded-[var(--radius-field)] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
               >
                 <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
                 <div
@@ -200,7 +200,7 @@ export function ProjectInvoiceGroup({
                 <div className="flex flex-col items-end gap-1 shrink-0 sm:contents">
                   <div className="shrink-0 text-right font-display font-bold type-body-lg text-ink tabular-nums sm:w-[110px]">{formatInr(invoiceTotal(inv))}</div>
                   <div className="shrink-0 flex justify-end sm:w-[92px] sm:justify-center">
-                    <span className={`inline-block rounded-full px-[9px] py-[3px] type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
+                    <span className={`inline-block rounded-full px-2 py-1 type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
                   </div>
                 </div>
                 {deletable ? (

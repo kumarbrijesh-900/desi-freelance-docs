@@ -26,7 +26,7 @@ export default function Error({
             </svg>
             Something went wrong
           </span>
-          <h1 className="font-display text-[30px] font-bold leading-[1.1] tracking-[-0.02em] text-ink mt-[18px] mb-2.5">
+          <h1 className="font-display text-[30px] font-bold leading-[1.1] tracking-[-0.02em] text-ink mt-5 mb-2.5">
             Something broke on our end
           </h1>
           <p className="mx-auto max-w-[34ch] text-[15px] leading-relaxed text-ink-2 mb-7">

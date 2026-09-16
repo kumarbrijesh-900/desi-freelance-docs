@@ -64,11 +64,11 @@ export default function Home() {
               GST-compliant, milestone-driven invoices in under two minutes. Built for independent designers, devs and studios across India — <b className="font-bold text-ink">made to feel like you, not your CA</b>.
             </p>
             <div className="mb-6 flex flex-wrap gap-3.5">
-              <Button variant="primary" onClick={startInvoice} className="px-[22px] py-3.5 text-[15px] font-bold">
+              <Button variant="primary" onClick={startInvoice} className="px-6 py-3.5 text-[15px] font-bold">
                 Create your first invoice →
               </Button>
             </div>
-            <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[13px] font-semibold text-ink-2">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-ink-2">
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> No signup to start</span>
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> No credit card</span>
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> Exports as PDF</span>
@@ -77,7 +77,7 @@ export default function Home() {
 
           <div className="relative hidden lg:block">
             <div className="absolute left-[40px] top-[26px] -right-[22px] -bottom-[26px] rotate-[1.4deg] rounded-[var(--radius-soft)] bg-ochre/90" />
-            <div className="relative rounded-[var(--radius-soft)] border border-soft bg-paper-2 p-[30px] shadow-[var(--brutal-shadow-lg)]">
+            <div className="relative rounded-[var(--radius-soft)] border border-soft bg-paper-2 p-8 shadow-[var(--brutal-shadow-lg)]">
               <div className="mb-5 flex items-start justify-between border-b border-soft pb-5">
                 <div>
                   <div className="font-display text-[27px] font-bold tracking-[-0.01em] text-ink tabular-nums">INV-042</div>
@@ -99,7 +99,7 @@ export default function Home() {
 
       {/* ── Trust strip ── */}
       <div className="border-y border-soft bg-paper-2">
-        <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-center gap-x-9 gap-y-3.5 px-6 py-[22px]">
+        <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-center gap-x-9 gap-y-3.5 px-6 py-6">
           <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-ink"><span className="h-[11px] w-[11px] rounded-full bg-grass" />GST compliant</span>
           <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-ink"><span className="h-[11px] w-[11px] rounded-full bg-sky" />Milestone billing</span>
           <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-ink"><span className="h-[11px] w-[11px] rounded-full bg-acid" />MSA enforced</span>
@@ -154,7 +154,7 @@ export default function Home() {
               Ship your first invoice<br />in two minutes.
             </h2>
             <p className="mx-auto mb-7 mt-3.5 text-[17px] text-acc-ink/80">No signup required. Start now, save when you&rsquo;re ready.</p>
-            <Button variant="paper" onClick={startInvoice} className="bg-paper-2 px-[22px] py-3.5 text-[15px] font-bold">
+            <Button variant="paper" onClick={startInvoice} className="bg-paper-2 px-6 py-3.5 text-[15px] font-bold">
               Create your first invoice →
             </Button>
           </div>
@@ -189,7 +189,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="mt-10 flex flex-wrap justify-between gap-2.5 border-t border-soft pt-[22px] text-[12.5px] text-ink-2">
+          <div className="mt-10 flex flex-wrap justify-between gap-2.5 border-t border-soft pt-6 text-[12.5px] text-ink-2">
             <span>© 2026 Lance. Made in India.</span>
             <span className="font-mono">v2.0</span>
           </div>

@@ -85,7 +85,7 @@ export function getAppFieldClass(params?: {
     "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] type-body font-normal leading-6 text-[color:var(--color-ink)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
     multiline ? "min-h-[112px] px-3 py-3" : "h-[var(--control-md)] px-3",
     isSelect
-      ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
+      ? "appearance-none overflow-hidden pr-12 text-ellipsis whitespace-nowrap text-left"
       : "",
     "disabled:cursor-not-allowed disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",

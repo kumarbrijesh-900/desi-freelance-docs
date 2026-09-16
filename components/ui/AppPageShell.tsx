@@ -18,7 +18,7 @@ export const appPageShellContainerClass =
  */
 const barClass = cn(
   "flex min-h-[46px] flex-wrap items-center gap-x-4 gap-y-1.5 py-1.5",
-  "rounded-[var(--radius-box)] border border-soft bg-paper-2 px-[18px]",
+  "rounded-[var(--radius-box)] border border-soft bg-paper-2 px-5",
   "sm:h-[46px] sm:flex-nowrap sm:py-0",
 );
 

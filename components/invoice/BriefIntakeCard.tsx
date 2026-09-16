@@ -184,7 +184,7 @@ export default function BriefIntakeCard({
   return (
     <MotionReveal className="mb-4" preset="fade-up" delay={40}>
       <section
-        className="border border-soft rounded-[var(--radius-box)] bg-paper-2 shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
+        className="border border-soft rounded-[var(--radius-box)] bg-paper-2 shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-5"
         aria-labelledby="brief-intake-heading"
       >
         {/* Toggle */}

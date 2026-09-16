@@ -120,7 +120,7 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
       </div>
 
       {/* Content skeleton */}
-      <div className="flex flex-1 flex-col gap-[3px] px-1.5 py-1.5">
+      <div className="flex flex-1 flex-col gap-1 px-1.5 py-1.5">
         <div
           className="h-[3px] w-8 rounded-full"
           style={{ backgroundColor: text, opacity: 0.6 }}
@@ -130,7 +130,7 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
           style={{ backgroundColor: text, opacity: 0.2 }}
         />
         <div
-          className="my-[2px] h-px w-full"
+          className="my-1 h-px w-full"
           style={{ backgroundColor: text, opacity: 0.08 }}
         />
         {[0.7, 0.5, 0.6].map((w, i) => (

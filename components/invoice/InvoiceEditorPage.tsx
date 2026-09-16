@@ -2489,7 +2489,7 @@ return (
 
 
     <section
-      className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[56px] pt-8 pb-32 relative z-10`}
+      className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-14 pt-8 pb-32 relative z-10`}
     >
       {/* Document bar — the same AppPageShell bar every other route uses, in
           `bare` mode because the editor owns its own width and scroll. Step
