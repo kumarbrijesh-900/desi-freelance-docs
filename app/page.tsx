@@ -83,7 +83,7 @@ export default function Home() {
                   <div className="font-display text-[27px] font-bold tracking-[-0.01em] text-ink tabular-nums">INV-042</div>
                   <div className="mt-0.5 text-[13px] text-ink-2">Acme Corp · milestone 2 of 3</div>
                 </div>
-                <span className="rounded-full bg-grass px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-acc-ink">Paid</span>
+                <span className="inline-flex items-center whitespace-nowrap rounded-full bg-grass px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-acc-ink">Paid</span>
               </div>
               <div className="flex items-center justify-between py-2 text-[14.5px]"><span className="text-ink-2">Brand identity design</span><span className="font-bold text-ink tabular-nums">₹85,000</span></div>
               <div className="flex items-center justify-between border-t border-soft/60 py-2 text-[14.5px]"><span className="text-ink-2">Web development</span><span className="font-bold text-ink tabular-nums">₹1,20,000</span></div>

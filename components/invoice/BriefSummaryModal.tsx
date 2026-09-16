@@ -745,7 +745,7 @@ export default function BriefSummaryModal({
                       >
                         <div className="mb-3 flex items-center justify-between gap-3">
                           {item.type ? (
-                            <span className="rounded-full bg-acc-soft px-2.5 py-1 type-body font-semibold text-acid">
+                            <span className="inline-flex items-center whitespace-nowrap rounded-full bg-acc-soft px-2.5 py-1 type-body font-semibold text-acid">
                               {item.type}
                             </span>
                           ) : (
@@ -873,7 +873,7 @@ export default function BriefSummaryModal({
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {m.percent != null && (
-                          <span className="rounded-full bg-[#efe6d1] px-2 py-0.5 type-label font-bold tabular-nums text-ink-2">
+                          <span className="inline-flex items-center whitespace-nowrap rounded-full bg-[#efe6d1] px-2 py-0.5 type-label font-bold tabular-nums text-ink-2">
                             {m.percent}%
                           </span>
                         )}

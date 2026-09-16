@@ -961,13 +961,13 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
                         {client.gstin ? (
-                          <span className="px-2 py-1 type-label font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
+                          <span className="inline-flex items-center whitespace-nowrap px-2 py-1 type-label font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
                         ) : (
                           <span className="type-body font-bold uppercase tracking-widest text-ink/40">—</span>
                         )}
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
-                        <span className={`px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
+                        <span className={`inline-flex items-center whitespace-nowrap px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
                           {client.client_type === "international" ? "INTL" : "INDIA"}
                         </span>
                       </td>
@@ -976,9 +976,9 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
                         {msaOk ? (
-                          <span className="px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
+                          <span className="inline-flex items-center whitespace-nowrap gap-1 px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
                         ) : (
-                          <span className="px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
+                          <span className="inline-flex items-center whitespace-nowrap px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
                         )}
                       </td>
                       <td className="py-4 px-4 text-center">
