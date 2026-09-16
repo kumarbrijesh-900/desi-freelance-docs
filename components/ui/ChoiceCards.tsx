@@ -34,7 +34,7 @@ export default function ChoiceCards<T extends string>({
       ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[var(--radius-soft)] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "minimal-segmented"
         ? cn(
-            "flex items-center gap-1 border border-[color:var(--color-ink)] rounded-[var(--app-radius-control)] p-1 h-11 bg-transparent",
+            "flex items-center gap-1 border border-[color:var(--color-ink)] rounded-[var(--app-radius-control)] p-1 h-[var(--control-md)] bg-transparent",
             columns === 2 ? "grid grid-cols-2" : "",
           )
         : variant === "inline"
@@ -59,7 +59,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-[var(--app-radius-pill)] border px-3 py-1.5 text-left type-body font-normal whitespace-nowrap transition-all duration-150 ${
+      return `inline-flex min-h-[var(--control-sm)] min-w-fit items-center justify-center rounded-[var(--app-radius-pill)] border px-3 py-1.5 text-left type-body font-normal whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--color-ink)]"
           : "app-soft-choice-option text-[color:var(--color-ink)] opacity-65 hover:opacity-100"

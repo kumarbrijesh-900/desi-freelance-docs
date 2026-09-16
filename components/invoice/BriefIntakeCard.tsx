@@ -146,7 +146,7 @@ export default function BriefIntakeCard({
         >
           <motion.div
             key="brief-intake-collapsed"
-            className="flex h-12 items-center justify-between gap-3 px-4"
+            className="flex h-[var(--control-lg)] items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-acid)] border border-soft type-body font-bold text-[color:var(--color-acc-ink)]">

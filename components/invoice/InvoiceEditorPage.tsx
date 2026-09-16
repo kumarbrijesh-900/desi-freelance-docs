@@ -2791,7 +2791,7 @@ return (
                     onClick={() => scrollToStep(step)}
                     data-mobile-step-active={isActive ? "true" : undefined}
                     className={cn(
-                      "flex h-9 shrink-0 items-center gap-2 rounded-full px-4 type-body font-bold transition-all duration-200 active:scale-95",
+                      "flex h-[var(--control-sm)] shrink-0 items-center gap-2 rounded-full px-4 type-body font-bold transition-all duration-200 active:scale-95",
                       isActive
                         ? "bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-md"
                         : isCompleted
@@ -2868,7 +2868,7 @@ return (
                               })
                             }
                             className={cn(
-                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] type-body h-10 px-6 transition-all duration-200",
+                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] type-body h-[var(--control-md)] px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] font-normal cursor-not-allowed"
                                 : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm active:scale-[0.97] transition-all",
@@ -3181,7 +3181,7 @@ return (
               onClick={handleSaveDraft}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-4 border border-[color:var(--color-soft)] rounded-[var(--radius-field)] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                "h-[var(--control-sm)] px-4 border border-[color:var(--color-soft)] rounded-[var(--radius-field)] text-[color:var(--color-ink)] sm:h-[var(--control-md)] sm:px-5 active:scale-[0.97] transition-transform",
               )}
             >
               <SaveIcon className="mr-2 h-4 w-4" />
@@ -3195,7 +3195,7 @@ return (
                 onClick={handleLockedAlternativeAction}
                 className={cn(
                   getAppButtonClass({ variant: "secondary", size: "sm" }),
-                  "h-9 px-4 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                  "h-[var(--control-sm)] px-4 sm:h-[var(--control-md)] sm:px-5 active:scale-[0.97] transition-transform",
                 )}
               >
                 <span className="hidden sm:inline">{lockState.alternativeAction?.label ?? "View preview"}</span>
@@ -3213,7 +3213,7 @@ return (
                   onClick={handleLockedPreviewRoute}
                   className={cn(
                     getAppButtonClass({ variant: "ghost", size: "sm" }),
-                    "h-9 px-4 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                    "h-[var(--control-sm)] px-4 sm:h-[var(--control-md)] sm:px-5 active:scale-[0.97] transition-transform",
                   )}
                 >
                   <span className="hidden sm:inline">View preview</span>
@@ -3226,7 +3226,7 @@ return (
               type="button"
               onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
               className={cn(
-                "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
+                "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-[var(--control-sm)] px-4 sm:h-[var(--control-md)] sm:px-6",
                 invoiceReadyForPreview
                   ? "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)] border border-acid hover:brightness-105 active:scale-[0.97] transition-transform"
                   : "border border-soft bg-[color:var(--cta-attention-bg,#FFFBE6)] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"

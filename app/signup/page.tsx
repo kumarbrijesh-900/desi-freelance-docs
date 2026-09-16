@@ -134,7 +134,7 @@ export default function SignupPage() {
                 <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                   Creating account...
                 </h2>
-                <div className="mt-6 h-11 border border-[color:var(--color-ink)] bg-[color:var(--color-paper)] animate-pulse" />
+                <div className="mt-6 h-[var(--control-md)] border border-[color:var(--color-ink)] bg-[color:var(--color-paper)] animate-pulse" />
               </div>
             }
           >

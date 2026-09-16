@@ -573,7 +573,7 @@ function LineItemCard({
                 : (invoiceDescriptionPlaceholderByType[item.type] || "Description")
             }
             className={cn(
-              "h-11 type-body",
+              "h-[var(--control-md)] type-body",
               getInputStateClass(`deliverables.${itemIndex}.description`, item.description)
             )}
             errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
@@ -655,9 +655,9 @@ function LineItemCard({
                 value={item.rate}
                 placeholder={isGuestMode ? "Enter" : "0"}
                 className={isReadOnly
-                  ? "h-11 type-body !pl-10 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] shadow-none"
+                  ? "h-[var(--control-md)] type-body !pl-10 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] shadow-none"
                   : cn(
-                      "h-11 type-body !pl-10",
+                      "h-[var(--control-md)] type-body !pl-10",
                       getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate),
                     )
                 }
@@ -698,7 +698,7 @@ function LineItemCard({
               value={item.qty}
               placeholder={isGuestMode ? "Enter" : "0"}
               className={cn(
-                "h-11 type-body",
+                "h-[var(--control-md)] type-body",
                 getInputStateClass(`deliverables.${itemIndex}.quantity`, item.qty)
               )}
               errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
@@ -779,7 +779,7 @@ function BrutalSelect({
     return (
       <div
         className={cn(
-          "flex h-11 w-full items-center border-2 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 type-body font-normal text-[color:var(--color-ink-2)]",
+          "flex h-[var(--control-md)] w-full items-center border-2 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 type-body font-normal text-[color:var(--color-ink-2)]",
           className,
         )}
       >
@@ -793,7 +793,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left type-body font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left type-body font-normal text-[color:var(--color-ink)] h-[var(--control-md)] pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">

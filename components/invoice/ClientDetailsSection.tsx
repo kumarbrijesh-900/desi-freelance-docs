@@ -428,7 +428,7 @@ export default function ClientDetailsSection({
 </>} />
                 </div>
                 {isReadOnly ? (
-                  <div className="flex h-11 items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 type-body font-bold text-[#6B6660]">
+                  <div className="flex h-[var(--control-md)] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 type-body font-bold text-[#6B6660]">
                     {value.clientLocation === "international" ? "International" : "Domestic"}
                   </div>
                 ) : (
@@ -950,7 +950,7 @@ export default function ClientDetailsSection({
                           value={value.msaPaymentTermsDays || ""}
                           onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
                           placeholder="e.g. 20"
-                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 type-body !w-32 min-w-0")}
+                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-[var(--control-sm)] type-body !w-32 min-w-0")}
                         />
                         <span className="type-body text-[color:var(--color-ink-2)] shrink-0">days</span>
                       </div>
@@ -972,14 +972,14 @@ export default function ClientDetailsSection({
                           value={value.msaLateFeeRate || ""}
                           onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
                           placeholder="1.5"
-                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 type-body !w-32 min-w-0")}
+                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-[var(--control-sm)] type-body !w-32 min-w-0")}
                         />
                         <span className="type-body text-[color:var(--color-ink-2)] shrink-0">%</span>
                         <AppSelectField
                           value={value.msaLateFeeUnit || "monthly"}
                           onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
                           hasValue={true}
-                          className="h-9 type-body min-w-[100px]"
+                          className="h-[var(--control-sm)] type-body min-w-[100px]"
                         >
                           <option value="monthly">monthly</option>
                           <option value="annually">annually</option>
@@ -1008,7 +1008,7 @@ export default function ClientDetailsSection({
                         value={value.msaIpTriggerType || "upon_full_payment"}
                         onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)}
                         hasValue={true}
-                        className="h-9 type-body w-full min-w-0"
+                        className="h-[var(--control-sm)] type-body w-full min-w-0"
                       >
                         <option value="upon_full_payment">Upon Full Payment</option>
                         <option value="upon_delivery">Upon Delivery</option>
@@ -1031,7 +1031,7 @@ export default function ClientDetailsSection({
                         value={value.msaJurisdictionCity || ""}
                         onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
                         placeholder="e.g. Bangalore"
-                        className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 type-body w-full min-w-0 max-w-[200px]")}
+                        className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-[var(--control-sm)] type-body w-full min-w-0 max-w-[200px]")}
                       />
                     </div>
 
@@ -1047,7 +1047,7 @@ export default function ClientDetailsSection({
                         value={value.msaLicenseType || ""}
                         onChange={(e) => updateField("msaLicenseType", e.target.value as any)}
                         hasValue={Boolean(value.msaLicenseType)}
-                        className="h-9 type-body w-full min-w-0"
+                        className="h-[var(--control-sm)] type-body w-full min-w-0"
                       >
                         <option value="">Select license…</option>
                         <option value="full-assignment">Full Assignment</option>

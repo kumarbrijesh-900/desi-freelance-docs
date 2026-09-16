@@ -1252,7 +1252,7 @@ function PreviewContent() {
                 disabled={isSavingAndSharing || !lockState.canShare}
                 onClick={handleShareClick}
                 className={cn(
-                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-100 active:scale-[0.97]",
+                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-[var(--control-md)] px-6 transition-all duration-100 active:scale-[0.97]",
                   isSavingAndSharing || !lockState.canShare
                     ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] cursor-not-allowed opacity-80 border border-[color:var(--color-soft)]"
                     : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm border border-acid"

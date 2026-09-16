@@ -395,7 +395,7 @@ function EditableRow({
             <button
               onClick={handleToggle}
               className={cn(
-                "flex h-9 w-full items-center justify-between rounded-[var(--radius-field)] border px-3 type-body transition-colors",
+                "flex h-[var(--control-sm)] w-full items-center justify-between rounded-[var(--radius-field)] border px-3 type-body transition-colors",
                 editValue === "true"
                   ? "border-[#bcd8c8] bg-acc-soft text-grass"
                   : "border-soft bg-paper-2 text-ink-2",
@@ -425,7 +425,7 @@ function EditableRow({
                   setEditValue(e.target.value);
                   if (isApproved) onApprove(label, e.target.value);
                 }}
-                className="h-9 w-full appearance-none rounded-[var(--radius-field)] border border-soft bg-paper-2 pl-3 pr-10 type-body text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
+                className="h-[var(--control-sm)] w-full appearance-none rounded-[var(--radius-field)] border border-soft bg-paper-2 pl-3 pr-10 type-body text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
               >
                 <option value="">Select {label.toLowerCase()}…</option>
                 {options.map((opt) => (
@@ -447,7 +447,7 @@ function EditableRow({
                 if (isApproved) onApprove(label, e.target.value);
               }}
               placeholder={`Enter ${label.toLowerCase()}…`}
-              className="h-9 w-full rounded-[var(--radius-field)] border border-soft bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
+              className="h-[var(--control-sm)] w-full rounded-[var(--radius-field)] border border-soft bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
             />
           )}
         </div>
@@ -762,7 +762,7 @@ export default function BriefSummaryModal({
                           }
                           placeholder="Describe this deliverable…"
                           className={cn(
-                            "mb-3 h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                            "mb-3 h-[var(--control-sm)] w-full rounded-[var(--radius-field)] border bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
                             i === 0 && primaryDescLow
                               ? "border-[color:rgba(200,148,59,0.5)]"
                               : "border-soft",
@@ -783,7 +783,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { qty: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-[var(--control-sm)] w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryQtyLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -804,7 +804,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { rate: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-[var(--control-sm)] w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryRateLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -813,7 +813,7 @@ export default function BriefSummaryModal({
                           </label>
                           <div className="flex flex-col gap-1">
                             <span className="type-label text-ink-3">Unit</span>
-                            <div className="flex h-9 items-center rounded-[var(--radius-field)] border border-soft bg-paper px-2.5 type-body text-ink-2">
+                            <div className="flex h-[var(--control-sm)] items-center rounded-[var(--radius-field)] border border-soft bg-paper px-2.5 type-body text-ink-2">
                               {item.rateUnit ? prettyUnit(item.rateUnit) : "—"}
                             </div>
                           </div>
@@ -1181,7 +1181,7 @@ export default function BriefSummaryModal({
                           }
                           disabled={applied}
                           className={cn(
-                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[var(--radius-field)] border px-3 type-body font-semibold transition-colors",
+                            "flex h-[var(--control-sm)] shrink-0 items-center gap-1.5 rounded-[var(--radius-field)] border px-3 type-body font-semibold transition-colors",
                             applied
                               ? "border-transparent bg-acid text-acc-ink"
                               : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid",

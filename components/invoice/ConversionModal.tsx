@@ -85,7 +85,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 h-11 w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 type-label font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
+            className="mt-4 h-[var(--control-md)] w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 type-label font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>

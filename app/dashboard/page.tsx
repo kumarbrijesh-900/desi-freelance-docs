@@ -612,7 +612,7 @@ function DashboardContent() {
                             const next = Math.max(0, Math.min(100, Number(event.target.value) || 0));
                             setSettlementChoice(choice => (choice ? { ...choice, tdsPercent: next } : choice));
                           }}
-                          className="h-9 w-16 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right type-body font-semibold tabular-nums outline-none app-focus-ring"
+                          className="h-[var(--control-sm)] w-16 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right type-body font-semibold tabular-nums outline-none app-focus-ring"
                         />
                         <span className="type-body font-bold text-[color:var(--color-ink-2)]">%</span>
                       </div>

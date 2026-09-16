@@ -43,7 +43,7 @@ export const AppTableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLA
     <th
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-bold uppercase tracking-wider text-[color:var(--color-ink)] [&:has([role=checkbox])]:pr-0",
+        "h-[var(--control-lg)] px-4 text-left align-middle font-bold uppercase tracking-wider text-[color:var(--color-ink)] [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

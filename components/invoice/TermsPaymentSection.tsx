@@ -580,7 +580,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                                 }
                               }}
-                              className="w-16 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-16 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-[var(--control-md)] px-3 outline-none"
                             />
                             <span className="type-body text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                           </div>
@@ -602,7 +602,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                                 }
                               }}
-                              className="w-20 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-20 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-[var(--control-md)] px-3 outline-none"
                             />
                             <span className="type-body text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                           </div>
