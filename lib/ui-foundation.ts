@@ -6,16 +6,16 @@ export const appSectionTitleClass =
   "text-[1.1rem] font-bold tracking-[-0.01em] uppercase text-[color:var(--color-ink)]";
 
 export const appSectionDescriptionClass =
-  "text-[12px] leading-5 text-[color:var(--color-ink-2)]";
+  "type-body leading-5 text-[color:var(--color-ink-2)]";
 
 export const appFieldLabelClass =
-  "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]";
+  "mb-1.5 block type-label font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]";
 
 export const appFieldHelperTextClass =
-  "mt-1 text-[11px] leading-[1.5] text-[color:var(--color-ink-2)]";
+  "mt-1 type-label leading-[1.5] text-[color:var(--color-ink-2)]";
 
 export const appFieldErrorTextClass =
-  "mt-1 text-[11px] font-bold leading-[1.45] text-[color:var(--state-danger-text)]";
+  "mt-1 type-label font-bold leading-[1.45] text-[color:var(--state-danger-text)]";
 
 export function getAppSubtlePanelClass(
   tone: "default" | "muted" | "warning" = "default",
@@ -52,12 +52,12 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[color:var(--brutal-border-color)] font-bold tracking-widest uppercase text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[color:var(--brutal-border-color)] font-bold tracking-widest uppercase type-body transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
     size === "sm"
-      ? "h-9 px-3 text-[13px]"
+      ? "h-[var(--control-sm)] px-3 type-body"
       : size === "lg"
-        ? "h-12 px-5 text-sm"
-        : "h-10 px-4 text-[13px]",
+        ? "h-[var(--control-lg)] px-5 type-body"
+        : "h-[var(--control-md)] px-4 type-body",
     fullWidth ? "w-full" : "",
     variant === "primary"
       ? "app-soft-button-primary text-[color:var(--color-acc-ink)] font-black"
@@ -82,8 +82,8 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] text-[14px] font-normal leading-6 text-[color:var(--color-ink)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
-    multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] type-body font-normal leading-6 text-[color:var(--color-ink)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
+    multiline ? "min-h-[112px] px-3 py-3" : "h-[var(--control-md)] px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
@@ -124,7 +124,7 @@ export function getAppStatusPillClass(
   tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
   return cn(
-    "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
+    "shrink-0 rounded-full border px-2.5 py-1 type-label font-bold uppercase tracking-[0.1em]",
     tone === "success"
       ? "bg-[#e4f1ea] text-[#157a54] border-[#c7e4d4]"
       : tone === "muted"

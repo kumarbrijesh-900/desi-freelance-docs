@@ -161,6 +161,18 @@
      PAIR — setting one without the other is why 546 of 659 text elements
      currently inherit whatever leading an ancestor happens to give them.
      Every value lands on the 4px grid so text blocks stack predictably. */
+  /* Control heights. A button and a field placed in the same row MUST be the
+     same height — that was the defect: the button helper produced 40px and the
+     field helper 44px, so every form row was 4px out. One scale now serves
+     both. The values are the two the codebase already reaches for most (36 and
+     44); 40 was the outlier only the button helper produced.
+       sm  compact: table-row actions, inline buttons
+       md  the default: every button, input and select
+       lg  primary CTAs */
+  --control-sm: 36px;
+  --control-md: 44px;
+  --control-lg: 48px;
+
   --leading-label:   16px;   /* 11 / 16 = 1.45 — uppercase micro-copy needs air */
   --leading-body:    20px;   /* 13 / 20 = 1.54 */
   --leading-body-lg: 24px;   /* 15 / 24 = 1.60 */
