@@ -173,6 +173,13 @@
   --control-md: 44px;
   --control-lg: 48px;
 
+  /* The app header's height, DECLARED rather than measured. It used to be
+     whatever its tallest child happened to be: 57px normally, 61px in Chrome
+     when the PWA install button appears, and taller still on a route that
+     puts a control in AppHeader's rightSlot. Anything that sticks below the
+     header reads this token instead of guessing a number. */
+  --app-header-h: 60px;
+
   --leading-label:   16px;   /* 11 / 16 = 1.45 — uppercase micro-copy needs air */
   --leading-body:    20px;   /* 13 / 20 = 1.54 */
   --leading-body-lg: 24px;   /* 15 / 24 = 1.60 */

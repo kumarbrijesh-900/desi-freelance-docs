@@ -207,7 +207,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
     <>
       <header className="sticky top-0 z-50 border-b border-soft bg-paper print:hidden">
         <div
-          className={`${appPageContainerClass} flex items-center justify-between py-3`}
+          className={`${appPageContainerClass} flex h-[var(--app-header-h)] items-center justify-between`}
         >
           <div className="flex items-center gap-3">
             {leftSlot}

@@ -723,7 +723,7 @@ export default function ProfilePage() {
         </p>
 
             {/* Tabs */}
-            <div className="sticky top-[64px] z-20 bg-paper-2 mb-8">
+            <div className="sticky top-[var(--app-header-h)] z-20 bg-paper-2 mb-8">
               <div className="flex flex-wrap items-center gap-2 py-4 border-b border-ink">
                 {tabs.map((tab) => (
                   <button
