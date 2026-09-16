@@ -97,7 +97,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-[color:var(--color-ink)] mb-2">
+            <h3 className="type-title font-bold text-[color:var(--color-ink)] mb-2">
               Feedback Received!
             </h3>
             <p className="text-[color:var(--color-ink-2)]">
@@ -107,7 +107,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         ) : (
           <>
             <div className="border-b border-[color:var(--color-soft)] px-6 py-4 flex items-center justify-between bg-[color:var(--color-paper)]/50">
-              <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
+              <h2 className="type-title font-bold text-[color:var(--color-ink)]">
                 Help us improve Lance
               </h2>
               <button
@@ -133,7 +133,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
+                <label className="block type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
                   Category
                 </label>
                 <AppSelectField
@@ -150,7 +150,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
+                <label className="block type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
                   What's on your mind?
                 </label>
                 <textarea

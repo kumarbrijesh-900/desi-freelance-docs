@@ -38,7 +38,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
   if (allInvoices.length === 0) {
     return (
-      <div className="py-5 bg-paper-2 text-sm text-ink/70">
+      <div className="py-5 bg-paper-2 type-body text-ink/70">
         No invoices found for this project.
       </div>
     );
@@ -46,7 +46,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
   return (
     <div className="py-5">
-      <div className="text-[10px] uppercase tracking-widest font-bold text-ink/70 mb-3">
+      <div className="type-label uppercase tracking-widest font-bold text-ink/70 mb-3">
         INVOICES ({allInvoices.length})
       </div>
 
@@ -54,11 +54,11 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         <table className="w-full min-w-[520px] text-left border-collapse">
           <thead>
             <tr className="border-b border-soft bg-paper-2">
-              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft">Invoice</th>
-              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft hidden sm:table-cell">Type</th>
-              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft text-right">Amount</th>
-              <th className="p-3 text-[10px] uppercase font-bold tracking-wide border-r border-soft">Status</th>
-              <th className="p-3 text-[10px] uppercase font-bold tracking-wide text-center w-24">Action</th>
+              <th className="p-3 type-label uppercase font-bold tracking-wide border-r border-soft">Invoice</th>
+              <th className="p-3 type-label uppercase font-bold tracking-wide border-r border-soft hidden sm:table-cell">Type</th>
+              <th className="p-3 type-label uppercase font-bold tracking-wide border-r border-soft text-right">Amount</th>
+              <th className="p-3 type-label uppercase font-bold tracking-wide border-r border-soft">Status</th>
+              <th className="p-3 type-label uppercase font-bold tracking-wide text-center w-24">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -90,16 +90,16 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
               return (
                 <tr key={inv.id} className={idx < allInvoices.length - 1 ? "border-b border-soft" : ""}>
-                  <td className="p-3 border-r border-soft text-sm font-bold">
+                  <td className="p-3 border-r border-soft type-body font-bold">
                     {inv.invoice_number || "DRAFT"}
                   </td>
-                  <td className="p-3 border-r border-soft text-xs text-ink/70 hidden sm:table-cell">
+                  <td className="p-3 border-r border-soft type-body text-ink/70 hidden sm:table-cell">
                     {typeLabel}
                   </td>
-                  <td className="p-3 border-r border-soft text-sm font-bold text-right">
+                  <td className="p-3 border-r border-soft type-body font-bold text-right">
                     {formatInr(total)}
                   </td>
-                  <td className="p-3 border-r border-soft text-xs">
+                  <td className="p-3 border-r border-soft type-body">
                     <span
                       className={`px-2 py-0.5 rounded-full border font-bold uppercase ${statusInfo.strikethrough ? 'line-through' : ''}`}
                       style={{ backgroundColor: statusInfo.bg, color: statusInfo.fg, borderColor: statusInfo.bd, borderStyle: statusInfo.dashed ? 'dashed' : 'solid' }}
@@ -115,7 +115,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                       return (
                         <Link
                           href={rowHref}
-                          className="inline-block text-[10px] uppercase font-bold tracking-wide border border-soft rounded-[var(--radius-chip)] px-3 py-1 bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] is-interactive transition-colors text-ink"
+                          className="inline-block type-label uppercase font-bold tracking-wide border border-soft rounded-[var(--radius-chip)] px-3 py-1 bg-[color:var(--color-paper-2)] shadow-[var(--elev-1)] is-interactive transition-colors text-ink"
                         >
                           VIEW
                         </Link>

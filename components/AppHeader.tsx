@@ -33,7 +33,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <Link
       href={href}
       className={cn(
-        "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased",
+        "type-label font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased",
         isActive
           ? "text-[color:var(--color-acid)] underline underline-offset-[6px] decoration-2"
           : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
@@ -93,7 +93,7 @@ function UserMenu({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-[10px] font-bold text-acc-ink">
+          <span className="type-label font-bold text-acc-ink">
             {initials}
           </span>
         )}
@@ -102,10 +102,10 @@ function UserMenu({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 origin-top-right border border-soft bg-[color:var(--color-paper-2)] p-1 shadow-[var(--brutal-shadow-md)] z-50">
           <div className="px-3 py-2 border-b-2 border-soft mb-1">
-            <p className="text-[10px] font-bold text-[color:var(--color-ink-3)] uppercase tracking-[0.08em]">
+            <p className="type-label font-bold text-[color:var(--color-ink-3)] uppercase tracking-[0.08em]">
               Account
             </p>
-            <p className="text-[13px] font-bold text-[color:var(--color-ink)] truncate">
+            <p className="type-body font-bold text-[color:var(--color-ink)] truncate">
               {email}
             </p>
           </div>
@@ -119,7 +119,7 @@ function UserMenu({
                 router.push("/profile");
               }
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 type-body font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
           >
             Profile Settings
           </button>
@@ -129,7 +129,7 @@ function UserMenu({
               setIsOpen(false);
               onFeedbackClick();
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 type-body font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
           >
             Provide Feedback
           </button>
@@ -138,7 +138,7 @@ function UserMenu({
 
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-coral)] hover:bg-[color:var(--state-danger-bg)] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 type-body font-bold text-[color:var(--color-coral)] hover:bg-[color:var(--state-danger-bg)] transition-colors"
           >
             Log Out
           </button>
@@ -212,10 +212,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
-              <span className="flex h-7 w-7 items-center justify-center border border-soft bg-acid text-[12px] font-black text-acc-ink">
+              <span className="flex h-7 w-7 items-center justify-center border border-soft bg-acid type-body font-black text-acc-ink">
                 L
               </span>
-              <span className="text-[16px] font-black tracking-[0.1em] uppercase text-ink font-syne antialiased">
+              <span className="type-body-lg font-black tracking-[0.1em] uppercase text-ink font-syne antialiased">
                 Lance
               </span>
             </Link>
@@ -254,7 +254,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border border-soft bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border border-soft bg-acid px-4 py-1.5 type-label font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
             </button>
@@ -271,7 +271,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             ) : (
               <Link
                 href="/login"
-                className={buttonClasses("paper", "text-[12px] px-3 py-1.5")}
+                className={buttonClasses("paper", "type-body px-3 py-1.5")}
               >
                 Sign In
               </Link>
@@ -286,7 +286,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 <button
                   type="button"
                   onClick={handleNewInvoice}
-                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-acid text-acc-ink rounded-[var(--radius-box)] mb-2"
+                  className="flex items-center justify-center px-3 py-3 type-body font-bold uppercase tracking-[0.04em] bg-acid text-acc-ink rounded-[var(--radius-box)] mb-2"
                 >
                   + New Invoice
                 </button>
@@ -294,7 +294,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                   <Link
                     href="/dashboard"
                     className={cn(
-                      "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
+                      "flex items-center px-3 py-2.5 type-body font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                       pathname === "/dashboard"
                         ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
@@ -309,7 +309,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/invoices"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
+                        "flex items-center px-3 py-2.5 type-body font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/invoices"
                           ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
                           : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
@@ -321,7 +321,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/clients"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
+                        "flex items-center px-3 py-2.5 type-body font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/clients"
                           ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
                           : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
@@ -333,7 +333,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/profile"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
+                        "flex items-center px-3 py-2.5 type-body font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/profile"
                           ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
                           : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
@@ -347,7 +347,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 <Link
                   href="/support"
                   className={cn(
-                    "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
+                    "flex items-center px-3 py-2.5 type-body font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                     pathname === "/support"
                       ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
                       : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"

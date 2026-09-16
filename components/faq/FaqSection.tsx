@@ -42,7 +42,7 @@ export default async function FaqSection() {
       <div className="space-y-12">
         {Object.entries(groupedFaqs).map(([category, items]) => (
           <div key={category} className="space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)] border-l-4 border-[color:var(--color-ochre)] pl-3 ml-1">
+            <h3 className="type-body font-bold uppercase tracking-wider text-[color:var(--color-ink)] border-l-4 border-[color:var(--color-ochre)] pl-3 ml-1">
               {category}
             </h3>
             <div

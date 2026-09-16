@@ -118,7 +118,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
 
   if (!milestones || milestones.length === 0) {
     return (
-      <div className="w-full py-4 text-center text-[12px] font-bold text-gray-400 uppercase italic">
+      <div className="w-full py-4 text-center type-body font-bold text-gray-400 uppercase italic">
         No milestones defined
       </div>
     );
@@ -160,16 +160,16 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
 
                 {/* Label under each node (small, 11px) */}
                 <div className="mt-3 space-y-0.5 max-w-[140px]">
-                  <p className="text-[11px] font-black text-[color:var(--color-ink)] uppercase tracking-tight group-hover:text-coral transition-colors leading-tight truncate">
+                  <p className="type-label font-black text-[color:var(--color-ink)] uppercase tracking-tight group-hover:text-coral transition-colors leading-tight truncate">
                     {truncate(m.title, 20)}
                   </p>
-                  <p className="text-[9px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
+                  <p className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
                     {formatDate(m.due_date)} ·{" "}
                     <span className="font-black text-[color:var(--color-ink)]">
                       {formatCurrency(m.amount)}
                     </span>
                   </p>
-                  <p className="text-[8px] font-normal text-gray-400 font-mono tracking-widest uppercase">
+                  <p className="type-label font-normal text-gray-400 font-mono tracking-widest uppercase">
                     {m.invoice_number}
                   </p>
                 </div>

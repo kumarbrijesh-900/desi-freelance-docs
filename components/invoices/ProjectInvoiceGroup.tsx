@@ -135,12 +135,12 @@ export function ProjectInvoiceGroup({
         className="relative flex items-center gap-3 px-[18px] py-[15px] cursor-pointer select-none"
       >
         <span className="absolute left-0 top-3 bottom-3 w-[4px] rounded-r-full" style={{ background: accent }} />
-        <span className={`text-ink/40 text-[13px] w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>
+        <span className={`text-ink/40 type-body w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>
         <div className="flex-1 min-w-0">
-          <div className={`font-display font-bold text-[17px] leading-tight tracking-[-0.01em] truncate ${unlinked ? "text-ink-2" : "text-ink"}`}>{pName}</div>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[11.5px] text-ink-2 min-w-0">
+          <div className={`font-display font-bold type-title leading-tight tracking-[-0.01em] truncate ${unlinked ? "text-ink-2" : "text-ink"}`}>{pName}</div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 type-label text-ink-2 min-w-0">
             {!unlinked && (
-              <span className="w-[18px] h-[18px] rounded-full grid place-items-center text-[8px] font-extrabold shrink-0" style={{ background: accent, color: onAccent }}>{cInitial}</span>
+              <span className="w-[18px] h-[18px] rounded-full grid place-items-center type-label font-extrabold shrink-0" style={{ background: accent, color: onAccent }}>{cInitial}</span>
             )}
             {!unlinked && <span className="truncate">{clientName || "Unknown"}</span>}
             {!unlinked && <span className="text-ink/40 font-bold">·</span>}
@@ -161,8 +161,8 @@ export function ProjectInvoiceGroup({
           </div>
         </div>
         <div className="flex flex-col items-end gap-[5px] shrink-0 text-right">
-          <span className={`inline-block rounded-full px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(roll.key)}`}>{roll.text}</span>
-          <div className="font-display font-bold text-[16px] text-ink tabular-nums">{formatInr(projValue)}<span className="block text-[9px] font-bold text-ink/50 uppercase tracking-[0.08em] mt-px">invoiced</span></div>
+          <span className={`inline-block rounded-full px-[9px] py-[3px] type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(roll.key)}`}>{roll.text}</span>
+          <div className="font-display font-bold type-body-lg text-ink tabular-nums">{formatInr(projValue)}<span className="block type-label font-bold text-ink/50 uppercase tracking-[0.08em] mt-px">invoiced</span></div>
         </div>
       </div>
 
@@ -193,21 +193,21 @@ export function ProjectInvoiceGroup({
                   <input type="checkbox" checked={selected} readOnly className="w-4 h-4 border border-soft accent-ink cursor-pointer" />
                 </div>
                 <div className="flex-1 sm:flex-none sm:w-[150px] min-w-0 shrink sm:shrink-0">
-                  <div className="font-mono font-bold text-[12.5px] tracking-[-0.02em] text-ink truncate">{inv.invoice_number || "DRAFT"}</div>
-                  <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink/50 mt-0.5 truncate">{tag}</div>
+                  <div className="font-mono font-bold type-body tracking-[-0.02em] text-ink truncate">{inv.invoice_number || "DRAFT"}</div>
+                  <div className="type-label font-bold uppercase tracking-[0.08em] text-ink/50 mt-0.5 truncate">{tag}</div>
                 </div>
-                <div className="hidden sm:block sm:flex-1 min-w-0 text-[12px] text-ink-2 truncate">{desc}</div>
+                <div className="hidden sm:block sm:flex-1 min-w-0 type-body text-ink-2 truncate">{desc}</div>
                 <div className="flex flex-col items-end gap-1 shrink-0 sm:contents">
-                  <div className="shrink-0 text-right font-display font-bold text-[15px] text-ink tabular-nums sm:w-[110px]">{formatInr(invoiceTotal(inv))}</div>
+                  <div className="shrink-0 text-right font-display font-bold type-body-lg text-ink tabular-nums sm:w-[110px]">{formatInr(invoiceTotal(inv))}</div>
                   <div className="shrink-0 flex justify-end sm:w-[92px] sm:justify-center">
-                    <span className={`inline-block rounded-full px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
+                    <span className={`inline-block rounded-full px-[9px] py-[3px] type-label font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
                   </div>
                 </div>
                 {deletable ? (
                   <button
                     type="button"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(inv.id, inv.invoice_number || "this draft"); }}
-                    className="shrink-0 w-[22px] text-center text-ink/30 hover:text-coral text-[13px] transition-colors"
+                    className="shrink-0 w-[22px] text-center text-ink/30 hover:text-coral type-body transition-colors"
                     title="Delete invoice"
                   >
                     ✕
@@ -215,7 +215,7 @@ export function ProjectInvoiceGroup({
                 ) : (
                   <span className="shrink-0 w-[22px]" />
                 )}
-                <span className="shrink-0 w-[18px] text-center text-ink/30 group-hover:text-acid font-bold text-[13px] transition-colors">→</span>
+                <span className="shrink-0 w-[18px] text-center text-ink/30 group-hover:text-acid font-bold type-body transition-colors">→</span>
               </Link>
             );
           })}

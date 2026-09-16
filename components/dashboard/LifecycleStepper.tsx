@@ -206,10 +206,10 @@ export function LifecycleStepper({
         aria-expanded={listOpen}
         className="mb-3 flex w-full max-w-[1100px] items-center justify-between gap-3 text-left"
       >
-        <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
+        <span className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
           All milestones · {settledCount} of {milestoneCount} settled
         </span>
-        <span className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
+        <span className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] font-mono">
           {listOpen ? "Hide" : "Show"}
         </span>
       </button>
@@ -228,10 +228,10 @@ export function LifecycleStepper({
 
           let chipNode = null;
           if (stop.type === "milestone") {
-            if (stop.state === "live") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-bold uppercase tracking-widest font-mono">LIVE</span>;
-            else if (stop.state === "cancelled") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-soft border border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] text-[10px] font-bold uppercase tracking-widest font-mono">CANCELLED</span>;
-            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-bold uppercase tracking-widest font-mono">PENDING</span>;
-            else if (stop.state === "done") chipNode = <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-ink-2 font-mono">SETTLED</span>;
+            if (stop.state === "live") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-acid text-acc-ink type-label font-bold uppercase tracking-widest font-mono">LIVE</span>;
+            else if (stop.state === "cancelled") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-soft border border-solid border-[color:var(--color-strong)] text-[color:var(--color-ink-2)] type-label font-bold uppercase tracking-widest font-mono">CANCELLED</span>;
+            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border border-dashed border-[color:var(--color-strong)] text-ink-2 type-label font-bold uppercase tracking-widest font-mono">PENDING</span>;
+            else if (stop.state === "done") chipNode = <span className="inline-block mt-1 type-label font-bold uppercase tracking-widest text-ink-2 font-mono">SETTLED</span>;
           }
 
           return (
@@ -242,7 +242,7 @@ export function LifecycleStepper({
                   : <div className="absolute left-[16px] top-[34px] bottom-0 border-l-2 border-dashed border-[color:var(--color-strong)]" />
               )}
               <div className={dotClass}>
-                <span className="text-[12px] font-bold font-display">{dotContent}</span>
+                <span className="type-body font-bold font-display">{dotContent}</span>
                 {canSettle && stop.type === "milestone" && stop.state === "live" && onSettleLive && (
                   <button
                     type="button"
@@ -254,16 +254,16 @@ export function LifecycleStepper({
               </div>
               <div className="flex-1 min-w-0 pt-1">
                 {stop.state === "live" && (
-                  <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-bold font-mono uppercase rounded-[var(--radius-chip)]">NOW</span>
+                  <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink type-label font-bold font-mono uppercase rounded-[var(--radius-chip)]">NOW</span>
                 )}
-                <div className="text-[10px] text-ink-2 font-bold font-mono uppercase tracking-widest mb-0.5">{stop.kicker}</div>
-                <div className={`text-[14px] font-display font-bold leading-tight mb-0.5 ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.name}</div>
+                <div className="type-label text-ink-2 font-bold font-mono uppercase tracking-widest mb-0.5">{stop.kicker}</div>
+                <div className={`type-body font-display font-bold leading-tight mb-0.5 ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.name}</div>
                 {stop.amount && (
-                  <div className={`text-[15px] font-display font-bold ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.amount}</div>
+                  <div className={`type-body-lg font-display font-bold ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.amount}</div>
                 )}
                 {chipNode}
                 {stop.meta && (
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-ink-2 font-mono mt-1.5">{stop.meta}</div>
+                  <div className="type-label font-bold uppercase tracking-widest text-ink-2 font-mono mt-1.5">{stop.meta}</div>
                 )}
               </div>
             </div>

@@ -125,29 +125,29 @@ export function InvoiceEventRow({
       <div className="flex flex-1 items-center px-6 py-3">
         {/* Col 1 */}
         <div className="w-[200px] shrink-0">
-          <div className="text-[13px] font-extrabold uppercase tracking-widest text-ink mb-1">{invoice.invoice_number || "DRAFT"}</div>
-          <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">{typeLabel}</div>
+          <div className="type-body font-extrabold uppercase tracking-widest text-ink mb-1">{invoice.invoice_number || "DRAFT"}</div>
+          <div className="type-label font-extrabold uppercase tracking-widest text-ink/70">{typeLabel}</div>
         </div>
 
         {/* Col 2 */}
         <div className="flex-1 min-w-[200px]">
-          <div className="text-[14px] font-bold text-ink mb-1 truncate pr-4">{pName}</div>
+          <div className="type-body font-bold text-ink mb-1 truncate pr-4">{pName}</div>
           <div className="flex items-center gap-2">
-            <div className={`w-[18px] h-[18px] rounded-full border border-ink flex items-center justify-center text-[8px] font-black ${statusInfo.side} ${avatarText}`}>
+            <div className={`w-[18px] h-[18px] rounded-full border border-ink flex items-center justify-center type-label font-black ${statusInfo.side} ${avatarText}`}>
               {clientInitial}
             </div>
-            <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 truncate">{cName}</div>
+            <div className="type-label font-extrabold uppercase tracking-widest text-ink/70 truncate">{cName}</div>
           </div>
         </div>
 
         {/* Col 3 */}
         <div className="w-[140px] shrink-0 text-right pr-6">
-          <div className="text-[18px] font-black text-ink">{formatInr(total)}</div>
+          <div className="type-title font-black text-ink">{formatInr(total)}</div>
         </div>
 
         {/* Col 4 */}
         <div className="w-[130px] shrink-0 text-center">
-          <span className={`inline-block px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest ${statusInfo.pill}`}>
+          <span className={`inline-block px-3 py-1 type-label font-extrabold uppercase tracking-widest ${statusInfo.pill}`}>
             {statusInfo.label}
           </span>
         </div>
@@ -162,13 +162,13 @@ export function InvoiceEventRow({
                 e.stopPropagation();
                 onDelete(invoice.id);
               }}
-              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all"
+              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] type-label font-extrabold uppercase tracking-widest text-coral transition-all"
               title="Delete Invoice"
             >
               🗑
             </button>
           )}
-          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-is-interactive text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all">
+          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-is-interactive type-label font-extrabold uppercase tracking-widest text-ink transition-all">
             VIEW →
           </button>
         </div>

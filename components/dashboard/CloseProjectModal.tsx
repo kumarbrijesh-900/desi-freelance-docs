@@ -59,16 +59,16 @@ export function CloseProjectModal({
 
   return (
     <AppModal isOpen={isOpen} onClose={handleClose}>
-      <h2 className="text-2xl font-display font-black tracking-tight text-ink">
+      <h2 className="type-heading font-display font-black tracking-tight text-ink">
         Close project
       </h2>
-      <p className="mt-1.5 text-[13px] font-semibold text-ink-2 leading-snug">
+      <p className="mt-1.5 type-body font-semibold text-ink-2 leading-snug">
         Closing <span className="font-black text-ink">{projectName}</span> stops
         reminders and cancels any scheduled milestones. Use this to end a project
         early — it is not the same as completing it.
       </p>
 
-      <div className="mt-5 mb-2.5 text-[11px] font-extrabold uppercase tracking-widest text-ink/60">
+      <div className="mt-5 mb-2.5 type-label font-extrabold uppercase tracking-widest text-ink/60">
         Reason for closing
       </div>
       <div className="space-y-2">
@@ -89,7 +89,7 @@ export function CloseProjectModal({
               onChange={() => setSelected(r)}
               className="h-4 w-4 shrink-0 appearance-none rounded-full border-2 border-[color:var(--color-ink-3)] bg-transparent checked:border-[color:var(--color-coral)] checked:bg-[color:var(--color-coral)] checked:shadow-[inset_0_0_0_3px_var(--color-paper)] transition-colors"
             />
-            <span className="text-sm font-bold text-ink">{r}</span>
+            <span className="type-body font-bold text-ink">{r}</span>
           </label>
         ))}
       </div>
@@ -102,7 +102,7 @@ export function CloseProjectModal({
           maxLength={500}
           autoFocus
           placeholder="Briefly describe the reason…"
-          className="mt-3 w-full rounded-[var(--radius-field)] border-2 border-soft focus:border-coral focus:outline-none px-4 py-3 text-sm text-ink resize-none"
+          className="mt-3 w-full rounded-[var(--radius-field)] border-2 border-soft focus:border-coral focus:outline-none px-4 py-3 type-body text-ink resize-none"
         />
       )}
 
@@ -113,9 +113,9 @@ export function CloseProjectModal({
           onChange={(e) => setNotifyClient(e.target.checked)}
           className="mt-0.5 accent-ink"
         />
-        <span className="text-sm font-bold text-ink leading-snug">
+        <span className="type-body font-bold text-ink leading-snug">
           Email the client a brief closure notice
-          <span className="block text-[12px] font-semibold text-ink-2 mt-0.5">
+          <span className="block type-body font-semibold text-ink-2 mt-0.5">
             A short, neutral note that the project is no longer active. Your reason for closing is never shared.
           </span>
         </span>
@@ -125,7 +125,7 @@ export function CloseProjectModal({
         <button
           type="button"
           onClick={handleClose}
-          className="px-4 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase text-[11px] tracking-widest text-ink is-interactive transition-all"
+          className="px-4 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-ink is-interactive transition-all"
         >
           Cancel
         </button>
@@ -133,7 +133,7 @@ export function CloseProjectModal({
           type="button"
           onClick={handleConfirm}
           disabled={!canSubmit}
-          className="px-5 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase text-[11px] tracking-widest text-[color:var(--color-paper)] bg-coral transition-all hover:brightness-95 disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-[color:var(--color-paper)] bg-coral transition-all hover:brightness-95 disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed"
         >
           {submitting ? "Closing…" : "Close project"}
         </button>

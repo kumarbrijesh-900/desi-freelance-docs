@@ -135,7 +135,7 @@ export function ProjectRail({
   return (
     <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-[color:var(--color-paper-2)] border-r border-soft w-full md:w-[240px] shrink-0`}>
       <div className="p-4 flex flex-col gap-4">
-        <div className="text-[11px] uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
+        <div className="type-label uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
 
         <button
           onClick={onNewInvoice}
@@ -150,7 +150,7 @@ export function ProjectRail({
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`whitespace-nowrap rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wide border transition-colors
+            className={`whitespace-nowrap rounded-full px-3 py-1 type-label uppercase font-bold tracking-wide border transition-colors
               ${filter === f ? "bg-acid text-acc-ink border-acid" : "bg-transparent text-ink-2 border-strong hover:border-[color:var(--color-ink-3)] hover:text-ink"}
             `}
           >
@@ -167,14 +167,14 @@ export function ProjectRail({
             placeholder="Search projects..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 text-xs bg-[color:var(--color-paper-2)] border border-ink app-focus-ring"
+            className="w-full pl-8 pr-2 py-1.5 type-body bg-[color:var(--color-paper-2)] border border-ink app-focus-ring"
           />
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="p-6 text-center text-sm text-ink/70">No projects found.</div>
+          <div className="p-6 text-center type-body text-ink/70">No projects found.</div>
         ) : (
           filtered.map(p => {
             const isSelected = p.project.id === selectedProjectId;
@@ -210,16 +210,16 @@ export function ProjectRail({
 
                 <div className="flex flex-col h-full justify-between pl-1">
                   <div className="mb-2">
-                    <div className={`text-[12px] font-bold uppercase tracking-tight truncate w-[90%] mb-1 text-ink`} title={p.project.name}>
+                    <div className={`type-body font-bold uppercase tracking-tight truncate w-[90%] mb-1 text-ink`} title={p.project.name}>
                       {p.project.name}
                     </div>
-                    <div className={`text-[10px] uppercase tracking-wide truncate text-ink/70`} title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
+                    <div className={`type-label uppercase tracking-wide truncate text-ink/70`} title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
                       {p.project.client?.client_name || "Unknown Client"} {p.project.client?.city ? `· ${p.project.client.city}` : ""}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div
-                      className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border rounded-full"
+                      className="type-label font-bold uppercase tracking-widest px-2 py-0.5 border rounded-full"
                       // Selection is already carried by the row background, the
                       // left stripe and the arrow. It must not also overwrite the
                       // pill, which is the only place the project's status is
@@ -229,7 +229,7 @@ export function ProjectRail({
                     >
                       {summary.replace(/^LIVE/, "IN PROGRESS")}
                     </div>
-                    {isSelected && <div className="text-acid font-bold text-sm pr-2">→</div>}
+                    {isSelected && <div className="text-acid font-bold type-body pr-2">→</div>}
                   </div>
                 </div>
               </Link>

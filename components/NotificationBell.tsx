@@ -130,7 +130,7 @@ export default function NotificationBell() {
           )}
         />
         {hasUnread && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border border-soft bg-coral text-[9px] font-bold text-[color:var(--on-coral)] animate-in zoom-in">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border border-soft bg-coral type-label font-bold text-[color:var(--on-coral)] animate-in zoom-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -139,11 +139,11 @@ export default function NotificationBell() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 origin-top-right border border-soft bg-paper-2 shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50 px-4 py-3">
-            <h3 className="text-[13px] font-bold text-[color:var(--color-ink)]">Activity</h3>
+            <h3 className="type-body font-bold text-[color:var(--color-ink)]">Activity</h3>
             {hasUnread && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-[11px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
+                className="type-label font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
               >
                 Mark all as read
               </button>
@@ -156,10 +156,10 @@ export default function NotificationBell() {
                 <div className="mb-3  bg-[color:var(--color-paper-2)] p-3">
                   <BellIcon className="h-6 w-6 text-gray-300" />
                 </div>
-                <p className="text-[13px] font-normal text-[color:var(--color-ink)]">
+                <p className="type-body font-normal text-[color:var(--color-ink)]">
                   No active notifications
                 </p>
-                <p className="mt-1 text-[11px] text-[color:var(--color-ink-2)]">
+                <p className="mt-1 type-label text-[color:var(--color-ink-2)]">
                   Notifications for settled invoices, and read notifications older than 30 days, are automatically deleted.
                 </p>
               </div>
@@ -181,14 +181,14 @@ export default function NotificationBell() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[13px] font-bold text-[color:var(--color-ink)] truncate">
+                        <p className="type-body font-bold text-[color:var(--color-ink)] truncate">
                           {n.title}
                         </p>
-                        <span className="text-[10px] text-[color:var(--color-ink-2)] whitespace-nowrap">
+                        <span className="type-label text-[color:var(--color-ink-2)] whitespace-nowrap">
                           {getTimeAgo(n.created_at)}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-[12px] leading-relaxed text-[color:var(--color-ink)] line-clamp-2">
+                      <p className="mt-0.5 type-body leading-relaxed text-[color:var(--color-ink)] line-clamp-2">
                         {n.message}
                       </p>
 
@@ -200,7 +200,7 @@ export default function NotificationBell() {
                               setIsOpen(false);
                               handleMarkRead(n.id);
                             }}
-                            className="text-[11px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
+                            className="type-label font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
                           >
                             View Invoice
                           </Link>
@@ -208,7 +208,7 @@ export default function NotificationBell() {
                         {!n.is_read && (
                           <button
                             onClick={() => handleMarkRead(n.id)}
-                            className="text-[11px] font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
+                            className="type-label font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                           >
                             Mark as read
                           </button>
@@ -225,7 +225,7 @@ export default function NotificationBell() {
             <Link
               href="/invoices"
               onClick={() => setIsOpen(false)}
-              className="block py-2 text-[11px] font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
+              className="block py-2 type-label font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
             >
               View All History
             </Link>

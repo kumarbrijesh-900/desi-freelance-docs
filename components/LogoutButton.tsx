@@ -12,7 +12,7 @@ export default function LogoutButton() {
     <button
       type="button"
       onClick={handleLogout}
-      className="app-focus-ring border border-[color:var(--color-ink)] px-4 py-2 text-sm font-bold text-[color:var(--color-ink)] transition-[border-color,color,background-color] duration-[var(--app-duration-fast)] hover:border-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
+      className="app-focus-ring border border-[color:var(--color-ink)] px-4 py-2 type-body font-bold text-[color:var(--color-ink)] transition-[border-color,color,background-color] duration-[var(--app-duration-fast)] hover:border-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
     >
       Logout
     </button>

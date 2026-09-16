@@ -21,7 +21,7 @@ export default function FaqAccordionItem({
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between py-5 pr-4 text-left transition-all duration-200 group"
       >
-        <span className="text-base font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
+        <span className="type-body-lg font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
           {question}
         </span>
         <ChevronDownIcon
@@ -39,7 +39,7 @@ export default function FaqAccordionItem({
         )}
       >
         <div className="overflow-hidden">
-          <div className="pb-5 pr-12 text-sm leading-relaxed text-[color:var(--color-ink)]">
+          <div className="pb-5 pr-12 type-body leading-relaxed text-[color:var(--color-ink)]">
             {answer}
           </div>
         </div>
