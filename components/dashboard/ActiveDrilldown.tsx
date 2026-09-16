@@ -110,7 +110,7 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border border-soft rounded-[var(--radius-field)] font-bold uppercase px-4 py-2 type-label tracking-widest transition-all";
+  let btnClass = "border border-soft rounded-[var(--radius-field)] font-bold uppercase px-4 py-2 type-label tracking-widest transition";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
@@ -196,7 +196,7 @@ export function ActiveDrilldown({
             <button
               type="button"
               onClick={onFinalize}
-              className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold uppercase type-label tracking-widest transition-all text-ink"
+              className="px-4 py-2 border-2 border-transparent hover:border-ink is-interactive font-bold uppercase type-label tracking-widest text-ink"
             >
               EDIT
             </button>
@@ -204,7 +204,7 @@ export function ActiveDrilldown({
               <button
                 type="button"
                 onClick={onCloseProject}
-                className="px-4 py-2 border-2 border-transparent hover:border-coral is-interactive font-bold uppercase type-label tracking-widest transition-all text-coral"
+                className="px-4 py-2 border-2 border-transparent hover:border-coral is-interactive font-bold uppercase type-label tracking-widest text-coral"
               >
                 CLOSE PROJECT
               </button>
@@ -258,7 +258,7 @@ export function ActiveDrilldown({
                   type="button"
                   onClick={onResend}
                   title={nudgeTooltip}
-                  className="px-4 py-2 rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase type-label tracking-widest shadow-[var(--elev-2)] is-interactive transition-all group relative"
+                  className="px-4 py-2 rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase type-label tracking-widest shadow-[var(--elev-2)] is-interactive group relative"
                 >
                   NUDGE CLIENT
                 </button>

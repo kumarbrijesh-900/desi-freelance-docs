@@ -1105,7 +1105,7 @@ function PreviewContent() {
                   onMouseUp={() => setIsPanning(false)}
                   onMouseLeave={() => setIsPanning(false)}
                   className={cn(
-                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--color-paper)]/30 rounded-t-[var(--radius-soft)] xl:rounded-l-[var(--radius-soft)] xl:rounded-tr-none border border-[color:var(--color-soft)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
+                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--color-paper)]/30 rounded-t-[var(--radius-soft)] xl:rounded-l-[var(--radius-soft)] xl:rounded-tr-none border border-[color:var(--color-soft)] border-b-0 xl:border-r-0 xl:border-b transition print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
                     "overflow-auto cursor-grab active:cursor-grabbing scrollbar-hide"
                   )}
                   style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
@@ -1119,7 +1119,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-[var(--radius-soft)] border border-[color:var(--color-ink)] bg-paper-2 shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-[var(--radius-soft)] border border-[color:var(--color-ink)] bg-paper-2 shadow-[var(--app-floating-shadow)] transition duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",
@@ -1148,7 +1148,7 @@ function PreviewContent() {
                         key={template.id}
                         onClick={() => setSelectedTemplate(template.id)}
                         className={cn(
-                          "w-full border p-2.5 text-left transition-all",
+                          "w-full border p-2.5 text-left transition",
                           selectedTemplate === template.id
                             ? "border-[color:var(--brand-indigo-deep)] bg-[color:var(--brand-indigo-deep)]/5 shadow-sm ring-1 ring-[color:var(--brand-indigo-deep)]/20"
                             : "border-transparent hover:border-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
@@ -1252,7 +1252,7 @@ function PreviewContent() {
                 disabled={isSavingAndSharing || !lockState.canShare}
                 onClick={handleShareClick}
                 className={cn(
-                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-[var(--control-md)] px-6 transition-all duration-100 active:scale-[0.97]",
+                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-[var(--control-md)] px-6 transition duration-100 active:scale-[0.97]",
                   isSavingAndSharing || !lockState.canShare
                     ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] cursor-not-allowed opacity-80 border border-[color:var(--color-soft)]"
                     : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm border border-acid"

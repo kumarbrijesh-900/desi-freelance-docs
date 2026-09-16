@@ -882,7 +882,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border border-soft rounded-[var(--radius-field)] bg-ink py-4 type-body font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border border-soft rounded-[var(--radius-field)] bg-ink py-4 type-body font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>

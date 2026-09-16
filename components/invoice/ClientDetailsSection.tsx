@@ -308,7 +308,7 @@ export default function ClientDetailsSection({
     ].filter(Boolean).join(" · ") || "No terms configured — expand to set up";
 
   const generateClauseButtonClass =
-    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border border-soft rounded-[var(--radius-field)] px-3 py-2 sm:py-1.5 type-label font-black text-[color:var(--color-ink)] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
+    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border border-soft rounded-[var(--radius-field)] px-3 py-2 sm:py-1.5 type-label font-black text-[color:var(--color-ink)] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition cursor-pointer";
 
   return (
     <section className={cn(embedded ? "rounded-[var(--radius-soft)] border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>

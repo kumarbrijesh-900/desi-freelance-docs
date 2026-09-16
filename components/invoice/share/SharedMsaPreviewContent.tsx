@@ -406,7 +406,7 @@ export default function SharedMsaPreviewContent({
 
         {/* Read-only Invoice Sheet */}
         <div className={cn(
-          "relative transition-all duration-500",
+          "relative transition duration-500",
           showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal

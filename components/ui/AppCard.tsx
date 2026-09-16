@@ -11,7 +11,7 @@ export function AppCard({ tone = "default", interactive = false, className, chil
     <div 
       className={cn(
         getAppPanelClass(tone), 
-        interactive && "hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[var(--brutal-shadow-pressed)] shadow-[var(--brutal-shadow-sm)] transition-all cursor-pointer",
+        interactive && "hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[var(--brutal-shadow-pressed)] shadow-[var(--brutal-shadow-sm)] transition cursor-pointer",
         className
       )} 
       {...props}

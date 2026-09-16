@@ -442,7 +442,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-paper-2 px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
+                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-paper-2 px-4 transition hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
@@ -1313,7 +1313,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

@@ -156,7 +156,7 @@ export function WorkbenchReadinessPanel({
         <button
           type="button"
           onClick={onReview}
-          className="mt-3 flex h-[var(--control-sm)] w-full items-center justify-center border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-acid)] px-3 type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+          className="mt-3 flex h-[var(--control-sm)] w-full items-center justify-center border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-acid)] px-3 type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
           {rail ? "Review" : "Review what's left"}
         </button>

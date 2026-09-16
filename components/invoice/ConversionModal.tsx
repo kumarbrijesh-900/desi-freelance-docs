@@ -76,7 +76,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onLoginClick}
-            className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-box)] border border-soft bg-paper-2 py-3 type-body font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:bg-[color:var(--color-paper)] active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-box)] border border-soft bg-paper-2 py-3 type-body font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition hover:bg-[color:var(--color-paper)] active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google
@@ -85,7 +85,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 h-[var(--control-md)] w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 type-label font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
+            className="mt-4 h-[var(--control-md)] w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 type-label font-bold text-[color:var(--color-ink-3)] transition hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>

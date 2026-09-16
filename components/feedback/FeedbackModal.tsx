@@ -181,7 +181,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   type="submit"
                   disabled={isSubmitting || !message.trim()}
                   className={cn(
-                    "flex-[2] h-[var(--control-md)] font-bold transition-all duration-200 shadow-sm",
+                    "flex-[2] h-[var(--control-md)] font-bold transition duration-200 shadow-sm",
                     "bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] hover:shadow-lg",
                     "disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:shadow-none disabled:cursor-not-allowed",
                   )}

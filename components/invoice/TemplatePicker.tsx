@@ -191,7 +191,7 @@ function ThumbnailCard({
       onClick={onSelect}
       className={`
         group relative flex w-full flex-col overflow-hidden border-2 rounded-[var(--radius-box)]
-        transition-all duration-200
+        transition duration-200
         ${
           isSelected
             ? "border-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)]"

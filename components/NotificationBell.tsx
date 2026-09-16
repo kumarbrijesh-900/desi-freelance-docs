@@ -119,7 +119,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-8 w-8 items-center justify-center border border-soft bg-paper-2 transition-all hover:bg-[color:var(--color-paper)] active:scale-95"
+        className="relative flex h-8 w-8 items-center justify-center border border-soft bg-paper-2 transition hover:bg-[color:var(--color-paper)] active:scale-95"
       >
         <BellIcon
           className={cn(

@@ -75,7 +75,7 @@ export function CloseProjectModal({
         {options.map((r) => (
           <label
             key={r}
-            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-field)] border-2 cursor-pointer transition-all ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-field)] border-2 cursor-pointer transition ${
               selected === r
                 ? "border-coral bg-paper-2"
                 : "border-soft hover:border-ink/40"
@@ -106,7 +106,7 @@ export function CloseProjectModal({
         />
       )}
 
-      <label className="mt-5 flex items-start gap-3 px-4 py-3 rounded-[var(--radius-field)] border-2 border-soft cursor-pointer hover:border-ink/40 transition-all">
+      <label className="mt-5 flex items-start gap-3 px-4 py-3 rounded-[var(--radius-field)] border-2 border-soft cursor-pointer hover:border-ink/40 transition">
         <input
           type="checkbox"
           checked={notifyClient}
@@ -125,7 +125,7 @@ export function CloseProjectModal({
         <button
           type="button"
           onClick={handleClose}
-          className="px-4 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-ink is-interactive transition-all"
+          className="px-4 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-ink is-interactive "
         >
           Cancel
         </button>
@@ -133,7 +133,7 @@ export function CloseProjectModal({
           type="button"
           onClick={handleConfirm}
           disabled={!canSubmit}
-          className="px-5 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-[color:var(--color-paper)] bg-coral transition-all hover:brightness-95 disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed"
+          className="px-5 py-2.5 rounded-[var(--radius-field)] font-extrabold uppercase type-label tracking-widest text-[color:var(--color-paper)] bg-coral transition hover:brightness-95 disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed"
         >
           {submitting ? "Closing…" : "Close project"}
         </button>

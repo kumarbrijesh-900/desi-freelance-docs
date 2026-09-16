@@ -259,7 +259,7 @@ function ClientForm({
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
-                      "flex-1 py-1.5 type-body font-bold transition-all",
+                      "flex-1 py-1.5 type-body font-bold transition",
                       clientEntityType === "agency"
                         ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
@@ -271,7 +271,7 @@ function ClientForm({
                     type="button"
                     onClick={() => setClientEntityType("freelancer")}
                     className={cn(
-                      "flex-1 py-1.5 type-body font-bold transition-all",
+                      "flex-1 py-1.5 type-body font-bold transition",
                       clientEntityType === "freelancer"
                         ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
@@ -976,14 +976,14 @@ export default function ClientsPage() {
                         <div className="flex items-center justify-center gap-1.5">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
-                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-coral transition-all"
+                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-coral transition"
                             title="Delete Client"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
-                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition-all"
+                            className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition"
                             title="Edit Client"
                           >
                             <EditIcon className="h-4 w-4" />

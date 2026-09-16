@@ -446,7 +446,7 @@ export default function TermsPaymentSection({
                                 disabled={isReadOnly}
                                 onClick={() => handleDaysChange(days)}
                                 className={cn(
-                                  "border-2 px-2.5 py-0.5 type-label font-bold transition-all",
+                                  "border-2 px-2.5 py-0.5 type-label font-bold transition",
                                   meta.paymentTerms === days
                                     ? "bg-[color:var(--color-acid)] border-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-sm"
                                     : "bg-[color:var(--color-paper-2)] border-soft text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
@@ -640,8 +640,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
                               )}
                             >
                               Yes
@@ -654,8 +654,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 !value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
                               )}
                             >
                               No
@@ -687,8 +687,8 @@ export default function TermsPaymentSection({
                                         onClick={() => updateLicenseField("licenseType", opt.value as any)}
                                         className={cn(
                                           value.license.licenseType === opt.value
-                                            ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
-                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                            ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
+                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
                                         )}
                                       >
                                         {opt.label}

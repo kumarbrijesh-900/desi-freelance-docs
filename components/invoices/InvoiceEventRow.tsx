@@ -104,7 +104,7 @@ export function InvoiceEventRow({
   return (
     <Link
       href={rowHref}
-      className="flex items-stretch bg-paper-2 border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition-all"
+      className="flex items-stretch bg-paper-2 border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition"
     >
       {selectable && (
         <div
@@ -162,13 +162,13 @@ export function InvoiceEventRow({
                 e.stopPropagation();
                 onDelete(invoice.id);
               }}
-              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] type-label font-extrabold uppercase tracking-widest text-coral transition-all"
+              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] type-label font-extrabold uppercase tracking-widest text-coral transition"
               title="Delete Invoice"
             >
               🗑
             </button>
           )}
-          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-is-interactive type-label font-extrabold uppercase tracking-widest text-ink transition-all">
+          <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink type-label font-extrabold uppercase tracking-widest text-ink transition">
             VIEW →
           </button>
         </div>

@@ -84,7 +84,7 @@ function UserMenu({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-8 w-8 items-center justify-center border border-soft bg-acid overflow-hidden transition-all hover:bg-[color:var(--color-acid-2)]"
+        className="flex h-8 w-8 items-center justify-center border border-soft bg-acid overflow-hidden transition hover:bg-[color:var(--color-acid-2)]"
       >
         {avatar ? (
           <img
@@ -254,7 +254,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border border-soft bg-acid px-4 py-1.5 type-label font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border border-soft bg-acid px-4 py-1.5 type-label font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition"
             >
               + New Invoice
             </button>

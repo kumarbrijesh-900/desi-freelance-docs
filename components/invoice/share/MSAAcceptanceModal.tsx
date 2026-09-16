@@ -159,7 +159,7 @@ export default function MSAAcceptanceModal({
                 <button
                   type="button"
                   onClick={onClosePreview}
-                  className="w-full border border-soft bg-paper-2 px-6 py-2.5 type-body font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition-all"
+                  className="w-full border border-soft bg-paper-2 px-6 py-2.5 type-body font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition"
                 >
                   Close Preview
                 </button>

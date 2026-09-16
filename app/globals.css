@@ -497,8 +497,16 @@ input:focus, select:focus, textarea:focus {
    the reference this overlay is calibrated against. ----------------------- */
 
 .is-interactive {
+  /* The overlay rides on background-image, but an element carrying this class
+     usually changes colour on hover too, and those belong in the same list.
+     This rule is UNLAYERED, so it beats any Tailwind transition utility on the
+     same element -- a `transition-colors` written alongside it does nothing at
+     all. One owner, one list. */
   transition:
     background-image var(--app-duration-fast) var(--app-ease-standard),
+    background-color var(--app-duration-fast) var(--app-ease-standard),
+    border-color     var(--app-duration-fast) var(--app-ease-standard),
+    color            var(--app-duration-fast) var(--app-ease-standard),
     box-shadow       var(--app-duration-fast) var(--app-ease-standard),
     transform        var(--app-duration-fast) var(--app-ease-standard);
 }

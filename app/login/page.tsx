@@ -64,7 +64,7 @@ function LoginCard() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="mt-6 flex w-full items-center justify-center gap-3 border border-soft bg-paper-2 py-3 font-bold uppercase transition-all is-interactive"
+        className="mt-6 flex w-full items-center justify-center gap-3 border border-soft bg-paper-2 py-3 font-bold uppercase is-interactive"
       >
         <GoogleIcon className="h-5 w-5" />
         Continue with Google

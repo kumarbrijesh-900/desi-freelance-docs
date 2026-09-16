@@ -2791,7 +2791,7 @@ return (
                     onClick={() => scrollToStep(step)}
                     data-mobile-step-active={isActive ? "true" : undefined}
                     className={cn(
-                      "flex h-[var(--control-sm)] shrink-0 items-center gap-2 rounded-full px-4 type-body font-bold transition-all duration-200 active:scale-95",
+                      "flex h-[var(--control-sm)] shrink-0 items-center gap-2 rounded-full px-4 type-body font-bold transition duration-200 active:scale-95",
                       isActive
                         ? "bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-md"
                         : isCompleted
@@ -2868,10 +2868,10 @@ return (
                               })
                             }
                             className={cn(
-                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] type-body h-[var(--control-md)] px-6 transition-all duration-200",
+                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] type-body h-[var(--control-md)] px-6 transition duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] font-normal cursor-not-allowed"
-                                : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm active:scale-[0.97] transition-all",
+                                : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm active:scale-[0.97] transition",
                             )}
                           >
                             Continue to{" "}
@@ -2981,7 +2981,7 @@ return (
                   <div 
                     id="live-totals-footer" 
                     className={cn(
-                      "border border-[color:var(--color-soft)] rounded-[var(--radius-box)] transition-all duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
+                      "border border-[color:var(--color-soft)] rounded-[var(--radius-box)] transition duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -3226,7 +3226,7 @@ return (
               type="button"
               onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
               className={cn(
-                "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-[var(--control-sm)] px-4 sm:h-[var(--control-md)] sm:px-6",
+                "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition h-[var(--control-sm)] px-4 sm:h-[var(--control-md)] sm:px-6",
                 invoiceReadyForPreview
                   ? "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)] border border-acid hover:brightness-105 active:scale-[0.97] transition-transform"
                   : "border border-soft bg-[color:var(--cta-attention-bg,#FFFBE6)] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"

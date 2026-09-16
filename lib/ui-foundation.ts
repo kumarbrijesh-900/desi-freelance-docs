@@ -52,7 +52,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[color:var(--brutal-border-color)] font-bold tracking-widest uppercase type-body transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[color:var(--brutal-border-color)] font-bold tracking-widest uppercase type-body disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
     size === "sm"
       ? "h-[var(--control-sm)] px-3 type-body"
       : size === "lg"
@@ -82,7 +82,7 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] type-body font-normal leading-6 text-[color:var(--color-ink)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] type-body font-normal leading-6 text-[color:var(--color-ink)] outline-none",
     multiline ? "min-h-[112px] px-3 py-3" : "h-[var(--control-md)] px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-12 text-ellipsis whitespace-nowrap text-left"

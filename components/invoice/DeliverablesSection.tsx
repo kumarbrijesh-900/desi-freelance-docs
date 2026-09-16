@@ -268,7 +268,7 @@ export default function DeliverablesSection({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  "overflow-visible border bg-paper-2 shadow-sm transition-all",
+                  "overflow-visible border bg-paper-2 shadow-sm transition",
                   isReadOnly
                     ? "border-[#D4D2CC] hover:shadow-sm"
                     : "border-[color:var(--color-soft)] hover:shadow-md",
@@ -292,7 +292,7 @@ export default function DeliverablesSection({
                           value={milestone.title}
                           placeholder="e.g. Phase 1: Research"
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
-                          className="w-full border border-transparent bg-transparent px-1 -ml-1 type-title font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--color-soft)] app-focus-ring"
+                          className="w-full border border-transparent bg-transparent px-1 -ml-1 type-title font-bold outline-none transition group-hover:underline hover:border-[color:var(--color-soft)] app-focus-ring"
                         />
                         {!isReadOnly && <PencilIcon className="h-4 w-4 cursor-pointer text-gray-400 transition-colors hover:text-[color:var(--color-ink)]" />}
                       </div>
@@ -360,7 +360,7 @@ export default function DeliverablesSection({
                       onClick={() => addLineItem(milestone.id)}
                       className="flex items-center gap-2 px-3 py-2 type-body font-bold text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-acid)] group"
                     >
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--color-soft)] group-hover:border-[color:var(--color-acid)] group-hover:bg-[color:var(--color-acc-soft)] transition-all">+</span>
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--color-soft)] group-hover:border-[color:var(--color-acid)] group-hover:bg-[color:var(--color-acc-soft)] transition">+</span>
                       Add Line Item
                     </button>
                   )}
@@ -377,7 +377,7 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 py-6 type-body font-bold text-[color:var(--color-ink-2)] transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 py-6 type-body font-bold text-[color:var(--color-ink-2)] transition group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[color:var(--brand-indigo-deep)] hover:text-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5"
@@ -491,7 +491,7 @@ function LineItemCard({
 
   return (
     <div className={cn(
-      "group relative border-2 rounded-[var(--radius-box)] bg-paper-2 p-4 transition-all",
+      "group relative border-2 rounded-[var(--radius-box)] bg-paper-2 p-4 transition",
       isReadOnly
       ? "border-[#D4D2CC] hover:shadow-none"
       : "border-soft hover:shadow-[var(--brutal-shadow-sm)]",
@@ -793,7 +793,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left type-body font-normal text-[color:var(--color-ink)] h-[var(--control-md)] pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left type-body font-normal text-[color:var(--color-ink)] h-[var(--control-md)] pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">

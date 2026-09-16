@@ -426,7 +426,7 @@ export default function ShareLinkModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 type-body font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-soft transition-all"
+                className="px-4 py-2 type-body font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-soft transition"
               >
                 Cancel
               </button>

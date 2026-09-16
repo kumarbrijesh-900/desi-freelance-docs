@@ -1207,7 +1207,7 @@ export default function BriefSummaryModal({
                   <div className="ml-auto flex items-center gap-2.5">
                     <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#e6dcc6]">
                       <div
-                        className="h-full rounded-full bg-acid transition-all duration-500"
+                        className="h-full rounded-full bg-acid transition-[width] duration-500"
                         style={{
                           width: `${((reviewRequiredLabels.length - pendingReviewCount) / (reviewRequiredLabels.length || 1)) * 100}%`,
                         }}
@@ -1275,7 +1275,7 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={() => onSubmit(localData, shouldSaveClient)}
-                className="rounded-[var(--radius-field)] bg-acid px-8 py-3 type-body font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
+                className="rounded-[var(--radius-field)] bg-acid px-8 py-3 type-body font-bold text-acc-ink transition hover:bg-acid-2 active:scale-[0.97]"
               >
                 Apply to invoice
               </button>
