@@ -241,7 +241,7 @@ export async function POST(req: NextRequest) {
       const { error: invoiceUpdateError } = await supabaseAdmin
         .from("invoices")
         .update({
-          status: "PARTIAL",
+          status: "partial",
           form_data: updatedFormData,
           ...computeAppliedMsaSnapshot(updatedFormData as any),
           applied_payment_terms: (updatedFormData as any).meta?.paymentTerms

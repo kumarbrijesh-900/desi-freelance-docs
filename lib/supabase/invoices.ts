@@ -19,30 +19,21 @@ import {
 /* ─── Types ───────────────────────────────────────────────── */
 
 /**
- * Every value `invoices.status` can actually hold. The column is plain `text`
- * with no CHECK, and the casing really is mixed: createInvoice defaults to
- * "DRAFT" while the editor writes "draft"; share-invoice writes "finalized";
- * settlement writes "SETTLED" and the live rows say "settled". "cancelled" is
- * written lowercase, unlike invoice_milestones which uses "CANCELLED".
+ * The canonical value set for `invoices.status`, enforced by the
+ * `invoices_status_check` CHECK constraint. All lowercase.
  *
- * This union documents that mess rather than hiding it. It is NOT a constraint:
- * TypeScript lets any string literal be asserted into a union of other string
- * literals, which is why six `"draft" as InvoiceStatus` casts have compiled
- * happily against a type that did not contain "draft".
+ * `overdue` is deliberately absent: it is a derived predicate
+ * (`isInvoiceOverdue`) and is never stored. Storing it would let the column
+ * and the predicate disagree.
  *
- * Every consumer must `.toLowerCase()` before comparing. The real fix is a
- * canon migration like 20260707120000_milestone_status_canon.sql, which did
- * exactly this for invoice_milestones and left this column behind.
- *
- * "SAVED" was in this union and is produced by nothing; it has been removed.
+ * Note this union constrains nothing on its own -- TypeScript permits
+ * asserting any string literal into a union of other string literals. The
+ * database constraint is the only real fence.
  */
 export type InvoiceStatus =
-  | "DRAFT"
   | "draft"
-  | "SENT"
   | "finalized"
-  | "PARTIAL"
-  | "SETTLED"
+  | "partial"
   | "settled"
   | "cancelled";
 
@@ -321,7 +312,6 @@ export async function saveInvoice(
   }
 
   const invoiceNumber = getInvoiceNumber(input.formData);
-  const status = input.status ?? "DRAFT";
   const clientPersistence = await persistNewClientFromInvoice(
     input.formData,
     userId,
@@ -415,7 +405,6 @@ export async function saveInvoice(
       ? `Net ${input.formData.meta.paymentTerms} days`
       : computeAppliedMsaSnapshot(input.formData).applied_payment_terms,
     applied_license_type: input.formData.payment?.license?.licenseType || null,
-    status,
     template_id: input.templateId ?? "classic",
     due_date: input.formData.meta?.dueDate || null,
     has_addendum: input.formData.meta?.hasAddendum || false,
@@ -423,6 +412,15 @@ export async function saveInvoice(
     grand_total: computedGrandTotal,
     user_id: userId,
   };
+
+  // saveInvoice persists CONTENT. A status transition is a separate,
+  // deliberate act, so the column is written only when a caller asks for
+  // it. Omitting the key leaves the stored value alone on UPDATE and lets
+  // the column DEFAULT ('draft') apply on INSERT. Writing it
+  // unconditionally is what let an autosave demote a finalized invoice.
+  if (input.status !== undefined) {
+    row.status = input.status;
+  }
 
   if (resolvedClientId) {
     row.client_id = resolvedClientId;
@@ -697,53 +695,6 @@ export async function deleteInvoice(
   }
 
   return { error: null };
-}
-
-/* ─── Share Token Generation ─────────────────────────── */
-
-function generateShareToken(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let token = "";
-  const bytes = crypto.getRandomValues(new Uint8Array(12));
-  for (const b of bytes) {
-    token += chars[b % chars.length];
-  }
-  return token;
-}
-
-/* ─── Share Invoice ──────────────────────────────────── */
-
-export async function shareInvoice(
-  invoiceId: string,
-): Promise<{ token: string | null; error: string | null }> {
-  const userId = await getCurrentUserId();
-  if (!userId) return { token: null, error: "Not authenticated" };
-
-  // Check if already shared
-  const { data: existing } = await supabase
-    .from("invoices")
-    .select("share_token")
-    .eq("id", invoiceId)
-    .eq("user_id", userId)
-    .single();
-
-  if (existing?.share_token) {
-    return { token: existing.share_token, error: null };
-  }
-
-  const token = generateShareToken();
-  const { error } = await supabase
-    .from("invoices")
-    .update({
-      share_token: token,
-      shared_at: new Date().toISOString(),
-      status: "SENT" as InvoiceStatus,
-    })
-    .eq("id", invoiceId)
-    .eq("user_id", userId);
-
-  if (error) return { token: null, error: error.message };
-  return { token, error: null };
 }
 
 /* ─── Load by Share Token (public) ───────────────────── */
@@ -1167,51 +1118,6 @@ export async function requestNextMilestone(
   });
 
   return { error: notifErr?.message ?? null };
-}
-
-/** Mark an invoice as fully paid/settled (freelancer action) */
-export async function markInvoiceSettled(
-  invoiceId: string,
-): Promise<{ error: string | null }> {
-  const userId = await getCurrentUserId();
-  if (!userId) return { error: "Not authenticated" };
-
-  const { data: inv, error } = await supabase
-    .from("invoices")
-    .update({ 
-      status: "SETTLED" as InvoiceStatus,
-      settled_at: new Date().toISOString()
-    })
-    .eq("id", invoiceId)
-    .eq("user_id", userId)
-    .select("invoice_number, form_data")
-    .single();
-
-  if (!error && inv) {
-    const clientName = inv.form_data?.client?.clientName || "Client";
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-    const timeStr = now.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    await supabase.from("notifications").insert({
-      user_id: userId,
-      invoice_id: invoiceId,
-      type: "invoice_settled",
-      title: "Invoice Settled",
-      message: `You have settled INVOICE No ${inv.invoice_number} for ${clientName} on ${dateStr} ${timeStr}.`,
-      is_read: false,
-    });
-  }
-
-  return { error: error?.message ?? null };
 }
 
 /** Reissue an invoice after negotiation (freelancer action) */

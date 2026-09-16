@@ -102,7 +102,7 @@ export async function fireMilestoneInvoice(
     .from("invoices")
     .update({
       due_date: calculatedDueDate,
-      status: "PARTIAL",
+      status: "partial",
       form_data: updatedParentFormData,
       ...computeAppliedMsaSnapshot(updatedParentFormData as any),
       applied_payment_terms: (updatedParentFormData as any).meta?.paymentTerms

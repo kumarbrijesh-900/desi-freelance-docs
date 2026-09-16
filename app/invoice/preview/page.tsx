@@ -39,7 +39,7 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import { supabase } from "@/lib/supabase/client";
 import { saveInvoice, getCurrentUserId, loadInvoice } from "@/lib/supabase/invoices";
 import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
-import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
+import type { MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 import ConversionModal from "@/components/invoice/ConversionModal";
 import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
@@ -399,7 +399,6 @@ function PreviewContent() {
       try {
         ({ error, data: saved } = await saveInvoice({
           formData: currentData,
-          status: "draft" as InvoiceStatus,
           existingId: undefined,
           templateId: selectedTemplate, // Pass the selected template!
           projectId,
@@ -514,7 +513,6 @@ function PreviewContent() {
       if (userId) {
         const { data: saved, error } = await saveInvoice({
           formData: data,
-          status: "draft" as InvoiceStatus,
           templateId: selectedTemplate,
           existingId: cloudInvoiceId ?? undefined,
           projectId,
@@ -577,7 +575,6 @@ function PreviewContent() {
       // Auto-save including selected template
       const { data: saved, error } = await saveInvoice({
         formData: data,
-        status: "draft" as InvoiceStatus,
         templateId: selectedTemplate,
         existingId: cloudInvoiceId ?? undefined,
         projectId,
@@ -631,17 +628,25 @@ function PreviewContent() {
     exportTitleRef.current = pdfTitle;
     document.title = pdfTitle;
 
-    // Finalize to Supabase for authenticated users.
-    // Skip when called from the offline path (markAsSent === false),
-    // because going offline should not flip the invoice to SENT.
+    // Persist pending edits before the print dialog opens, so the exported
+    // PDF and the stored record agree. CONTENT only -- this no longer
+    // touches status. The offline paths pass markAsSent:false to skip it;
+    // the option name predates this change and now means 'persist first',
+    // not 'mark as sent'. Only handleConfirmShareThenDownload reaches the
+    // save; the four offline callers all opt out.
     if (data && options?.markAsSent !== false) {
-      const { data: saved } = await saveInvoice({
+      // Downloading a PDF is a read of the document, not a lifecycle
+      // event. It persists pending content and leaves status alone.
+      const { data: saved, error: pdfSaveError } = await saveInvoice({
         formData: data,
-        status: "SENT" as InvoiceStatus,
         templateId: selectedTemplate,
         existingId: cloudInvoiceId ?? undefined,
         projectId,
       });
+      if (pdfSaveError) {
+        console.error("PDF_PRESAVE_FAILED:", pdfSaveError);
+        push({ kind: "info", ttl: "Could not save before export. Your PDF is unchanged." });
+      }
       if (saved) {
         setCloudInvoiceId(saved.id);
         announceInvoiceDataChanged({
@@ -746,14 +751,14 @@ function PreviewContent() {
         }
         const { error } = await supabase
           .from("invoices")
-          .update({ status: "DRAFT" })
+          .update({ status: "draft" })
           .eq("id", cloudInvoiceId);
         if (error) {
           console.error("PREVIEW_LOCKED_REACTIVATE_FAILED:", error);
           push({ kind: "info", ttl: "Could not reactivate invoice." });
           return;
         }
-        setInvoiceStatusState("DRAFT");
+        setInvoiceStatusState("draft");
         push({ kind: "info", ttl: "Invoice reactivated as draft." });
         router.push(`/invoice/new?id=${cloudInvoiceId}&restore=1`);
         return;

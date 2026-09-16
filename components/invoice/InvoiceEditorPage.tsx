@@ -76,7 +76,6 @@ import {
   reissueNegotiatedInvoice,
   getCurrentUserEmail,
 } from "@/lib/supabase/invoices";
-import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import TaxWarningStrip from "@/components/invoice/TaxWarningStrip";
 import {
   convertInrToApproximateUsd,
@@ -616,7 +615,6 @@ function EditorContent() {
       try {
         ({ data, error } = await saveInvoice({
           formData,
-          status: "draft" as InvoiceStatus,
           existingId: searchParams.get("id") ?? undefined,
           projectId,
           projectName: projectName.trim() || undefined,
@@ -1401,7 +1399,6 @@ const handlePreviewInvoice = async () => {
       let result;
       result = await saveInvoice({
         formData: previewFormData,
-        status: "draft" as InvoiceStatus,
         existingId: parserDocumentId ?? undefined,
         projectId,
         projectName: projectName.trim() || undefined,
@@ -1510,14 +1507,14 @@ const handleLockedAlternativeAction = async () => {
       }
       const { error } = await supabase
         .from("invoices")
-        .update({ status: "DRAFT" })
+        .update({ status: "draft" })
         .eq("id", parserDocumentId);
       if (error) {
         console.error("LOCKED_REACTIVATE_FAILED:", error);
         push({ kind: "info", ttl: "Could not reactivate invoice." });
         return;
       }
-      setInvoiceStatus("DRAFT");
+      setInvoiceStatus("draft");
       push({ kind: "info", ttl: "Invoice reactivated as draft." });
       router.push(`/invoice/new?id=${parserDocumentId}&restore=1`);
       return;
@@ -1620,7 +1617,6 @@ const handleSaveDraft = async () => {
 
     result = await saveInvoice({
       formData: formDataForSave,
-      status: "draft" as InvoiceStatus,
       existingId: parserDocumentId ?? undefined,
       projectId,
       projectName: projectName.trim() || undefined,
