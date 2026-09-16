@@ -61,22 +61,22 @@ export default function ConversionModal({
         className="relative w-full max-w-sm overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-lg)]"
       >
         <div className="p-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#e4f1ea] text-2xl text-[#157a54]">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#e4f1ea] type-heading text-[#157a54]">
             ✓
           </div>
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#157a54]">
+          <p className="mb-4 type-label font-bold uppercase tracking-widest text-[#157a54]">
             Your invoice is safe — sign up to download it
           </p>
 
-          <h2 className="font-syne text-xl font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
-          <p className="text-[13px] text-[color:var(--color-ink-2)] leading-relaxed mb-8">
+          <h2 className="font-syne type-title font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
+          <p className="type-body text-[color:var(--color-ink-2)] leading-relaxed mb-8">
             Your draft is saved locally and will be restored after sign-in. Create a free account to enable cloud save, PDF export, and sharing.
           </p>
 
           <button
             type="button"
             onClick={onLoginClick}
-            className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-box)] border border-soft bg-paper-2 py-3 text-sm font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:bg-[color:var(--color-paper)] active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-box)] border border-soft bg-paper-2 py-3 type-body font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:bg-[color:var(--color-paper)] active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google
@@ -85,12 +85,12 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 h-11 w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 text-[11px] font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
+            className="mt-4 h-11 w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 type-label font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>
 
-          <p className="mt-8 text-[10px] leading-relaxed text-[color:var(--color-ink-3)] uppercase tracking-widest">
+          <p className="mt-8 type-label leading-relaxed text-[color:var(--color-ink-3)] uppercase tracking-widest">
             Built for Indian Freelancers
           </p>
         </div>

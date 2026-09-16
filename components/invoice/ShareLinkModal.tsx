@@ -70,7 +70,7 @@ function MsaStatusBadge({ response }: { response: MsaResponse }) {
   const { label, classes } = map[response] ?? map.pending;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${classes}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 type-label font-bold uppercase tracking-wider ${classes}`}
     >
       {response === "accepted" && <CheckCircleIcon className="h-3 w-3" />}
       {label}
@@ -228,20 +228,20 @@ export default function ShareLinkModal({
       <div className="inline-flex h-14 w-14 items-center justify-center border border-soft bg-grass mb-4">
         <svg className="h-7 w-7 text-[color:var(--on-grass)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
       </div>
-      <h2 className="text-xl font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
-      <p className="text-[13px] text-[color:var(--color-ink-2)] mb-6">
+      <h2 className="type-title font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
+      <p className="type-body text-[color:var(--color-ink-2)] mb-6">
         A secure link has been delivered to <strong>{emailDraft}</strong>. You will be notified when they view or accept it.
       </p>
       <div className="flex gap-3 justify-center">
         <a
           href="/dashboard"
-          className="border border-acid bg-acid px-5 py-2.5 text-[12px] font-bold uppercase text-acc-ink shadow-[var(--brutal-shadow-sm)]"
+          className="border border-acid bg-acid px-5 py-2.5 type-body font-bold uppercase text-acc-ink shadow-[var(--brutal-shadow-sm)]"
         >
           Go to Dashboard
         </a>
         <a
           href="/invoices"
-          className="border border-soft bg-paper-2 px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)]"
+          className="border border-soft bg-paper-2 px-5 py-2.5 type-body font-bold uppercase text-[color:var(--color-ink)]"
         >
           View Invoices
         </a>
@@ -264,10 +264,10 @@ export default function ShareLinkModal({
         <div className="mx-4 w-full max-w-lg border border-soft bg-paper-2 p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--color-soft)] px-6 py-4">
-            <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
+            <h2 className="type-title font-bold text-[color:var(--color-ink)]">
               Send Invoice to Client
             </h2>
-            <p className="mt-0.5 text-sm text-[color:var(--color-ink)]">
+            <p className="mt-0.5 type-body text-[color:var(--color-ink)]">
               A secure, one-time link is sent directly to your client&apos;s
               inbox.
             </p>
@@ -278,7 +278,7 @@ export default function ShareLinkModal({
 
             {/* ── Recipient (read-only) ── */}
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+              <label className="type-label font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
                 Sending to
               </label>
               <div className="mt-1.5 flex items-center gap-2 border border-soft bg-[color:var(--color-paper)] px-3 py-2.5">
@@ -290,16 +290,16 @@ export default function ShareLinkModal({
                   placeholder="name@company.com"
                   spellCheck={false}
                   autoComplete="off"
-                  className="w-full bg-transparent text-sm font-normal text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-2)] placeholder:italic outline-none"
+                  className="w-full bg-transparent type-body font-normal text-[color:var(--color-ink)] placeholder:text-[color:var(--color-ink-2)] placeholder:italic outline-none"
                 />
               </div>
               {emailDraft.trim() && !emailValid && (
-                <p className="mt-1.5 text-[color:var(--color-coral)] text-[10px] font-bold uppercase tracking-[0.16em]">
+                <p className="mt-1.5 text-[color:var(--color-coral)] type-label font-bold uppercase tracking-[0.16em]">
                   That does not look like a valid email address.
                 </p>
               )}
               {sharedAt && emailDraft.trim() !== (clientEmail || "").trim() && emailValid && (
-                <p className="mt-1.5 text-[color:var(--color-ochre-deep)] text-[11px] font-medium">
+                <p className="mt-1.5 text-[color:var(--color-ochre-deep)] type-label font-medium">
                   This will update the client email on the invoice, not just this send.
                 </p>
               )}
@@ -312,34 +312,34 @@ export default function ShareLinkModal({
               return (
                 <div className="border border-soft bg-[color:var(--color-paper)] p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+                    <span className="type-label font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
                       Milestone Billing
                     </span>
-                    <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 type-label font-bold text-blue-700 uppercase tracking-wider">
                       Milestone 1 of {framing.totalCount}
                     </span>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between type-body">
                       <span className="text-[color:var(--color-ink)]">Due now (Milestone 1)</span>
                       <span className="font-bold text-[color:var(--color-ink)]">
                         {framing.symbol}{framing.currentAmount.toLocaleString("en-IN")}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between type-body">
                       <span className="text-[color:var(--color-ink)]">Remaining milestones</span>
                       <span className="font-bold text-[color:var(--color-ink-2)]">
                         {framing.symbol}{framing.remainingAmount.toLocaleString("en-IN")}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm border-t border-[color:var(--color-soft)] pt-2 mt-1">
+                    <div className="flex justify-between type-body border-t border-[color:var(--color-soft)] pt-2 mt-1">
                       <span className="font-bold text-[color:var(--color-ink)]">Total project</span>
                       <span className="font-bold text-[color:var(--color-ink)]">
                         {framing.symbol}{framing.totalProject.toLocaleString("en-IN")}
                       </span>
                     </div>
                   </div>
-                  <p className="mt-3 text-[11px] text-[color:var(--color-ink-2)] leading-relaxed">
+                  <p className="mt-3 type-label text-[color:var(--color-ink-2)] leading-relaxed">
                     The client will only see Milestone 1 details in this invoice. Future milestones will be sent separately.
                   </p>
                 </div>
@@ -351,14 +351,14 @@ export default function ShareLinkModal({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DocumentSparkIcon className="h-4 w-4 text-[color:var(--color-ink-2)]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
+                  <span className="type-label font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
                     MSA Gating
                   </span>
                   {currentMsaId && <MsaStatusBadge response={msaResponse} />}
                 </div>
               </div>
 
-              <p className="text-xs text-[color:var(--color-ink)]">
+              <p className="type-body text-[color:var(--color-ink)]">
                 Require your client to accept a Master Service Agreement before
                 they can view the invoice.
               </p>
@@ -368,8 +368,8 @@ export default function ShareLinkModal({
                 <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-3 flex items-start gap-2.5 shadow-[var(--brutal-shadow-sm)]">
                   <SparklesIcon className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[12px] font-bold text-amber-900">Project-Specific Addendum Active</p>
-                    <p className="text-[11px] text-amber-700 leading-relaxed mt-0.5">
+                    <p className="type-body font-bold text-amber-900">Project-Specific Addendum Active</p>
+                    <p className="type-label text-amber-700 leading-relaxed mt-0.5">
                       This invoice includes custom terms that deviate from your Master MSA.
                     </p>
                   </div>
@@ -378,36 +378,36 @@ export default function ShareLinkModal({
 
               {/* MSA Protection Summary */}
               <div className="border border-soft bg-[color:var(--color-paper)] p-4">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)] mb-3">
+                <h4 className="type-label font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)] mb-3">
                   Effective Terms:
                 </h4>
                 <ul className="space-y-2.5">
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">Payment terms:</span> {effectivePaymentTerms}
                   </li>
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {lateFeeUnit}
                   </li>
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">IP Rights:</span> {invoiceData?.client?.msaIpTriggerType?.replace(/_/g, " ") || "Full Transfer"}
                   </li>
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">Jurisdiction:</span> {invoiceData?.client?.msaJurisdictionCity || "Agency City"}
                   </li>
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">Revision rounds:</span> {invoiceData?.client?.freeRevisionRounds ?? 2} free per deliverable
                   </li>
-                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--color-ink)]">
+                  <li className="flex items-center gap-2 type-body text-[color:var(--color-ink)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-bold">Extra revision fee:</span> {invoiceData?.client?.extraRevisionFeePercent ?? 15}% of line item per round
                   </li>
                 </ul>
-                <p className="mt-4 border-t border-[color:var(--color-soft)] pt-3 text-[11px] text-[color:var(--color-ink-2)] leading-relaxed italic">
+                <p className="mt-4 border-t border-[color:var(--color-soft)] pt-3 type-label text-[color:var(--color-ink-2)] leading-relaxed italic">
                   The client must digitally accept these terms before they can access the full invoice.
                 </p>
               </div>
@@ -418,7 +418,7 @@ export default function ShareLinkModal({
 
           {/* ── Footer ── */}
           <div className="border-t border-[color:var(--color-soft)] px-6 py-4 flex items-center justify-between gap-3">
-            <p className="text-[11px] text-[color:var(--color-ink-2)] leading-relaxed">
+            <p className="type-label text-[color:var(--color-ink-2)] leading-relaxed">
               🔒 The secure link is delivered only to{" "}
               {emailDraft.trim() || "the client's email"}.
             </p>
@@ -426,7 +426,7 @@ export default function ShareLinkModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-[13px] font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-soft transition-all"
+                className="px-4 py-2 type-body font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-soft transition-all"
               >
                 Cancel
               </button>
@@ -434,7 +434,7 @@ export default function ShareLinkModal({
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !emailValid}
-                className="inline-flex items-center gap-2 border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-acc-ink uppercase shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-acid-2)] transition-colors disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 border border-acid bg-acid px-6 py-2.5 type-body font-bold text-acc-ink uppercase shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-acid-2)] transition-colors disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">
                   <SendIcon className="h-4 w-4" />

@@ -48,19 +48,19 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="border-b border-soft bg-acc-soft px-6 py-5">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">
+          <div className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">
             Invoice {invoiceNumber}
           </div>
           <h2
             id="download-decision-title"
-            className="mt-1 font-syne text-2xl font-bold tracking-tight text-[color:var(--color-ink)]"
+            className="mt-1 font-syne type-heading font-bold tracking-tight text-[color:var(--color-ink)]"
           >
             Downloading this invoice?
           </h2>
         </div>
 
         <div className="space-y-4 px-6 py-5">
-          <p className="text-sm leading-relaxed text-[color:var(--color-ink-2)]">
+          <p className="type-body leading-relaxed text-[color:var(--color-ink-2)]">
             Lance can only track invoices shared digitally. Once downloaded, you&apos;ll handle
             this one yourself — including MSA acceptance, payment confirmation, and milestone
             progression.
@@ -68,10 +68,10 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
 
           {hasMultipleMilestones && (
             <div className="rounded-[var(--radius-field)] border border-[#ecd9b0] bg-[#f6ecd6] px-4 py-3">
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ochre-deep)]">
+              <div className="mb-1 type-label font-bold uppercase tracking-wider text-[color:var(--color-ochre-deep)]">
                 Milestone warning
               </div>
-              <p className="text-sm leading-snug text-[color:var(--color-ink-2)]">
+              <p className="type-body leading-snug text-[color:var(--color-ink-2)]">
                 {`This invoice has ${milestoneCount} milestones. Downloading disables `}
                 auto-progression — you&apos;ll need to mark each one settled manually.
               </p>
@@ -86,14 +86,14 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
             className="w-full rounded-[var(--radius-box)] border border-acid bg-acid px-5 py-4 text-left text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-colors hover:bg-acid-2"
           >
             <div className="flex items-center justify-between gap-3">
-              <span className="font-syne text-sm font-bold">
+              <span className="font-syne type-body font-bold">
                 Share digitally + download PDF
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+              <span className="type-label font-bold uppercase tracking-wider opacity-70">
                 Recommended
               </span>
             </div>
-            <div className="mt-1 text-[11px] font-medium opacity-80">
+            <div className="mt-1 type-label font-medium opacity-80">
               Keep tracking, MSA enforcement, and milestone automation. PDF still downloads.
             </div>
           </button>
@@ -103,10 +103,10 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
             onClick={onChooseDownloadOffline}
             className="w-full rounded-[var(--radius-box)] border border-soft bg-paper-2 px-5 py-4 text-left text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper)]"
           >
-            <div className="font-syne text-sm font-bold">
+            <div className="font-syne type-body font-bold">
               Download &amp; manage offline
             </div>
-            <div className="mt-1 text-[11px] text-[color:var(--color-ink-3)]">
+            <div className="mt-1 type-label text-[color:var(--color-ink-3)]">
               Tracking disabled. Hidden from master list and dashboard metrics.
             </div>
           </button>
@@ -115,7 +115,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
             <button
               type="button"
               onClick={onCancel}
-              className="text-[12px] font-semibold text-[color:var(--color-ink-3)] underline-offset-4 hover:underline"
+              className="type-body font-semibold text-[color:var(--color-ink-3)] underline-offset-4 hover:underline"
             >
               Cancel
             </button>

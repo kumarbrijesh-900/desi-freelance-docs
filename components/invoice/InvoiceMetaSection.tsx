@@ -135,7 +135,7 @@ export default function InvoiceMetaSection({
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
+                <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                   Invoice Number{!isReadOnly && " *"}
                   {autoFilledFields.has("meta.invoiceNumber") && (
                     <span className="autofill-indicator">auto-filled</span>
@@ -152,8 +152,8 @@ export default function InvoiceMetaSection({
                   className="inline-flex items-center gap-1.5 text-[color:var(--color-ink)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
                   title="Click to copy"
                 >
-                  <span className="text-[11px] font-bold">Copy</span>
-                  <span className="text-[12px] text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
+                  <span className="type-label font-bold">Copy</span>
+                  <span className="type-body text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
                     {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
                   </span>
                 </button>
@@ -180,8 +180,8 @@ export default function InvoiceMetaSection({
             
             <div className="md:max-w-[240px]">
               <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
-                  PO Number <span className="text-[10px] font-normal lowercase tracking-normal text-[color:var(--color-ink-2)]">(Optional)</span>
+                <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
+                  PO Number <span className="type-label font-normal lowercase tracking-normal text-[color:var(--color-ink-2)]">(Optional)</span>
                 </label>
                 <AppTooltip content={<>
                   Purchase Order number. Required by larger enterprise clients to process payments. If your client requires a PO to authorize the budget, input it here to ensure your invoice is not rejected by their Accounts Payable department.
@@ -261,7 +261,7 @@ export default function InvoiceMetaSection({
                 <p className={appFieldErrorTextClass}>{dueDateError}</p>
               ) : (
                 value.invoiceDate && value.dueDate && (
-                  <p className="mt-1 text-[10px] font-normal text-[color:var(--color-ink-3)]">
+                  <p className="mt-1 type-label font-normal text-[color:var(--color-ink-3)]">
                     {(() => {
                       const days = getDaysDifference(value.invoiceDate, value.dueDate);
                       const sourceLabel = {

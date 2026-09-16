@@ -83,15 +83,15 @@ export function WorkbenchReadinessPanel({
           <div className="min-w-0">
             <p className={cn(
               "font-black uppercase text-[color:var(--color-ink-2)]",
-              rail ? "text-[9px] tracking-[0.08em]" : "text-[10px] tracking-[0.14em]",
+              rail ? "type-label tracking-[0.08em]" : "type-label tracking-[0.14em]",
             )}>
               {readinessLabel}
             </p>
-            <p className="mt-0.5 text-[14px] font-black text-[color:var(--color-ink)]">
+            <p className="mt-0.5 type-body font-black text-[color:var(--color-ink)]">
               {statusText}
             </p>
             {!isReadOnly && (
-              <p className="mt-1 text-[11px] font-black text-[color:var(--color-ink)]">
+              <p className="mt-1 type-label font-black text-[color:var(--color-ink)]">
                 {progress}%
               </p>
             )}
@@ -111,19 +111,19 @@ export function WorkbenchReadinessPanel({
 
       <div className="mt-3 border-t border-[color:var(--color-soft)] pt-3" aria-live="polite">
         {isReadOnly ? (
-          <p className="text-[12px] font-bold leading-5 text-[#6B6660]">
+          <p className="type-body font-bold leading-5 text-[#6B6660]">
             {readOnlyReason || "This invoice is read-only."}
           </p>
         ) : ready ? (
-          <p className="text-[12px] font-bold leading-5 text-[color:var(--color-ink)]">
+          <p className="type-body font-bold leading-5 text-[color:var(--color-ink)]">
             All required sections are complete. Review totals, then open preview.
           </p>
         ) : (
           <>
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+            <p className="type-label font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
               Next blocker
             </p>
-            <p className="mt-0.5 text-[12px] font-bold leading-5 text-[color:var(--color-ink)]">
+            <p className="mt-0.5 type-body font-bold leading-5 text-[color:var(--color-ink)]">
               {rail ? "" : nextStepLabel ? `${nextStepLabel}: ` : `${activeStepLabel}: `}
               {visibleFields.length > 0
                 ? visibleFields.join(", ")
@@ -139,16 +139,16 @@ export function WorkbenchReadinessPanel({
         rail ? "grid-cols-1 gap-2" : "grid-cols-3 gap-3",
       )}>
         <div className="min-w-0">
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Client</p>
-          <p className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">{clientName?.trim() || "Not set"}</p>
+          <p className="type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Client</p>
+          <p className="truncate type-body font-bold text-[color:var(--color-ink)]">{clientName?.trim() || "Not set"}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</p>
-          <p className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">{dueDate || "Not set"}</p>
+          <p className="type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</p>
+          <p className="truncate type-body font-bold text-[color:var(--color-ink)]">{dueDate || "Not set"}</p>
         </div>
         <div className={cn("min-w-0", !rail && "text-right")}>
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Total</p>
-          <p className="truncate text-[12px] font-black text-[color:var(--brand-indigo-deep)]">{formatCurrency(total, currency)}</p>
+          <p className="type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Total</p>
+          <p className="truncate type-body font-black text-[color:var(--brand-indigo-deep)]">{formatCurrency(total, currency)}</p>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export function WorkbenchReadinessPanel({
         <button
           type="button"
           onClick={onReview}
-          className="mt-3 flex h-9 w-full items-center justify-center border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-acid)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+          className="mt-3 flex h-9 w-full items-center justify-center border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-acid)] px-3 type-label font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
           {rail ? "Review" : "Review what's left"}
         </button>

@@ -238,7 +238,7 @@ function ThumbnailCard({
       {/* Label — compact */}
       <div className="px-1.5 py-1.5">
         <p
-          className={`text-[10px] font-bold leading-tight uppercase ${
+          className={`type-label font-bold leading-tight uppercase ${
             isSelected
               ? "text-[color:var(--color-ink)]"
               : "text-[color:var(--color-ink)]"
@@ -246,7 +246,7 @@ function ThumbnailCard({
         >
           {template.name}
         </p>
-        <p className="text-[10px] leading-snug text-[color:var(--color-ink-2)] mt-1">
+        <p className="type-label leading-snug text-[color:var(--color-ink-2)] mt-1">
           {TEMPLATE_DESCRIPTIONS[template.id] || "Professional invoice layout."}
         </p>
       </div>
@@ -286,7 +286,7 @@ export default function TemplatePicker({
       {/* Header */}
       <div className="flex items-center gap-1.5 px-1">
         <PanelIcon className="h-3.5 w-3.5 text-[color:var(--color-ink-2)]" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
+        <span className="type-label font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
           Templates
         </span>
       </div>
@@ -322,7 +322,7 @@ export default function TemplatePicker({
         <div
           className={`border-2 border-[#FF5C00] bg-[#FFF0EC] px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}
         >
-          <p className="text-[9px] font-bold text-[#FF5C00] uppercase tracking-wider">
+          <p className="type-label font-bold text-[#FF5C00] uppercase tracking-wider">
             ✦ Sign in to unlock all
           </p>
         </div>

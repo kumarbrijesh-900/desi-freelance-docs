@@ -245,7 +245,7 @@ export default function AgencyDetailsSection({
           {/* Section A: Tax & Identity */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
+              <h3 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Tax & Identity
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
@@ -255,7 +255,7 @@ export default function AgencyDetailsSection({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-wrap items-center gap-1.5 group">
-                    <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                    <span className="type-body font-bold text-[color:var(--color-ink)]">
                       GST Registration Status
                     </span>
                     <AppTooltip content={<>
@@ -273,13 +273,13 @@ export default function AgencyDetailsSection({
                       }
                     />
                   )}
-                  <span className="text-[13px] font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
+                  <span className="type-body font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
                     {value.gstRegistrationStatus === "registered"
                       ? "Registered"
                       : "Not registered"}
                   </span>
                 </div>
-                <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                <p className="type-label text-[color:var(--color-ink-2)]">
                   Required for tax compliance in India
                 </p>
               </div>
@@ -336,7 +336,7 @@ export default function AgencyDetailsSection({
 
                         <div className="w-full max-w-[180px]">
                           <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
+                            <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                               PAN
                               {autoFilledFields.has("agency.pan") && (
                                 <span className="autofill-indicator">auto-filled</span>
@@ -370,7 +370,7 @@ export default function AgencyDetailsSection({
                           {panError ? (
                             <p className={appFieldErrorTextClass}>{panError}</p>
                           ) : panConflictWarning ? (
-                            <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                            <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 type-label font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                               {panConflictWarning}
                             </p>
                           ) : null}
@@ -381,7 +381,7 @@ export default function AgencyDetailsSection({
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
                             <div className="flex flex-wrap items-center gap-1.5 group">
-                              <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                              <span className="type-body font-bold text-[color:var(--color-ink)]">
                                 Valid LUT for current financial year?
                               </span>
                               <AppTooltip content={<>
@@ -396,11 +396,11 @@ export default function AgencyDetailsSection({
                                 }
                               />
                             )}
-                            <span className="text-[13px] font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
+                            <span className="type-body font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
                               {value.lutAvailability === "yes" ? "Yes" : "No"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                          <p className="type-label text-[color:var(--color-ink-2)]">
                             Required for Zero-Rated export invoices
                           </p>
                         </div>
@@ -441,7 +441,7 @@ export default function AgencyDetailsSection({
 
                         {showNoLutTotalsNote && (
                           <div className="rounded-[var(--radius-soft)] bg-[color:var(--color-paper-2)] px-3 py-2">
-                            <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)]">
+                            <p className="type-label leading-relaxed text-[color:var(--color-ink-2)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>
                           </div>
@@ -458,7 +458,7 @@ export default function AgencyDetailsSection({
                   >
                     <div className="w-full max-w-[180px] pt-2">
                       <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">PAN</label>
+                        <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">PAN</label>
                         <AppTooltip content={<>
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
 </>} />
@@ -483,7 +483,7 @@ export default function AgencyDetailsSection({
                       {panError ? (
                         <p className={appFieldErrorTextClass}>{panError}</p>
                       ) : panConflictWarning ? (
-                        <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                        <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 type-label font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                           {panConflictWarning}
                         </p>
                       ) : null}
@@ -497,7 +497,7 @@ export default function AgencyDetailsSection({
           {/* Section B: Business Details */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
+              <h3 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Business Details
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
@@ -549,7 +549,7 @@ export default function AgencyDetailsSection({
                 {showSuggestions && showProfileSuggestion && !isReadOnly && (
                   <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[var(--radius-box)] bg-paper-2 p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
+                      <span className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
                     </div>
                     <button
                       type="button"
@@ -562,8 +562,8 @@ export default function AgencyDetailsSection({
                       }}
                       className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
                     >
-                      <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-lime-700)]">{savedProfile?.agency_name}</span>
-                      <div className="flex items-center gap-2 text-[10px] text-[color:var(--color-ink-2)]">
+                      <span className="type-body font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-lime-700)]">{savedProfile?.agency_name}</span>
+                      <div className="flex items-center gap-2 type-label text-[color:var(--color-ink-2)]">
                         <span>{savedProfile?.city || "Saved profile"}</span>
                       </div>
                     </button>
@@ -587,16 +587,16 @@ export default function AgencyDetailsSection({
                         />
                       </div>
                       <div>
-                        <p className="text-[13px] font-normal text-[color:var(--color-ink)]">
+                        <p className="type-body font-normal text-[color:var(--color-ink)]">
                           Agency Logo Attached
                           {value.logoUrl === value.profileLogoUrl &&
                             value.logoUrl !== "" && (
-                              <span className="ml-2 inline-flex items-center rounded-full bg-[#e4f1ea] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#157a54] ring-1 ring-inset ring-[#c7e4d4]">
+                              <span className="ml-2 inline-flex items-center rounded-full bg-[#e4f1ea] px-1.5 py-0.5 type-label font-bold uppercase tracking-wider text-[#157a54] ring-1 ring-inset ring-[#c7e4d4]">
                                 Synced
                               </span>
                             )}
                         </p>
-                        <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                        <p className="type-label text-[color:var(--color-ink-2)]">
                           Appears at the top of the invoice
                         </p>
                       </div>
@@ -648,12 +648,12 @@ export default function AgencyDetailsSection({
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)]">
+                    <span className="type-body font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)]">
                       Upload Agency Logo
                     </span>
                   </label>
                 ) : (
-                  <div className="flex h-[46px] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-4 text-[13px] font-normal text-[#6B6660]">
+                  <div className="flex h-[46px] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-4 type-body font-normal text-[#6B6660]">
                     No logo attached
                   </div>
                 )}
@@ -664,7 +664,7 @@ export default function AgencyDetailsSection({
           {/* Section C: Registered Address */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
+              <h3 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Registered Address
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
@@ -819,7 +819,7 @@ export default function AgencyDetailsSection({
                 <p className={appFieldErrorTextClass}>{agencyStateError}</p>
               ) : null}
               {stateSignals.warning ? (
-                <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 type-label font-bold uppercase tracking-[0.16em] leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   {stateSignals.warning}
                 </p>
               ) : null}

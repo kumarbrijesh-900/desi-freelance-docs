@@ -15,10 +15,10 @@ export function ExitConfirmModal({
   return (
     <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
-        <h2 className="text-xl font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
+        <h2 className="type-title font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
           Leave invoice editor?
         </h2>
-        <p className="mt-3 text-sm leading-6 text-[color:var(--color-ink)]">
+        <p className="mt-3 type-body leading-6 text-[color:var(--color-ink)]">
           You have unsaved progress. Choose{" "}
           <span className="font-bold text-[color:var(--color-ink)]">
             Save Draft

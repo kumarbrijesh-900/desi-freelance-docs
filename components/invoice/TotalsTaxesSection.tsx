@@ -128,10 +128,10 @@ export default function TotalsTaxesSection({
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const complianceMessageClass =
     complianceVariant === "warning"
-      ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]"
+      ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] px-4 py-3 type-body leading-6 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]"
       : complianceVariant === "info"
-        ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-success-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-success-text)] ring-1 ring-inset ring-[color:var(--state-success-border)]"
-        : "rounded-[var(--app-radius-card)] bg-[color:var(--color-paper)] px-4 py-3 text-sm leading-6 text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-soft)]";
+        ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-success-bg)] px-4 py-3 type-body leading-6 text-[color:var(--state-success-text)] ring-1 ring-inset ring-[color:var(--state-success-border)]"
+        : "rounded-[var(--app-radius-card)] bg-[color:var(--color-paper)] px-4 py-3 type-body leading-6 text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-soft)]";
   const taxAmountHelperText =
     computed.taxType === "cgst_sgst"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
@@ -173,7 +173,7 @@ export default function TotalsTaxesSection({
         >
           <div className="overflow-hidden">
             <div className="mt-4 rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] p-4 ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-              <p className="text-sm font-normal leading-6 text-[color:var(--state-warning-text)]">
+              <p className="type-body font-normal leading-6 text-[color:var(--state-warning-text)]">
                 No valid LUT has been provided for this international invoice.
                 Export of services may require 18% IGST. Choose how you want to
                 handle this invoice.
@@ -199,12 +199,12 @@ export default function TotalsTaxesSection({
               </div>
 
               {exportTaxHelperNote ? (
-                <p className="mt-3 text-xs leading-5 text-[color:var(--state-warning-text)] opacity-85">
+                <p className="mt-3 type-body leading-5 text-[color:var(--state-warning-text)] opacity-85">
                   {exportTaxHelperNote}
                 </p>
               ) : null}
               {typeof estimatedIgstLiability === "number" ? (
-                <p className="mt-2 text-sm font-normal leading-6 text-[color:var(--state-warning-text)]">
+                <p className="mt-2 type-body font-normal leading-6 text-[color:var(--state-warning-text)]">
                   Estimated IGST liability:{" "}
                   {formatCurrency(estimatedIgstLiability, "INR")}
                 </p>
@@ -218,14 +218,14 @@ export default function TotalsTaxesSection({
           {/* Summary Rows — hidden when the dock owns the money display. */}
           {!hideSummary && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between text-[14px]">
+            <div className="flex items-center justify-between type-body">
               <dt className="text-[color:var(--color-ink-2)]">Subtotal</dt>
               <dd className="font-normal text-[color:var(--color-ink)]">
                 {formatCurrency(subtotal, currency)}
               </dd>
             </div>
 
-            <div className="flex items-start justify-between text-[14px]">
+            <div className="flex items-start justify-between type-body">
               <dt className="text-[color:var(--color-ink-2)]">
                 {computed.taxType !== "exempt" 
                   ? `Tax (${effectiveRate}% ${taxModeSummaryLabel})` 
@@ -234,7 +234,7 @@ export default function TotalsTaxesSection({
               <dd className="text-right font-normal text-[color:var(--color-ink)]">
                 {formatCurrency(taxAmount, currency)}
                 {isRcmEnabled ? (
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#4A7A00]">
+                  <p className="mt-1 type-label font-bold uppercase tracking-wider text-[#4A7A00]">
                     RCM active — GST handled by client
                   </p>
                 ) : null}
@@ -245,11 +245,11 @@ export default function TotalsTaxesSection({
             <div className="border-t-2 border-[#111] pt-4 mt-2" />
 
             <div className="flex items-center justify-between">
-              <dt className="text-[15px] font-bold text-[color:var(--color-ink)]">Grand Total</dt>
+              <dt className="type-body-lg font-bold text-[color:var(--color-ink)]">Grand Total</dt>
               <dd className="flex flex-col items-end">
                 <span
                   className={cn(
-                    "tracking-tight [font-variant-numeric:tabular-nums] text-[28px] font-bold transition-colors",
+                    "tracking-tight [font-variant-numeric:tabular-nums] type-display font-bold transition-colors",
                     grandTotal > 0 ? "text-[color:var(--brand-indigo-deep)]" : "text-gray-300"
                   )}
                 >
@@ -259,13 +259,13 @@ export default function TotalsTaxesSection({
             </div>
 
             {grandTotal === 0 && !hasItems && (
-              <p className="text-[12px] text-[color:var(--color-ink-2)] italic text-right">
+              <p className="type-body text-[color:var(--color-ink-2)] italic text-right">
                 Add billable items to see the final total.
               </p>
             )}
 
             {grandTotal === 0 && hasItems && (
-              <p className="text-[12px] text-[color:var(--color-ink-2)] italic text-right">
+              <p className="type-body text-[color:var(--color-ink-2)] italic text-right">
                 Grand total is {formatCurrency(0, currency)} — add amounts to your items to bill.
               </p>
             )}
@@ -274,7 +274,7 @@ export default function TotalsTaxesSection({
 
           {/* Tax Explanation — no top rule when it is the first block. */}
           <div className={hideSummary ? "" : "mt-6 pt-4 border-t border-[color:var(--color-soft)]"}>
-            <p className="text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
+            <p className="type-body leading-relaxed text-[color:var(--color-ink-2)]">
               {complianceMessage || (computed.taxType === "exempt" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
             </p>
           </div>
@@ -286,7 +286,7 @@ export default function TotalsTaxesSection({
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(true)}
-                  className="text-[#8B5CF6] font-bold text-[12px] hover:underline"
+                  className="text-[#8B5CF6] font-bold type-body hover:underline"
                 >
                   Advanced tax options →
                 </button>
@@ -297,11 +297,11 @@ export default function TotalsTaxesSection({
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] font-bold text-[color:var(--color-ink-2)]">Advanced Options</span>
+                  <span className="type-body font-bold text-[color:var(--color-ink-2)]">Advanced Options</span>
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(false)}
-                    className="text-[11px] font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
+                    className="type-label font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                   >
                     Hide
                   </button>
@@ -315,7 +315,7 @@ export default function TotalsTaxesSection({
                 >
                   <div className="flex min-h-[44px] flex-wrap items-center justify-between gap-2 py-2 sm:py-0 sm:h-[44px]">
                     <div className="flex min-w-0 flex-wrap items-center gap-1.5 group">
-                      <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                      <span className="type-body font-bold text-[color:var(--color-ink)]">
                         Reverse Charge (RCM)
                       </span>
                       <AppTooltip content={<>
@@ -328,7 +328,7 @@ export default function TotalsTaxesSection({
                     />
                   </div>
                   {isRcmEnabled ? (
-                    <div className="mb-3 border border-soft rounded-[var(--radius-box)] bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-pressed)] break-normal">
+                    <div className="mb-3 border border-soft rounded-[var(--radius-box)] bg-[#F7FFD6] px-3 py-2.5 type-label font-bold leading-relaxed text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-pressed)] break-normal">
                       Reverse Charge is active. The client is responsible for paying GST directly to the government instead of the freelancer/agency collecting it.
                     </div>
                   ) : null}
@@ -340,17 +340,17 @@ export default function TotalsTaxesSection({
           {/* Payment Footer */}
           {(paymentTerms || bankName) && (
             <div className="mt-4 pt-4 border-t border-[color:var(--color-soft)]">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
+              <p className="mb-2 type-label font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
                 Settlement
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 {paymentTerms && (
-                  <div className="border border-soft rounded-[var(--radius-chip)] bg-[color:var(--color-acc-soft)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border border-soft rounded-[var(--radius-chip)] bg-[color:var(--color-acc-soft)] text-[color:var(--color-ink)] type-label font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     {paymentTerms}
                   </div>
                 )}
                 {bankName && (
-                  <div className="border border-soft rounded-[var(--radius-chip)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border border-soft rounded-[var(--radius-chip)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink)] type-label font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     Bank: {bankName}
                   </div>
                 )}
@@ -360,7 +360,7 @@ export default function TotalsTaxesSection({
         </div>
 
         {grandTotalReferenceLabel && typeof grandTotalReferenceAmount === "number" && (
-          <p className="mt-4 px-2 text-[11px] text-[color:var(--color-ink)]">
+          <p className="mt-4 px-2 type-label text-[color:var(--color-ink)]">
             {grandTotalReferenceLabel}: <span className="font-bold text-[color:var(--color-ink)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
           </p>
         )}

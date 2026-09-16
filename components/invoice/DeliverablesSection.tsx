@@ -216,13 +216,13 @@ export default function DeliverablesSection({
       <div className="space-y-8">
         <div className="mb-4 border-[3px] border-soft rounded-[var(--radius-box)] bg-paper-2 p-4 shadow-[var(--brutal-shadow-md)]">
           <div className="mb-3">
-            <label className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
+            <label className="type-body font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
             </label>
           </div>
 
           {isReadOnly ? (
-            <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 text-sm font-bold text-[color:var(--color-ink)]">
+            <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 type-body font-bold text-[color:var(--color-ink)]">
               {projectName.trim() || "No project named"}
             </div>
           ) : (
@@ -234,10 +234,10 @@ export default function DeliverablesSection({
                   onProjectNameChange(event.target.value);
                 }}
                 placeholder="e.g. Villa Renovation Phase 2"
-                className="w-full rounded-[var(--radius-soft)] border-[2px] border-soft px-3 py-2 text-sm font-bold text-[color:var(--color-ink)] outline-none )] app-focus-ring"
+                className="w-full rounded-[var(--radius-soft)] border-[2px] border-soft px-3 py-2 type-body font-bold text-[color:var(--color-ink)] outline-none )] app-focus-ring"
               />
               {showAllErrors && !projectName.trim() && (
-                <p className="mt-2 text-xs font-bold text-[#FF5C00]">
+                <p className="mt-2 type-body font-bold text-[#FF5C00]">
                   Name your project to continue.
                 </p>
               )}
@@ -247,8 +247,8 @@ export default function DeliverablesSection({
 
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
           <div className="flex items-center gap-2 border-2 border-[color:var(--color-soft)] rounded-[var(--radius-box)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
-            <span className="text-[12px]">📎</span>
-            <p className="text-[11px] font-normal text-[color:var(--color-ink)]">
+            <span className="type-body">📎</span>
+            <p className="type-label font-normal text-[color:var(--color-ink)]">
               Revision policy: <strong>{freeRevisionRounds}</strong> free rounds per deliverable. Extra rounds at <strong>{extraRevisionFeePercent}%</strong> of item total.
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function DeliverablesSection({
                 {effectiveMilestones.length > 1 && (
                   <div className="flex flex-col gap-4 bg-[color:var(--color-paper)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--color-soft)] rounded-t-[var(--radius-soft)]">
                     <div className="flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-1">
+                      <p className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-1">
                         {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
                           ? "Final Milestone"
                           : `Milestone ${mIdx + 1}`}
@@ -292,15 +292,15 @@ export default function DeliverablesSection({
                           value={milestone.title}
                           placeholder="e.g. Phase 1: Research"
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
-                          className="w-full border border-transparent bg-transparent px-1 -ml-1 text-xl font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--color-soft)] app-focus-ring"
+                          className="w-full border border-transparent bg-transparent px-1 -ml-1 type-title font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--color-soft)] app-focus-ring"
                         />
                         {!isReadOnly && <PencilIcon className="h-4 w-4 cursor-pointer text-gray-400 transition-colors hover:text-[color:var(--color-ink)]" />}
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Milestone Subtotal</p>
-                        <p className="text-lg font-black text-[color:var(--color-ink)]">{formatCurrency(milestoneSubtotal, currency)}</p>
+                        <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Milestone Subtotal</p>
+                        <p className="type-title font-black text-[color:var(--color-ink)]">{formatCurrency(milestoneSubtotal, currency)}</p>
                       </div>
                       {!isReadOnly && effectiveMilestones.length > 1 && (
                         <button
@@ -358,7 +358,7 @@ export default function DeliverablesSection({
                     <button
                       type="button"
                       onClick={() => addLineItem(milestone.id)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-acid)] group"
+                      className="flex items-center gap-2 px-3 py-2 type-body font-bold text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-acid)] group"
                     >
                       <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--color-soft)] group-hover:border-[color:var(--color-acid)] group-hover:bg-[color:var(--color-acc-soft)] transition-all">+</span>
                       Add Line Item
@@ -377,13 +377,13 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 py-6 text-[13px] font-bold text-[color:var(--color-ink-2)] transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-paper-2 py-6 type-body font-bold text-[color:var(--color-ink-2)] transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[color:var(--brand-indigo-deep)] hover:text-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5"
               )}
             >
-              <span className="text-2xl text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)]">+</span>
+              <span className="type-heading text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)]">+</span>
               Add Project Milestone · {MAX_MILESTONES - effectiveMilestones.length} of {MAX_MILESTONES} left
             </button>
           </div>
@@ -512,7 +512,7 @@ function LineItemCard({
         {/* Row 1: Type & SAC */}
         <div className="flex flex-col gap-1.5">
           <div className="min-w-[200px] w-full md:w-fit">
-            <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
               Item Type
             </label>
             <BrutalSelect
@@ -531,7 +531,7 @@ function LineItemCard({
           {/* Sub-type Dropdown (Conditional) */}
           {hasSubTypes && (
             <div className="min-w-[200px] w-full md:w-fit mt-1">
-              <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
+              <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
                 Sub-Type
               </label>
               <BrutalSelect
@@ -546,7 +546,7 @@ function LineItemCard({
           )}
           {sacCode && (
             <div className="flex items-center gap-1.5 pl-1">
-              <p className="text-[11px] font-normal text-[color:var(--color-ink-2)]">
+              <p className="type-label font-normal text-[color:var(--color-ink-2)]">
                 SAC: {sacCode}
               </p>
               <AppTooltip content={<>
@@ -558,7 +558,7 @@ function LineItemCard({
 
         {/* Row 2: Description */}
         <div className="relative">
-          <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
+          <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
             Description
             {autoFilledFields.has(`deliverables.${itemIndex}.description`) && (
               <span className="autofill-indicator">auto-filled</span>
@@ -573,7 +573,7 @@ function LineItemCard({
                 : (invoiceDescriptionPlaceholderByType[item.type] || "Description")
             }
             className={cn(
-              "h-11 text-[14px]",
+              "h-11 type-body",
               getInputStateClass(`deliverables.${itemIndex}.description`, item.description)
             )}
             errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
@@ -601,7 +601,7 @@ function LineItemCard({
                     onUpdate({ description: s });
                     setActiveDescriptionId(null);
                   }}
-                  className="is-interactive w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink)]"
+                  className="is-interactive w-full text-left px-4 py-2.5 type-label font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink)]"
                 >
                   {s}
                 </button>
@@ -615,7 +615,7 @@ function LineItemCard({
           {/* 1. UNIT */}
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight m-0 p-0 block ml-0.5">
+              <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight m-0 p-0 block ml-0.5">
                 Unit
                 {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
                   <span className="autofill-indicator ml-1">auto-filled</span>
@@ -640,14 +640,14 @@ function LineItemCard({
 
           {/* 2. RATE */}
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
-            <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
               Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '').replace('Lump sum', 'LUMP SUM') || ''}` : ''}
               {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
               )}
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[color:var(--color-ink-2)] font-bold pointer-events-none z-10">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 type-body text-[color:var(--color-ink-2)] font-bold pointer-events-none z-10">
                 {getCurrencySymbol(currency)}
               </span>
               <AppTextField
@@ -655,9 +655,9 @@ function LineItemCard({
                 value={item.rate}
                 placeholder={isGuestMode ? "Enter" : "0"}
                 className={isReadOnly
-                  ? "h-11 text-[14px] !pl-10 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] shadow-none"
+                  ? "h-11 type-body !pl-10 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] shadow-none"
                   : cn(
-                      "h-11 text-[14px] !pl-10",
+                      "h-11 type-body !pl-10",
                       getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate),
                     )
                 }
@@ -673,7 +673,7 @@ function LineItemCard({
 
           {/* 3. QTY */}
           <div className="w-full flex-[1_1_80px] sm:w-[80px] sm:flex-none">
-            <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block ml-0.5">
               {(item.rateUnit as string) === 'per-hour' ? 'Hours'
                : (item.rateUnit as string) === 'per-day' ? 'Days'
                : (item.rateUnit as string) === 'per-screen' ? 'Screens'
@@ -698,7 +698,7 @@ function LineItemCard({
               value={item.qty}
               placeholder={isGuestMode ? "Enter" : "0"}
               className={cn(
-                "h-11 text-[14px]",
+                "h-11 type-body",
                 getInputStateClass(`deliverables.${itemIndex}.quantity`, item.qty)
               )}
               errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
@@ -711,10 +711,10 @@ function LineItemCard({
           </div>
 
           <div className="w-full sm:w-auto sm:ml-auto pb-2 text-right">
-            <label className="text-[11px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block">
+            <label className="type-label font-bold text-[color:var(--color-ink-2)] uppercase tracking-tight mb-1.5 block">
               Total
             </label>
-            <p className="text-[13px] font-bold text-[color:var(--color-ink)]">
+            <p className="type-body font-bold text-[color:var(--color-ink)]">
               {formatCurrency(total, currency)}
             </p>
           </div>
@@ -722,7 +722,7 @@ function LineItemCard({
 
         {/* Contextual helper strip */}
         {total > 0 && item.rateUnit && (
-          <div className="mt-1 flex items-center gap-2 text-[11px] text-[color:var(--color-ink-2)]">
+          <div className="mt-1 flex items-center gap-2 type-label text-[color:var(--color-ink-2)]">
             <span className="inline-block w-1 h-1 bg-gray-300" />
             <span>
               {item.rateUnit === 'per-hour' && Number(item.qty) > 0
@@ -779,7 +779,7 @@ function BrutalSelect({
     return (
       <div
         className={cn(
-          "flex h-11 w-full items-center border-2 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 text-[14px] font-normal text-[color:var(--color-ink-2)]",
+          "flex h-11 w-full items-center border-2 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 type-body font-normal text-[color:var(--color-ink-2)]",
           className,
         )}
       >
@@ -793,7 +793,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft rounded-[var(--radius-field)] bg-paper-2 text-left type-body font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
@@ -814,7 +814,7 @@ function BrutalSelect({
                   setIsOpen(false);
                 }}
                 className={cn(
-                  "w-full text-left px-3 py-2.5 text-[14px] transition-colors border-b border-[color:var(--color-soft)] last:border-b-0",
+                  "w-full text-left px-3 py-2.5 type-body transition-colors border-b border-[color:var(--color-soft)] last:border-b-0",
                   isSelected
                     ? "font-bold text-[color:var(--color-ink)] bg-acc-soft"
                     : "is-interactive text-[color:var(--color-ink)]"

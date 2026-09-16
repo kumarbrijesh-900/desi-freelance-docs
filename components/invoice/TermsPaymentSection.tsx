@@ -268,12 +268,12 @@ export default function TermsPaymentSection({
           <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
+                <h3 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
                   Payment & Contract Terms
                 </h3>
                 <div className="mt-1.5 flex items-center gap-2">
                    <span className={cn(
-                    "inline-flex items-center gap-1.5 border-2 px-2.5 py-0.5 text-[10px] font-bold",
+                    "inline-flex items-center gap-1.5 border-2 px-2.5 py-0.5 type-label font-bold",
                     isReadOnly
                       ? "border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink-3)]"
                       : "border-[color:var(--brand-indigo-deep)] bg-[#EEF2FF] text-[color:var(--brand-indigo-deep)]"
@@ -301,7 +301,7 @@ export default function TermsPaymentSection({
                   className="flex items-center gap-2.5 group app-focus-ring"
                 >
                   <span className={cn(
-                    "text-[10px] font-bold uppercase tracking-widest transition-colors",
+                    "type-label font-bold uppercase tracking-widest transition-colors",
                     isAddendumMode ? "text-[color:var(--brand-indigo-deep)]" : "text-[color:var(--color-ink-3)]"
                   )}>
                     {isAddendumMode ? "Override Active" : "Override Terms"}
@@ -335,21 +335,21 @@ export default function TermsPaymentSection({
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Payment Schedule</p>
-                        <p className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                        <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Payment Schedule</p>
+                        <p className="type-body font-bold text-[color:var(--color-ink)]">
                           {meta.paymentTerms === 0 ? "Due on Receipt" : `Net ${meta.paymentTerms} Days`}
                         </p>
-                        <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                        <p className="type-label text-[color:var(--color-ink-2)]">
                           {meta.dueDate ? `Due: ${new Date(meta.dueDate).toLocaleDateString('en-GB')}` : "No date set"}
                         </p>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Intellectual Property</p>
-                        <p className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                        <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Intellectual Property</p>
+                        <p className="type-body font-bold text-[color:var(--color-ink)]">
                           {value.license.isLicenseIncluded ? "License Included ✓" : "No License"}
                         </p>
-                        <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                        <p className="type-label text-[color:var(--color-ink-2)]">
                           {value.license.isLicenseIncluded
                             ? `${value.license.licenseType?.split('-').join(' ')}`
                             : "Standard usage terms"}
@@ -357,18 +357,18 @@ export default function TermsPaymentSection({
                       </div>
 
                       <div className="space-y-1 sm:border-l sm:border-[color:var(--color-soft)] sm:pl-4">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Payment Notes</p>
-                        <p className="text-[12px] text-[color:var(--color-ink)] leading-relaxed whitespace-pre-wrap">
+                        <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Payment Notes</p>
+                        <p className="type-body text-[color:var(--color-ink)] leading-relaxed whitespace-pre-wrap">
                           {value.terms || value.notes || "No specific notes applied."}
                         </p>
                       </div>
 
                       <div className="space-y-1 sm:border-l sm:border-[color:var(--color-soft)] sm:pl-4">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Revision Policy</p>
-                        <p className="text-[13px] font-bold text-[color:var(--color-ink)]">
+                        <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Revision Policy</p>
+                        <p className="type-body font-bold text-[color:var(--color-ink)]">
                           {client.freeRevisionRounds || 2} rounds included per deliverable
                         </p>
-                        <p className="text-[11px] text-[color:var(--color-ink-2)]">
+                        <p className="type-label text-[color:var(--color-ink-2)]">
                           +{client.extraRevisionFeePercent || 15}% of line item per extra round
                         </p>
                       </div>
@@ -413,7 +413,7 @@ export default function TermsPaymentSection({
                                       disabled={isReadOnly}
                                       className="sr-only"
                                      />
-                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-[var(--radius-soft)] border px-3 py-1 text-[12px] font-bold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--color-ink)]" : "app-soft-choice-option text-[color:var(--color-ink)] hover:text-[color:var(--color-ink)]")}>
+                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-[var(--radius-soft)] border px-3 py-1 type-body font-bold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--color-ink)]" : "app-soft-choice-option text-[color:var(--color-ink)] hover:text-[color:var(--color-ink)]")}>
                                       {option.label}
                                     </span>
                                   </label>
@@ -446,7 +446,7 @@ export default function TermsPaymentSection({
                                 disabled={isReadOnly}
                                 onClick={() => handleDaysChange(days)}
                                 className={cn(
-                                  "border-2 px-2.5 py-0.5 text-[10px] font-bold transition-all",
+                                  "border-2 px-2.5 py-0.5 type-label font-bold transition-all",
                                   meta.paymentTerms === days
                                     ? "bg-[color:var(--color-acid)] border-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-sm"
                                     : "bg-[color:var(--color-paper-2)] border-soft text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
@@ -480,12 +480,12 @@ export default function TermsPaymentSection({
                             )}
                            />
                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <span className="text-[12px] font-bold text-[color:var(--color-ink-3)]">Days</span>
+                            <span className="type-body font-bold text-[color:var(--color-ink-3)]">Days</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-1.5">
-                        <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
+                        <p className={cn(appFieldHelperTextClass, "type-label")}>
                           {meta.paymentTerms === 0
                             ? "Payment expected as soon as client receives invoice."
                             : `Calculated as ${meta.paymentTerms} days after issue date.`}
@@ -494,7 +494,7 @@ export default function TermsPaymentSection({
                           <button
                             type="button"
                             onClick={() => updateMetaField("hasAddendum", true)}
-                            className="text-[10px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
+                            className="type-label font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
                           >
                             Override to edit →
                           </button>
@@ -528,7 +528,7 @@ export default function TermsPaymentSection({
                           isReadOnly && "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] cursor-not-allowed border-[color:var(--color-soft)] shadow-none",
                         )}
                        />
-                      <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
+                      <p className={cn(appFieldHelperTextClass, "type-label")}>Exact calendar deadline.</p>
                     </div>
 
                     <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
@@ -565,7 +565,7 @@ export default function TermsPaymentSection({
                     <div className={cn("space-y-6", isReadOnly && "opacity-70")}>
                       <div className="flex flex-wrap gap-6">
                         <div className="flex flex-col">
-                          <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]">
+                          <label className="mb-1.5 block type-label font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]">
                             FREE ROUNDS
                           </label>
                           <div className="flex items-center gap-2">
@@ -580,13 +580,13 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                                 }
                               }}
-                              className="w-16 border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-16 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
-                            <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
+                            <span className="type-body text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                           </div>
                         </div>
                         <div className="flex flex-col">
-                          <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]">
+                          <label className="mb-1.5 block type-label font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]">
                             EXTRA FEE PER ROUND
                           </label>
                           <div className="flex items-center gap-2">
@@ -602,13 +602,13 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                                 }
                               }}
-                              className="w-20 border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-20 border border-soft rounded-[var(--radius-field)] bg-paper-2 type-body font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
-                            <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
+                            <span className="type-body text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                           </div>
                         </div>
                       </div>
-                      <p className="text-[11px] text-[color:var(--color-ink-2)] mt-3 leading-relaxed">
+                      <p className="type-label text-[color:var(--color-ink-2)] mt-3 leading-relaxed">
                         Applied per line item within a milestone. Example: A ₹10,000 deliverable gets 2 free revision rounds. Round 3 onward costs ₹1,500 per round. Other line items in the same milestone are unaffected.
                       </p>
                     </div>
@@ -640,8 +640,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
                               )}
                             >
                               Yes
@@ -654,8 +654,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 !value.license.isLicenseIncluded
-                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
                               )}
                             >
                               No
@@ -687,8 +687,8 @@ export default function TermsPaymentSection({
                                         onClick={() => updateLicenseField("licenseType", opt.value as any)}
                                         className={cn(
                                           value.license.licenseType === opt.value
-                                            ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                            ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
+                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer transition-all"
                                         )}
                                       >
                                         {opt.label}
@@ -733,7 +733,7 @@ export default function TermsPaymentSection({
                                   )}
                                 </AnimatePresence>
 
-                                <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/50 p-3 border border-[color:var(--color-soft)] rounded-[var(--radius-box)]">{licenseExplanation}</p>
+                                <p className="type-label leading-relaxed text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/50 p-3 border border-[color:var(--color-soft)] rounded-[var(--radius-box)]">{licenseExplanation}</p>
                               </div>
                             </motion.div>
                           )}
@@ -749,7 +749,7 @@ export default function TermsPaymentSection({
           {/* Section D: Bank Details */}
           <div className="mt-10">
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
+              <h3 className="type-label font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
                 Bank Details
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]"  />
@@ -1057,7 +1057,7 @@ export default function TermsPaymentSection({
 
                         <div className="rounded-[var(--radius-soft)] bg-[color:var(--color-paper-2)]/50 p-5 ring-1 ring-inset ring-[color:var(--color-soft)]">
 
-                          <pre className="whitespace-pre-wrap font-mono text-[11px] text-[color:var(--color-ink)] leading-relaxed">{value.bankAddress || "No address provided"}</pre>
+                          <pre className="whitespace-pre-wrap font-mono type-label text-[color:var(--color-ink)] leading-relaxed">{value.bankAddress || "No address provided"}</pre>
                         </div>
                       </div>
                     </div>

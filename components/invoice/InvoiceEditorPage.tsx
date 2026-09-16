@@ -2470,10 +2470,10 @@ return (
               <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin" />
             </div>
             <div className="flex flex-col items-center gap-2">
-              <h2 className="text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">
+              <h2 className="type-heading font-bold tracking-tight text-[color:var(--color-ink)]">
                 Scanning & Translating {extractProgress}%
               </h2>
-              <p className="max-w-xs text-center text-sm text-[color:var(--color-ink-2)] animate-pulse">
+              <p className="max-w-xs text-center type-body text-[color:var(--color-ink-2)] animate-pulse">
                 Lance is scanning your brief to structure the invoice...
               </p>
             </div>
@@ -2522,14 +2522,14 @@ return (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
           <div className="mx-auto flex max-w-[1328px] items-center justify-between px-4 py-2 sm:px-6">
             <div className="flex items-center gap-2">
-              <p className="text-[12px] font-normal text-[color:var(--color-ink)]">
+              <p className="type-body font-normal text-[color:var(--color-ink)]">
                 Complete your profile for faster invoicing.
               </p>
             </div>
             <div className="flex items-center gap-4">
               <Link
                 href="/profile"
-                className="text-[12px] font-bold link-indigo hover:underline"
+                className="type-body font-bold link-indigo hover:underline"
               >
                 Finish Profile
               </Link>
@@ -2541,7 +2541,7 @@ return (
                 className="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors flex items-center justify-center h-6 w-6"
                 aria-label="Dismiss"
               >
-                <span className="text-xl leading-none">&times;</span>
+                <span className="type-title leading-none">&times;</span>
               </button>
             </div>
           </div>
@@ -2630,12 +2630,12 @@ return (
           {isGuestMode && (
             <div className="mb-6 print:hidden">
               <div className="border-2 border-[color:var(--color-lime-warm)] bg-[#FFFBE6] px-4 py-3 flex items-center justify-between gap-3">
-                <p className="text-[13px] text-[color:var(--color-ink)]">
+                <p className="type-body text-[color:var(--color-ink)]">
                   <span className="font-bold uppercase tracking-wider">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
                 </p>
                 <Link
                   href="/login"
-                  className="shrink-0 text-[12px] font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-acid"
+                  className="shrink-0 type-body font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-acid"
                 >
                   Sign in →
                 </Link>
@@ -2661,13 +2661,13 @@ return (
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                      <h4 className="type-body font-bold uppercase tracking-wider text-amber-800">
                         Client Negotiation Note
                       </h4>
-                      <p className="mt-1 text-sm leading-relaxed text-amber-900 font-normal">
+                      <p className="mt-1 type-body leading-relaxed text-amber-900 font-normal">
                         &quot;{clientMsaNote}&quot;
                       </p>
-                      <p className="mt-2 text-[11px] text-amber-700">
+                      <p className="mt-2 type-label text-amber-700">
                         Please update the invoice details based on the
                         client&apos;s request above.
                       </p>
@@ -2696,10 +2696,10 @@ return (
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-black">
+                    <h4 className="type-body font-bold uppercase tracking-wider text-black">
                       Locked Archive / Read-only Invoice
                     </h4>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-black/90">
+                    <p className="mt-1 type-body font-normal leading-relaxed text-black/90">
                       {readOnlyReason}
                     </p>
                   </div>
@@ -2791,7 +2791,7 @@ return (
                     onClick={() => scrollToStep(step)}
                     data-mobile-step-active={isActive ? "true" : undefined}
                     className={cn(
-                      "flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-[12px] font-bold transition-all duration-200 active:scale-95",
+                      "flex h-9 shrink-0 items-center gap-2 rounded-full px-4 type-body font-bold transition-all duration-200 active:scale-95",
                       isActive
                         ? "bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)] shadow-md"
                         : isCompleted
@@ -2838,7 +2838,7 @@ return (
                       !isReadOnlyMode && getNextStep(currentStep) ? (
                         <div className="mt-8 flex flex-col items-end gap-2">
                           {!stepValidityByStep[currentStep] && (
-                            <p className="text-[12px] text-[color:var(--color-ink-2)]">
+                            <p className="type-body text-[color:var(--color-ink-2)]">
                               {(() => {
                                 const group = missingFieldGroups.find(g => g.step === currentStep);
                                 if (!group || group.fields.length === 0) {
@@ -2868,7 +2868,7 @@ return (
                               })
                             }
                             className={cn(
-                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] type-body h-10 px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] font-normal cursor-not-allowed"
                                 : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm active:scale-[0.97] transition-all",
@@ -2918,36 +2918,36 @@ return (
                       {/* Editing lives in the Meta step; this is display only. */}
                       <div className="border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
+                          <p className="type-label font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                             Invoice Details
                           </p>
                         </div>
                         <div className="space-y-4">
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">INV #</label>
-                            <p className="text-[14px] font-bold text-[color:var(--color-ink)]">{formData.meta?.invoiceNumber || '—'}</p>
+                            <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">INV #</label>
+                            <p className="type-body font-bold text-[color:var(--color-ink)]">{formData.meta?.invoiceNumber || '—'}</p>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Issued</label>
-                              <p className="text-[13px] font-normal text-[color:var(--color-ink)]">{formData.meta?.invoiceDate || '—'}</p>
+                              <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Issued</label>
+                              <p className="type-body font-normal text-[color:var(--color-ink)]">{formData.meta?.invoiceDate || '—'}</p>
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Due</label>
-                              <p className="text-[13px] font-normal text-[color:var(--color-ochre-deep)]">{formData.meta?.dueDate || '—'}</p>
+                              <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Due</label>
+                              <p className="type-body font-normal text-[color:var(--color-ochre-deep)]">{formData.meta?.dueDate || '—'}</p>
                             </div>
                           </div>
 
                           <div className="space-y-1.5 min-w-0">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
+                            <label className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
                               PO #
                               <AppTooltip content={<>
                                 Purchase Order Number. Required by some enterprise clients for accounts payable matching.
                               </>} />
                             </label>
-                            <p className="text-[13px] font-normal text-[color:var(--color-ink)] break-words">
+                            <p className="type-body font-normal text-[color:var(--color-ink)] break-words">
                               {formData.meta?.poNumber || '—'}
                             </p>
                           </div>
@@ -2957,7 +2957,7 @@ return (
                       {/* Expanded Totals Card */}
                       <div className="border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">Totals</p>
+                          <p className="type-label font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">Totals</p>
                         </div>
                         <TotalsTaxesSection
                           embedded
@@ -2987,8 +2987,8 @@ return (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Total</span>
-                          <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[color:var(--brand-indigo-deep)]' : 'text-gray-300'}`}>
+                          <span className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Total</span>
+                          <p className={`type-title font-bold ${computedTotals.grandTotal > 0 ? 'text-[color:var(--brand-indigo-deep)]' : 'text-gray-300'}`}>
                             {formatCurrency(computedTotals.grandTotal, displayCurrency)}
                           </p>
                         </div>
@@ -3010,8 +3010,8 @@ return (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Total</span>
-                      <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[color:var(--brand-indigo-deep)]' : 'text-gray-300'}`}>
+                      <span className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Total</span>
+                      <p className={`type-title font-bold ${computedTotals.grandTotal > 0 ? 'text-[color:var(--brand-indigo-deep)]' : 'text-gray-300'}`}>
                         {formatCurrency(computedTotals.grandTotal, displayCurrency)}
                       </p>
                     </div>
@@ -3019,8 +3019,8 @@ return (
                       <>
                         <div className="h-6 w-px bg-gray-200" />
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Tax</span>
-                          <p className="text-[13px] font-normal text-[color:var(--color-ink)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
+                          <span className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)]">Tax</span>
+                          <p className="type-body font-normal text-[color:var(--color-ink)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
                         </div>
                       </>
                     )}
@@ -3077,10 +3077,10 @@ return (
             animate={{ scale: 1, opacity: 1, y: 0 }}
             className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] rounded-[var(--radius-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
-            <h3 className="text-lg font-bold text-[color:var(--on-ink)] mb-2">
+            <h3 className="type-title font-bold text-[color:var(--on-ink)] mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
             </h3>
-            <p className="text-sm text-[color:var(--color-ink-2)] mb-6">
+            <p className="type-body text-[color:var(--color-ink-2)] mb-6">
               {postSubmitActionModal.isReady
                 ? "Your invoice is ready. What would you like to do next?"
                 : "We need a few more details to generate the preview. Let's review the form."}
@@ -3124,7 +3124,7 @@ return (
           <button
             type="button"
             onClick={handleBackToHome}
-            className="flex items-center gap-2 text-[13px] font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
+            className="flex items-center gap-2 type-body font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Close</span>
@@ -3134,33 +3134,33 @@ return (
           {/* Grand total — moved here from the deleted right rail. Always
               visible without occupying a column. */}
           <div className="hidden items-baseline gap-2 sm:flex">
-            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+            <span className="type-label font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
               Subtotal
             </span>
-            <span className="text-[12px] tabular-nums text-[color:var(--dock-muted,#6B6660)]">
+            <span className="type-body tabular-nums text-[color:var(--dock-muted,#6B6660)]">
               {formatCurrency(computedTotals.subtotal, displayCurrency)}
             </span>
             <span aria-hidden="true" className="text-[color:var(--color-strong)]">·</span>
-            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+            <span className="type-label font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
               Tax
             </span>
-            <span className="text-[12px] tabular-nums text-[color:var(--dock-muted,#6B6660)]">
+            <span className="type-body tabular-nums text-[color:var(--dock-muted,#6B6660)]">
               {formatCurrency(computedTotals.taxAmount, displayCurrency)}
             </span>
           </div>
 
           <div className="flex items-baseline gap-2">
-            <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
+            <span className="type-label font-medium uppercase tracking-[0.12em] text-[color:var(--dock-muted,#6B6660)]">
               Total
             </span>
-            <span className="text-[15px] font-bold tabular-nums text-[color:var(--color-ink)]">
+            <span className="type-body-lg font-bold tabular-nums text-[color:var(--color-ink)]">
               {formatCurrency(computedTotals.grandTotal, displayCurrency)}
             </span>
           </div>
 
           <div className="h-4 w-px bg-[color:var(--color-soft)]" />
 
-          <div className="flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
+          <div className="flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 type-label font-bold">
             {isReadOnlyMode ? (
               <span className="text-[color:var(--dock-muted,#6B6660)] truncate">
                 <span className="hidden sm:inline">This invoice is locked — {readOnlyReason}</span>

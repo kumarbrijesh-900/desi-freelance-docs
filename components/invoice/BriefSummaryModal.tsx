@@ -370,7 +370,7 @@ function EditableRow({
       <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
-            "text-[13px] font-semibold",
+            "type-body font-semibold",
             isApproved
               ? "text-grass"
               : isLowConfidence
@@ -383,7 +383,7 @@ function EditableRow({
           {label} {isMandatory && <span className="text-coral">*</span>}
         </span>
         {isLowConfidence && (
-          <span className="flex items-center gap-1 rounded-full border border-[color:rgba(200,148,59,0.3)] bg-[color:rgba(200,148,59,0.14)] px-2 py-0.5 text-[11px] font-semibold text-ochre-deep">
+          <span className="flex items-center gap-1 rounded-full border border-[color:rgba(200,148,59,0.3)] bg-[color:rgba(200,148,59,0.14)] px-2 py-0.5 type-label font-semibold text-ochre-deep">
             Low confidence
           </span>
         )}
@@ -395,7 +395,7 @@ function EditableRow({
             <button
               onClick={handleToggle}
               className={cn(
-                "flex h-9 w-full items-center justify-between rounded-[var(--radius-field)] border px-3 text-sm transition-colors",
+                "flex h-9 w-full items-center justify-between rounded-[var(--radius-field)] border px-3 type-body transition-colors",
                 editValue === "true"
                   ? "border-[#bcd8c8] bg-acc-soft text-grass"
                   : "border-soft bg-paper-2 text-ink-2",
@@ -425,7 +425,7 @@ function EditableRow({
                   setEditValue(e.target.value);
                   if (isApproved) onApprove(label, e.target.value);
                 }}
-                className="h-9 w-full appearance-none rounded-[var(--radius-field)] border border-soft bg-paper-2 pl-3 pr-10 text-sm text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
+                className="h-9 w-full appearance-none rounded-[var(--radius-field)] border border-soft bg-paper-2 pl-3 pr-10 type-body text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
               >
                 <option value="">Select {label.toLowerCase()}…</option>
                 {options.map((opt) => (
@@ -447,7 +447,7 @@ function EditableRow({
                 if (isApproved) onApprove(label, e.target.value);
               }}
               placeholder={`Enter ${label.toLowerCase()}…`}
-              className="h-9 w-full rounded-[var(--radius-field)] border border-soft bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
+              className="h-9 w-full rounded-[var(--radius-field)] border border-soft bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
             />
           )}
         </div>
@@ -654,10 +654,10 @@ export default function BriefSummaryModal({
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-ink">
+                <h2 className="font-display type-title font-bold leading-tight tracking-[-0.01em] text-ink">
                   Review the details
                 </h2>
-                <p className="mt-1 text-[13px] text-ink-2">
+                <p className="mt-1 type-body text-ink-2">
                   Confirm what we pulled from your brief before applying.
                 </p>
               </div>
@@ -676,7 +676,7 @@ export default function BriefSummaryModal({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-gold" />
-                  <h3 className="text-[13px] font-semibold text-ink">
+                  <h3 className="type-body font-semibold text-ink">
                     Who&apos;s the client?
                   </h3>
                 </div>
@@ -687,7 +687,7 @@ export default function BriefSummaryModal({
                     borderColor: "rgba(202,161,78,0.4)",
                   }}
                 >
-                  <p className="mb-3.5 text-[13px] leading-relaxed text-ink-2">
+                  <p className="mb-3.5 type-body leading-relaxed text-ink-2">
                     We found two names but couldn&apos;t tell which is which.
                     Pick the one you&apos;re billing.
                   </p>
@@ -696,10 +696,10 @@ export default function BriefSummaryModal({
                       onClick={() => chooseClient(clientNameVal, agencyNameVal)}
                       className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
-                      <span className="block text-[11px] tracking-wide text-ink-3">
+                      <span className="block type-label tracking-wide text-ink-3">
                         Client
                       </span>
-                      <span className="font-display text-[17px] font-bold tracking-[-0.01em] text-ink">
+                      <span className="font-display type-title font-bold tracking-[-0.01em] text-ink">
                         {clientNameVal}
                       </span>
                     </button>
@@ -707,15 +707,15 @@ export default function BriefSummaryModal({
                       onClick={() => chooseClient(agencyNameVal, clientNameVal)}
                       className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
-                      <span className="block text-[11px] tracking-wide text-ink-3">
+                      <span className="block type-label tracking-wide text-ink-3">
                         Client
                       </span>
-                      <span className="font-display text-[17px] font-bold tracking-[-0.01em] text-ink">
+                      <span className="font-display type-title font-bold tracking-[-0.01em] text-ink">
                         {agencyNameVal}
                       </span>
                     </button>
                   </div>
-                  <p className="mt-3 text-[12px] text-ink-3">
+                  <p className="mt-3 type-body text-ink-3">
                     Whichever you pick becomes the client — the other is saved as
                     you (the agency).
                   </p>
@@ -727,8 +727,8 @@ export default function BriefSummaryModal({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-ink-2" />
-                  <h3 className="text-[13px] font-semibold text-ink">Items</h3>
-                  <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                  <h3 className="type-body font-semibold text-ink">Items</h3>
+                  <span className="ml-auto type-body tabular-nums text-ink-3">
                     {displayItems.length}{" "}
                     {displayItems.length === 1 ? "deliverable" : "deliverables"}
                   </span>
@@ -745,13 +745,13 @@ export default function BriefSummaryModal({
                       >
                         <div className="mb-3 flex items-center justify-between gap-3">
                           {item.type ? (
-                            <span className="rounded-full bg-acc-soft px-2.5 py-1 text-[12px] font-semibold text-acid">
+                            <span className="rounded-full bg-acc-soft px-2.5 py-1 type-body font-semibold text-acid">
                               {item.type}
                             </span>
                           ) : (
                             <span />
                           )}
-                          <span className="font-display text-[16px] font-bold tabular-nums text-ink">
+                          <span className="font-display type-body-lg font-bold tabular-nums text-ink">
                             {formatMoney(amount)}
                           </span>
                         </div>
@@ -762,7 +762,7 @@ export default function BriefSummaryModal({
                           }
                           placeholder="Describe this deliverable…"
                           className={cn(
-                            "mb-3 h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                            "mb-3 h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-3 type-body text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
                             i === 0 && primaryDescLow
                               ? "border-[color:rgba(200,148,59,0.5)]"
                               : "border-soft",
@@ -770,7 +770,7 @@ export default function BriefSummaryModal({
                         />
                         <div className="grid grid-cols-3 gap-2.5">
                           <label className="flex flex-col gap-1">
-                            <span className="flex items-center gap-1 text-[11px] text-ink-3">
+                            <span className="flex items-center gap-1 type-label text-ink-3">
                               Qty
                               {i === 0 && primaryQtyLow && (
                                 <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
@@ -783,7 +783,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { qty: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryQtyLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -791,7 +791,7 @@ export default function BriefSummaryModal({
                             />
                           </label>
                           <label className="flex flex-col gap-1">
-                            <span className="flex items-center gap-1 text-[11px] text-ink-3">
+                            <span className="flex items-center gap-1 type-label text-ink-3">
                               Rate
                               {i === 0 && primaryRateLow && (
                                 <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
@@ -804,7 +804,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { rate: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 type-body tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryRateLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -812,8 +812,8 @@ export default function BriefSummaryModal({
                             />
                           </label>
                           <div className="flex flex-col gap-1">
-                            <span className="text-[11px] text-ink-3">Unit</span>
-                            <div className="flex h-9 items-center rounded-[var(--radius-field)] border border-soft bg-paper px-2.5 text-sm text-ink-2">
+                            <span className="type-label text-ink-3">Unit</span>
+                            <div className="flex h-9 items-center rounded-[var(--radius-field)] border border-soft bg-paper px-2.5 type-body text-ink-2">
                               {item.rateUnit ? prettyUnit(item.rateUnit) : "—"}
                             </div>
                           </div>
@@ -824,14 +824,14 @@ export default function BriefSummaryModal({
                 </div>
 
                 <div className="flex items-center justify-between border-t border-[#e6dcc6] px-1 pt-3">
-                  <span className="text-[13px] text-ink-2">Subtotal</span>
-                  <span className="font-display text-[17px] font-bold tabular-nums text-ink">
+                  <span className="type-body text-ink-2">Subtotal</span>
+                  <span className="font-display type-title font-bold tabular-nums text-ink">
                     {formatMoney(itemsSubtotal)}
                   </span>
                 </div>
 
                 {anyItemFieldLow && (
-                  <p className="flex items-start gap-2 px-1 text-[12px] text-ink-3">
+                  <p className="flex items-start gap-2 px-1 type-body text-ink-3">
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ochre" />
                     We couldn&apos;t read the flagged fields cleanly —
                     double-check them. GST is added at the next step.
@@ -844,10 +844,10 @@ export default function BriefSummaryModal({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-[color:var(--color-gold)]" />
-                  <h3 className="text-[13px] font-semibold text-ink">
+                  <h3 className="type-body font-semibold text-ink">
                     Payment schedule
                   </h3>
-                  <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                  <span className="ml-auto type-body tabular-nums text-ink-3">
                     {parsedMilestones.length}{" "}
                     {parsedMilestones.length === 1 ? "milestone" : "milestones"}
                   </span>
@@ -862,23 +862,23 @@ export default function BriefSummaryModal({
                       )}
                     >
                       <div className="min-w-0">
-                        <span className="block truncate text-[13px] font-semibold text-ink">
+                        <span className="block truncate type-body font-semibold text-ink">
                           {m.title?.trim() || `Milestone ${i + 1}`}
                         </span>
                         {(m.condition || m.date) && (
-                          <span className="mt-0.5 block truncate text-[12px] text-ink-3">
+                          <span className="mt-0.5 block truncate type-body text-ink-3">
                             {[m.condition, m.date].filter(Boolean).join(" · ")}
                           </span>
                         )}
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {m.percent != null && (
-                          <span className="rounded-full bg-[#efe6d1] px-2 py-0.5 text-[11px] font-bold tabular-nums text-ink-2">
+                          <span className="rounded-full bg-[#efe6d1] px-2 py-0.5 type-label font-bold tabular-nums text-ink-2">
                             {m.percent}%
                           </span>
                         )}
                         {m.amount != null && (
-                          <span className="text-[13px] font-semibold tabular-nums text-ink">
+                          <span className="type-body font-semibold tabular-nums text-ink">
                             {formatMoney(m.amount)}
                           </span>
                         )}
@@ -886,7 +886,7 @@ export default function BriefSummaryModal({
                     </div>
                   ))}
                 </div>
-                <p className="px-0.5 text-[12px] text-ink-3">
+                <p className="px-0.5 type-body text-ink-3">
                   Shown for reference — milestones aren&apos;t applied to the
                   invoice yet.
                 </p>
@@ -918,10 +918,10 @@ export default function BriefSummaryModal({
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 px-0.5">
                       <span className="h-2 w-2 rounded-full bg-[#a5772a]" />
-                      <h3 className="text-[13px] font-semibold text-ink">
+                      <h3 className="type-body font-semibold text-ink">
                         Updated from your brief
                       </h3>
-                      <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                      <span className="ml-auto type-body tabular-nums text-ink-3">
                         {overrideRows.length} replaced
                       </span>
                     </div>
@@ -951,7 +951,7 @@ export default function BriefSummaryModal({
                             key={f.path}
                             className="rounded-[var(--radius-box)] border border-soft bg-paper p-3"
                           >
-                            <span className="block text-[12px] font-semibold text-ink-2">
+                            <span className="block type-body font-semibold text-ink-2">
                               {f.label}
                             </span>
                             <div className="mt-2 grid grid-cols-2 gap-2">
@@ -972,10 +972,10 @@ export default function BriefSummaryModal({
                                       : "is-interactive border-soft bg-paper-2",
                                   )}
                                 >
-                                  <span className="block text-[11px] font-medium text-ink-3">
+                                  <span className="block type-label font-medium text-ink-3">
                                     {option.caption}
                                   </span>
-                                  <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
+                                  <span className="mt-0.5 block truncate type-body font-semibold tabular-nums text-ink">
                                     {option.value}
                                   </span>
                                 </button>
@@ -995,14 +995,14 @@ export default function BriefSummaryModal({
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 px-0.5">
                       <span className="h-2 w-2 rounded-full bg-[#c2502f]" />
-                      <h3 className="text-[13px] font-semibold text-ink">
+                      <h3 className="type-body font-semibold text-ink">
                         Differs from your saved profile
                       </h3>
-                      <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                      <span className="ml-auto type-body tabular-nums text-ink-3">
                         {conflictFields.length} to confirm
                       </span>
                     </div>
-                    <p className="px-0.5 text-[12px] text-ink-3">
+                    <p className="px-0.5 type-body text-ink-3">
                       Your brief and your saved profile disagree here. Pick what
                       this invoice should use — your profile isn&apos;t changed
                       either way.
@@ -1033,7 +1033,7 @@ export default function BriefSummaryModal({
                             key={f.path}
                             className="rounded-[var(--radius-box)] border border-soft bg-paper p-3"
                           >
-                            <span className="block text-[12px] font-semibold text-ink-2">
+                            <span className="block type-body font-semibold text-ink-2">
                               {f.label}
                             </span>
                             <div className="mt-2 grid grid-cols-2 gap-2">
@@ -1054,10 +1054,10 @@ export default function BriefSummaryModal({
                                       : "is-interactive border-soft bg-paper-2",
                                   )}
                                 >
-                                  <span className="block text-[11px] font-medium text-ink-3">
+                                  <span className="block type-label font-medium text-ink-3">
                                     {option.caption}
                                   </span>
-                                  <span className="mt-0.5 block truncate text-[13px] font-semibold tabular-nums text-ink">
+                                  <span className="mt-0.5 block truncate type-body font-semibold tabular-nums text-ink">
                                     {option.value}
                                   </span>
                                 </button>
@@ -1100,7 +1100,7 @@ export default function BriefSummaryModal({
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 px-0.5">
                       <span className="h-2 w-2 rounded-full bg-grass" />
-                      <h3 className="text-[13px] font-semibold text-ink">
+                      <h3 className="type-body font-semibold text-ink">
                         Extracted with confidence
                       </h3>
                     </div>
@@ -1118,11 +1118,11 @@ export default function BriefSummaryModal({
                               i > 0 && "border-t border-[#e2d8c1]",
                             )}
                           >
-                            <span className="text-[13px] text-ink-2">
+                            <span className="type-body text-ink-2">
                               {f.label}
                             </span>
                             <div className="flex items-center gap-2.5">
-                              <span className="max-w-[240px] truncate text-[13px] font-semibold text-ink">
+                              <span className="max-w-[240px] truncate type-body font-semibold text-ink">
                                 {val}
                               </span>
                               <CheckIcon className="h-3.5 w-3.5 shrink-0 text-grass" />
@@ -1139,11 +1139,11 @@ export default function BriefSummaryModal({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-ochre" />
-                  <h3 className="text-[13px] font-semibold text-ink">
+                  <h3 className="type-body font-semibold text-ink">
                     Low-confidence reads — confirm to apply
                   </h3>
                 </div>
-                <p className="px-0.5 text-[12px] text-ink-3">
+                <p className="px-0.5 type-body text-ink-3">
                   We read these but weren&apos;t sure — nothing is applied unless
                   you confirm it.
                 </p>
@@ -1164,10 +1164,10 @@ export default function BriefSummaryModal({
                         )}
                       >
                         <div className="min-w-0">
-                          <div className="text-[13px] font-semibold text-ink">
+                          <div className="type-body font-semibold text-ink">
                             {suggestion.label}
                           </div>
-                          <div className="text-[12px] text-ink-2">
+                          <div className="type-body text-ink-2">
                             We read:{" "}
                             <span className="font-semibold">{display}</span>
                           </div>
@@ -1181,7 +1181,7 @@ export default function BriefSummaryModal({
                           }
                           disabled={applied}
                           className={cn(
-                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[var(--radius-field)] border px-3 text-sm font-semibold transition-colors",
+                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[var(--radius-field)] border px-3 type-body font-semibold transition-colors",
                             applied
                               ? "border-transparent bg-acid text-acc-ink"
                               : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid",
@@ -1201,7 +1201,7 @@ export default function BriefSummaryModal({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-ochre" />
-                  <h3 className="text-[13px] font-semibold text-ink">
+                  <h3 className="type-body font-semibold text-ink">
                     Needs your input
                   </h3>
                   <div className="ml-auto flex items-center gap-2.5">
@@ -1213,13 +1213,13 @@ export default function BriefSummaryModal({
                         }}
                       />
                     </div>
-                    <span className="text-[12px] font-semibold tabular-nums text-ink-2">
+                    <span className="type-body font-semibold tabular-nums text-ink-2">
                       {reviewRequiredLabels.length - pendingReviewCount}/
                       {reviewRequiredLabels.length}
                     </span>
                   </div>
                 </div>
-                <p className="px-0.5 text-[12px] text-ink-3">
+                <p className="px-0.5 type-body text-ink-3">
                   Only what the brief left blank — nothing above is repeated here.
                 </p>
                 <div className="grid grid-cols-1 gap-2.5">
@@ -1247,10 +1247,10 @@ export default function BriefSummaryModal({
                   className="mt-0.5 h-5 w-5 rounded border-soft text-acid focus:ring-acc-soft"
                 />
                 <div>
-                  <p className="text-[14px] font-semibold text-ink">
+                  <p className="type-body font-semibold text-ink">
                     Save {localData.client.clientName} to your client directory
                   </p>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-ink-2">
+                  <p className="mt-0.5 type-body leading-relaxed text-ink-2">
                     Happens automatically when you generate the invoice.
                   </p>
                 </div>
@@ -1262,12 +1262,12 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-start gap-1">
               <button
                 onClick={onParseAgain}
-                className="is-interactive rounded-[var(--radius-field)] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
+                className="is-interactive rounded-[var(--radius-field)] px-4 py-2.5 type-body font-semibold text-ink-2 transition-colors hover:text-ink"
               >
                 Parse again
               </button>
               {providerUsed && (
-                <p className="px-1 text-[11px] font-medium text-ink-3">
+                <p className="px-1 type-label font-medium text-ink-3">
                   Parsed by {PROVIDER_LABELS[providerUsed]}
                 </p>
               )}
@@ -1275,12 +1275,12 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={() => onSubmit(localData, shouldSaveClient)}
-                className="rounded-[var(--radius-field)] bg-acid px-8 py-3 text-sm font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
+                className="rounded-[var(--radius-field)] bg-acid px-8 py-3 type-body font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
               >
                 Apply to invoice
               </button>
               {pendingReviewCount > 0 && (
-                <p className="text-[11px] font-medium text-[color:var(--color-ochre-deep)]">
+                <p className="type-label font-medium text-[color:var(--color-ochre-deep)]">
                   {pendingReviewCount} left — you can finish them in the editor
                 </p>
               )}

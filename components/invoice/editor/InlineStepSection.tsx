@@ -93,7 +93,7 @@ export function InlineStepSection({
                     STEP {stepNumber} · {stepLabel.toUpperCase()}
                   </p>
                 )}
-                <h2 className="display text-[26px] leading-none m-0">
+                <h2 className="display type-heading leading-none m-0">
                   {stepLabel}
                 </h2>
               </div>
@@ -104,7 +104,7 @@ export function InlineStepSection({
             <div className="flex shrink-0 items-center">
               <span
                 className={cn(
-                  "whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em]",
+                  "whitespace-nowrap rounded-full border px-2.5 py-1 type-label font-medium uppercase tracking-[0.1em]",
                   statusLabel.toLowerCase().includes("ready")
                     ? "border-[color:var(--color-forest)] text-[color:var(--state-success-text)]"
                     : statusLabel.toLowerCase().includes("to go")

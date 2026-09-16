@@ -127,39 +127,39 @@ export default function MSAAcceptanceModal({
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border border-soft bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
-            <h2 className="font-syne text-xl font-bold text-[color:var(--color-ink)]">
+            <h2 className="font-syne type-title font-bold text-[color:var(--color-ink)]">
               Proposal submitted
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-ink)]">
+            <p className="mt-3 type-body leading-relaxed text-[color:var(--color-ink)]">
               Your counter-proposal for <strong>Invoice #{invoiceNumber}</strong> has been sent to {agencyName}. They will review your feedback and get back to you soon.
             </p>
             {msaResponseText && (
               <div className="mt-4 p-4 border-l-4 border-soft bg-[color:var(--color-paper)] text-left">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
+                <p className="type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
                   Client Note
                 </p>
-                <p className="text-[13px] font-normal text-[color:var(--color-ink)] italic whitespace-pre-wrap">
+                <p className="type-body font-normal text-[color:var(--color-ink)] italic whitespace-pre-wrap">
                   &quot;{msaResponseText}&quot;
                 </p>
               </div>
             )}
-            <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] italic">
+            <p className="mt-4 type-label font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] italic">
               This invoice will remain locked until terms are finalized.
             </p>
             {previewMode && onClosePreview && (
               <div className="mt-6 border-t-2 border-soft pt-6">
                 <div className="border border-soft bg-[#f6ecd6] px-4 py-3 shadow-[var(--brutal-shadow-md)] mb-4 text-left">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--color-ochre-deep)] mb-1">
+                  <h3 className="type-body font-bold uppercase tracking-wider text-[color:var(--color-ochre-deep)] mb-1">
                     Preview mode
                   </h3>
-                  <p className="text-[11px] font-medium text-[color:var(--color-ochre-deep)]">
+                  <p className="type-label font-medium text-[color:var(--color-ochre-deep)]">
                     This is the &quot;Proposal submitted&quot; screen your client sees.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={onClosePreview}
-                  className="w-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition-all"
+                  className="w-full border border-soft bg-paper-2 px-6 py-2.5 type-body font-bold uppercase tracking-wider text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[color:var(--color-paper-2)] transition-all"
                 >
                   Close Preview
                 </button>
@@ -182,7 +182,7 @@ export default function MSAAcceptanceModal({
               className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-ochre)] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ochre-deep)] transition-colors"
               aria-label="Close Preview"
             >
-              <span className="text-2xl font-bold leading-none mb-1">×</span>
+              <span className="type-heading font-bold leading-none mb-1">×</span>
             </button>
           )}
           {/* Header */}
@@ -192,10 +192,10 @@ export default function MSAAcceptanceModal({
                 <DocumentSparkIcon className="h-6 w-6" />
               </span>
               <div>
-                <h1 className="font-syne text-xl font-bold text-[color:var(--color-ink)]">
+                <h1 className="font-syne type-title font-bold text-[color:var(--color-ink)]">
                   {mode === "propose" ? "Propose New Terms" : "Action Required: Review Terms"}
                 </h1>
-                <p className="text-sm text-[color:var(--color-ink)]">
+                <p className="type-body text-[color:var(--color-ink)]">
                   Invoice #{invoiceNumber} from <strong>{agencyName}</strong>
                 </p>
               </div>
@@ -210,12 +210,12 @@ export default function MSAAcceptanceModal({
                 <DocumentSparkIcon className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#157a54]">Revised Terms</p>
-                <p className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
+                <p className="type-label font-bold uppercase tracking-[0.14em] text-[#157a54]">Revised Terms</p>
+                <p className="mt-1 type-body font-bold text-[color:var(--color-ink)]">
                   The freelancer has updated the terms in response to your feedback:
                 </p>
                 <div className="mt-2 border-l-2 border-[#157a54] pl-3 py-1">
-                  <p className="text-[13px] italic text-[color:var(--color-ink)] opacity-80">&quot;{msaResponseText}&quot;</p>
+                  <p className="type-body italic text-[color:var(--color-ink)] opacity-80">&quot;{msaResponseText}&quot;</p>
                 </div>
               </div>
             </div>
@@ -229,8 +229,8 @@ export default function MSAAcceptanceModal({
                   <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 1</p>
-                  <p className="mt-1 text-[12px] font-bold text-[color:var(--color-ink)]">Review agreement</p>
+                  <p className="type-label font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 1</p>
+                  <p className="mt-1 type-body font-bold text-[color:var(--color-ink)]">Review agreement</p>
                 </div>
               </div>
             </div>
@@ -240,8 +240,8 @@ export default function MSAAcceptanceModal({
                   <CreditCard className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 2</p>
-                  <p className="mt-1 text-[12px] font-bold text-[color:var(--color-ink)]">{paymentTerms || "Confirm payment terms"}</p>
+                  <p className="type-label font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 2</p>
+                  <p className="mt-1 type-body font-bold text-[color:var(--color-ink)]">{paymentTerms || "Confirm payment terms"}</p>
                 </div>
               </div>
             </div>
@@ -251,8 +251,8 @@ export default function MSAAcceptanceModal({
                   <FileText className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 3</p>
-                  <p className="mt-1 text-[12px] font-bold text-[color:var(--color-ink)]">Accept or request changes</p>
+                  <p className="type-label font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">Step 3</p>
+                  <p className="mt-1 type-body font-bold text-[color:var(--color-ink)]">Accept or request changes</p>
                 </div>
               </div>
             </div>
@@ -264,14 +264,14 @@ export default function MSAAcceptanceModal({
               <div className="space-y-6">
                 {/* MSA Body */}
                 <div>
-                  <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-ink-2)] mb-3">
+                  <h2 className="type-label font-bold uppercase tracking-[0.2em] text-[color:var(--color-ink-2)] mb-3">
                     Master Service Agreement
                   </h2>
                   <div className="rounded-[var(--radius-box)] border border-soft bg-[color:var(--color-paper)] p-5">
-                    <h3 className="font-syne text-[15px] font-bold text-[color:var(--color-ink)] mb-2">
+                    <h3 className="font-syne type-body-lg font-bold text-[color:var(--color-ink)] mb-2">
                       {msaTitle}
                     </h3>
-                    <div className="max-h-[300px] overflow-y-auto pr-2 scrollbar-hide text-[13px] leading-relaxed text-[color:var(--color-ink)] whitespace-pre-wrap">
+                    <div className="max-h-[300px] overflow-y-auto pr-2 scrollbar-hide type-body leading-relaxed text-[color:var(--color-ink)] whitespace-pre-wrap">
                       {msaContent}
                     </div>
                   </div>
@@ -281,25 +281,25 @@ export default function MSAAcceptanceModal({
                 {(paymentTerms || addendumNotes) && (
                   <div className="rounded-[var(--radius-soft)] border border-[#ecd9b0] bg-[#f6ecd6] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-[color:var(--color-ochre)] text-[10px] font-bold text-[color:var(--color-ink)]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-[color:var(--color-ochre)] type-label font-bold text-[color:var(--color-ink)]">
                         !
                       </span>
                       <div>
-                        <h3 className="font-syne text-sm font-bold text-[color:var(--color-ochre-deep)]">
+                        <h3 className="font-syne type-body font-bold text-[color:var(--color-ochre-deep)]">
                           Project-specific addendum
                         </h3>
-                        <p className="mt-1 text-[12px] leading-relaxed text-[color:var(--color-ochre-deep)]">
+                        <p className="mt-1 type-body leading-relaxed text-[color:var(--color-ochre-deep)]">
                           These specific terms override the Master Agreement for this invoice only.
                         </p>
                         <ul className="mt-3 space-y-2">
                           {paymentTerms && (
-                            <li className="flex items-center gap-2 text-[12px] font-normal text-[color:var(--color-ink)]">
+                            <li className="flex items-center gap-2 type-body font-normal text-[color:var(--color-ink)]">
                               <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-ochre)] shrink-0" />
                               Payment terms: <span className="font-bold">{paymentTerms}</span>
                             </li>
                           )}
                           {addendumNotes && (
-                            <li className="flex items-start gap-2 text-[12px] font-normal text-[color:var(--color-ink)]">
+                            <li className="flex items-start gap-2 type-body font-normal text-[color:var(--color-ink)]">
                               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[color:var(--color-ochre)] shrink-0" />
                               <span>Additional notes: <span className="font-bold">{addendumNotes}</span></span>
                             </li>
@@ -313,7 +313,7 @@ export default function MSAAcceptanceModal({
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
+                  <label className="block type-label font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
                     Describe your proposed changes
                   </label>
                   <textarea
@@ -321,10 +321,10 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 rounded-[var(--radius-field)] border border-soft bg-paper-2 p-4 text-sm outline-none transition-colors resize-none app-focus-ring"
+                    className="w-full h-40 rounded-[var(--radius-field)] border border-soft bg-paper-2 p-4 type-body outline-none transition-colors resize-none app-focus-ring"
                   />
                 </div>
-                <p className="text-xs text-[color:var(--color-ink-2)] italic">
+                <p className="type-body text-[color:var(--color-ink-2)] italic">
                   Submitting a proposal will notify the freelancer to review and potentially reissue the invoice with updated terms.
                 </p>
               </div>
@@ -333,7 +333,7 @@ export default function MSAAcceptanceModal({
             {actionError && (
               <div className="mt-5 flex items-start gap-2 rounded-[var(--radius-field)] border border-[#e0b9a6] bg-[#f7e4dc] px-4 py-3" role="alert">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-coral)]" strokeWidth={2.5} />
-                <p className="text-[12px] font-bold leading-5 text-[color:var(--color-coral)]">
+                <p className="type-body font-bold leading-5 text-[color:var(--color-coral)]">
                   {actionError}
                 </p>
               </div>
@@ -345,10 +345,10 @@ export default function MSAAcceptanceModal({
             {previewMode ? (
               <div className="flex flex-col gap-5">
                 <div className="rounded-[var(--radius-soft)] border border-[#ecd9b0] bg-[#f6ecd6] px-6 py-5">
-                  <h3 className="font-syne text-lg font-bold text-[color:var(--color-ochre-deep)] mb-1">
+                  <h3 className="font-syne type-title font-bold text-[color:var(--color-ochre-deep)] mb-1">
                     Preview mode
                   </h3>
-                  <p className="text-sm font-normal text-[color:var(--color-ochre-deep)]">
+                  <p className="type-body font-normal text-[color:var(--color-ochre-deep)]">
                     This is what your client sees when they open the link from their email. You cannot accept on their behalf.
                   </p>
                 </div>
@@ -356,7 +356,7 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     onClick={onClosePreview}
-                    className="self-center rounded-full border border-soft bg-paper-2 px-8 py-3 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)]"
+                    className="self-center rounded-full border border-soft bg-paper-2 px-8 py-3 type-body font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)]"
                   >
                     Close preview
                   </button>
@@ -364,7 +364,7 @@ export default function MSAAcceptanceModal({
               </div>
             ) : mode === "view" ? (
               <>
-                <p className="mb-5 text-xs leading-relaxed text-[color:var(--color-ink-2)]">
+                <p className="mb-5 type-body leading-relaxed text-[color:var(--color-ink-2)]">
                   By clicking &quot;Accept terms&quot;, you are electronically signing the Master Service Agreement and the project addendum for this engagement.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -373,7 +373,7 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setMode("propose")}
-                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2 inline-flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 type-body font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2 inline-flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                       Propose changes
@@ -383,7 +383,7 @@ export default function MSAAcceptanceModal({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleAcceptTerms}
-                    className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                    className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                   >
                     {!isSubmitting && <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />}
                     {isSubmitting ? "Processing…" : "Accept terms"}
@@ -399,7 +399,7 @@ export default function MSAAcceptanceModal({
                     setMode("view");
                     setProposalText("");
                   }}
-                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2"
+                  className="flex-1 min-w-[160px] rounded-full border border-soft bg-paper-2 px-6 py-2.5 type-body font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:cursor-not-allowed disabled:hover:bg-paper-2"
                 >
                   Cancel
                 </button>
@@ -407,7 +407,7 @@ export default function MSAAcceptanceModal({
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}
                   onClick={handleSubmitProposal}
-                  className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
+                  className="flex-[2] min-w-[160px] rounded-full border border-acid bg-acid px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-soft)] disabled:text-[color:var(--color-ink-2)] disabled:cursor-not-allowed"
                 >
                   {isSubmittingProposal ? "Submitting…" : "Submit proposal"}
                 </button>

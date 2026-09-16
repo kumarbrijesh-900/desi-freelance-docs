@@ -149,17 +149,17 @@ export default function BriefIntakeCard({
             className="flex h-12 items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-acid)] border border-soft text-[12px] font-bold text-[color:var(--color-acc-ink)]">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-acid)] border border-soft type-body font-bold text-[color:var(--color-acc-ink)]">
                 ✨
               </span>
               <div className="flex flex-col min-w-0">
                 <span
                   id="brief-intake-collapsed-heading"
-                  className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#6E6E7A]"
+                  className="type-label font-bold uppercase tracking-[0.14em] text-[#6E6E7A]"
                 >
                   AI Autofill
                 </span>
-                <span className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">
+                <span className="truncate type-body font-bold text-[color:var(--color-ink)]">
                   Ready to scan your brief
                 </span>
               </div>
@@ -241,7 +241,7 @@ export default function BriefIntakeCard({
                     {imageFiles.map((file) => (
                       <span
                         key={`${file.name}-${file.lastModified}`}
-                        className="inline-flex items-center gap-2 border border-soft rounded-[var(--radius-chip)] bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[color:var(--color-ink)]"
+                        className="inline-flex items-center gap-2 border border-soft rounded-[var(--radius-chip)] bg-[#F4F4F5] px-2 py-1 type-label font-bold text-[color:var(--color-ink)]"
                       >
                         <ClipboardCheckIcon className="h-3.5 w-3.5" />
                         {file.name}
@@ -291,7 +291,7 @@ export default function BriefIntakeCard({
                     )}
 
                     {(isExtracting || lastExtractionState !== "idle") && (
-                      <p className="ml-2 text-[11px] font-bold text-[#6E6E7A]">
+                      <p className="ml-2 type-label font-bold text-[#6E6E7A]">
                         {statusCopy}
                       </p>
                     )}
