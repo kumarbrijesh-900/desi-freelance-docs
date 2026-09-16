@@ -18,7 +18,33 @@ import {
 
 /* ─── Types ───────────────────────────────────────────────── */
 
-export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED" | "CANCELLED";
+/**
+ * Every value `invoices.status` can actually hold. The column is plain `text`
+ * with no CHECK, and the casing really is mixed: createInvoice defaults to
+ * "DRAFT" while the editor writes "draft"; share-invoice writes "finalized";
+ * settlement writes "SETTLED" and the live rows say "settled". "cancelled" is
+ * written lowercase, unlike invoice_milestones which uses "CANCELLED".
+ *
+ * This union documents that mess rather than hiding it. It is NOT a constraint:
+ * TypeScript lets any string literal be asserted into a union of other string
+ * literals, which is why six `"draft" as InvoiceStatus` casts have compiled
+ * happily against a type that did not contain "draft".
+ *
+ * Every consumer must `.toLowerCase()` before comparing. The real fix is a
+ * canon migration like 20260707120000_milestone_status_canon.sql, which did
+ * exactly this for invoice_milestones and left this column behind.
+ *
+ * "SAVED" was in this union and is produced by nothing; it has been removed.
+ */
+export type InvoiceStatus =
+  | "DRAFT"
+  | "draft"
+  | "SENT"
+  | "finalized"
+  | "PARTIAL"
+  | "SETTLED"
+  | "settled"
+  | "cancelled";
 
 export type MsaStatus = "pending" | "accepted" | "rejected" | "proposed";
 

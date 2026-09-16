@@ -194,7 +194,16 @@ export interface Database {
 
           form_data: Json
 
-          status: 'DRAFT' | 'SAVED' | 'SENT' | 'PARTIAL' | 'SETTLED'
+          /** See InvoiceStatus in lib/supabase/invoices.ts - same union, same reasons. */
+          status:
+            | 'DRAFT'
+            | 'draft'
+            | 'SENT'
+            | 'finalized'
+            | 'PARTIAL'
+            | 'SETTLED'
+            | 'settled'
+            | 'cancelled'
 
           share_token: string | null
 
@@ -206,8 +215,23 @@ export interface Database {
 
           msa_id: string | null
 
-          msa_response: 'PENDING' | 'ACCEPTED' | 'REVISION ASKED'
-          msa_status: 'PENDING' | 'ACCEPTED' | 'REVISION ASKED'
+          /**
+           * Free `text`, despite the name. It defaults to 'pending' and holds
+           * a status-ish string on most rows, but proposeMsaChanges() writes
+           * the client's revision note into it. Do not narrow this to a union.
+           */
+          msa_response: string | null
+          /**
+           * The real Postgres enum `msa_acceptance_status`, all lowercase.
+           * 'proposed' was added to the type directly in the database and was
+           * missing from migrations until 20260916000000.
+           */
+          msa_status:
+            | 'pending'
+            | 'accepted'
+            | 'rejected'
+            | 'proposed'
+            | null
           msa_responded_at: string | null
 
           client_msa_note: string | null
