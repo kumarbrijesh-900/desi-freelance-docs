@@ -137,6 +137,7 @@ export function calculateInvoiceTotals(formData: any): InvoiceComputedValues {
     sgst: money.sgstTotal,
     igst: money.igstTotal,
     taxAmount: money.taxTotal,
+    warnings: money.warnings,
     totalPayable: money.grossBeforeRounding,
     label: money.label,
   };

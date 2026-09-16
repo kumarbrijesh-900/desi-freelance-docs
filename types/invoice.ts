@@ -167,6 +167,8 @@ export interface TaxConfig {
 
 export type InvoiceTaxType = 'cgst_sgst' | 'igst' | 'zero_rated' | 'exempt';
 
+import type { MoneyWarning } from "@/lib/money/types";
+
 export interface InvoiceTaxBreakdown {
   registered: boolean;
   taxType: InvoiceTaxType;
@@ -224,6 +226,15 @@ export interface InvoiceComputedValues extends InvoiceTaxBreakdown {
   taxAmount: number;
   grandTotal: number;
   isRcmEnabled: boolean;
+  /**
+   * What the engine noticed while computing the tax: a lapsed LUT, an
+   * unresolvable place of supply, a registered supplier billing at 0%. The
+   * engine has produced these since it was written and nothing displayed
+   * them, so a 14-lakh draft could sit at 0% GST and say nothing.
+   *
+   * Operator-facing only. The client cannot renew your LUT.
+   */
+  warnings: MoneyWarning[];
 }
 
 export type InvoiceStepperStep =

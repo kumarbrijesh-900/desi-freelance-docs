@@ -77,6 +77,7 @@ import {
   getCurrentUserEmail,
 } from "@/lib/supabase/invoices";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
+import TaxWarningStrip from "@/components/invoice/TaxWarningStrip";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -3101,6 +3102,8 @@ return (
 
     {/* Fixed Bottom Action Bar */}
     <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-[color:var(--dock-bg,rgba(255,255,255,0.8))] px-4 py-4 backdrop-blur-xl">
+      {/* Against the totals, because that is what they are about. */}
+      <TaxWarningStrip warnings={computedTotals.warnings} />
       <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
