@@ -90,8 +90,8 @@ export function Toaster() {
           )}
 
           <div className="flex-1 pt-0.5">
-            <div className="text-xs font-bold text-ink">{toast.ttl}</div>
-            {toast.sub && <div className="text-[11px] text-ink-2 mt-0.5">{toast.sub}</div>}
+            <div className="text-[length:var(--text-body)] font-bold text-ink">{toast.ttl}</div>
+            {toast.sub && <div className="text-[length:var(--text-label)] text-ink-2 mt-0.5">{toast.sub}</div>}
           </div>
 
           <div

@@ -30,7 +30,7 @@ export function buttonClasses(variant: ButtonVariant = "primary", className?: st
     "inline-flex items-center justify-center gap-2 px-4 py-2.5",
     "rounded-[var(--radius-field)]",
     "app-focus-ring",
-    "font-sans text-xs font-bold tracking-[0.1em] uppercase",
+    "font-sans text-[length:var(--text-body)] font-bold tracking-[0.1em] uppercase",
     "cursor-pointer transition-[transform,box-shadow,background-color,border-color] duration-150",
     "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
     variants[variant],

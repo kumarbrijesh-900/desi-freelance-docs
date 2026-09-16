@@ -43,7 +43,7 @@ export default function ChoiceCards<T extends string>({
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-[var(--radius-soft)] border px-3 py-2 text-left text-[13px] font-normal transition-all duration-150 ${
+      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-[var(--radius-soft)] border px-3 py-2 text-left text-[length:var(--text-body)] font-normal transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--color-ink)]"
           : "app-soft-choice-option text-[color:var(--color-ink)] opacity-65 hover:opacity-100"
@@ -51,7 +51,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "minimal-segmented") {
-      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-[var(--radius-soft)] px-3 py-1 text-center text-[13px] font-normal transition-all duration-200 ${
+      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-[var(--radius-soft)] px-3 py-1 text-center text-[length:var(--text-body)] font-normal transition-all duration-200 ${
         isSelected
           ? "bg-paper-2 text-[color:var(--color-ink)] shadow-sm ring-1 ring-black/5"
           : "bg-transparent text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
@@ -59,7 +59,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-[var(--app-radius-pill)] border px-3 py-1.5 text-left text-[13px] font-normal whitespace-nowrap transition-all duration-150 ${
+      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-[var(--app-radius-pill)] border px-3 py-1.5 text-left text-[length:var(--text-body)] font-normal whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--color-ink)]"
           : "app-soft-choice-option text-[color:var(--color-ink)] opacity-65 hover:opacity-100"
@@ -143,7 +143,7 @@ export default function ChoiceCards<T extends string>({
               >
                 <span
                   className={cn(
-                    "block text-[13px] font-normal",
+                    "block text-[length:var(--text-body)] font-normal",
                     variant === "segmented" || variant === "minimal-segmented"
                       ? "break-words leading-[1.35]"
                       : "leading-5",
@@ -155,7 +155,7 @@ export default function ChoiceCards<T extends string>({
                   <span
                     id={descriptionId}
                     className={cn(
-                      "mt-1 block text-[11px] leading-5",
+                      "mt-1 block text-[length:var(--text-label)] leading-5",
                       isSelected
                         ? "text-[color:var(--color-ink)]"
                         : "text-[color:var(--color-ink-2)]",

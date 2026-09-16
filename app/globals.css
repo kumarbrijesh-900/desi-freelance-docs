@@ -144,6 +144,27 @@
   --on-strong: var(--color-ink);
   --on-ink:    var(--color-paper);
 
+  /* Type scale. Six sizes for the operator surfaces. Steps are arithmetic at
+     the bottom and geometric at the top on purpose: below ~15px a 1px
+     difference is a rendering artefact rather than a signal, so the small end
+     needs whole-pixel gaps; above it perception is proportional, so the large
+     end needs ratio gaps. Four sizes inside a 4px band is not a hierarchy.
+       label    meta, table cells, badges, uppercase micro-copy
+       body     the base — every run of reading text
+       body-lg  lead paragraphs, the one-line page description
+       title    card and section headings
+       heading  page-level headings
+       display  the largest type in the app
+     Marketing surfaces (the landing hero) keep their own larger range and are
+     deliberately NOT on this scale. */
+  --text-label:   11px;
+  --text-body:    13px;
+  --text-body-lg: 15px;
+  --text-title:   18px;
+  --text-heading: 24px;
+  --text-display: 32px;
+
+
   --radius-chip:  8px;
   --radius-field: 11px;
   --radius-box:   14px;

@@ -17,7 +17,7 @@ export function Sticker({ rotate = -4, tone = "acid", children, className }: Sti
       className={cn(
         "inline-flex items-center gap-1.5 px-3 py-1.5",
         "border border-soft rounded-full",
-        "font-display font-semibold text-[13px]",
+        "font-display font-semibold text-[length:var(--text-body)]",
         "shadow-[var(--brutal-shadow-md)]",
         tone === "acid"   && "bg-acid text-acc-ink",
         tone === "coral"  && "bg-[color:var(--state-danger-bg)] text-[color:var(--state-danger-text)]",

@@ -12,7 +12,7 @@ export function AppAvatar({ src, initials, size = "md", className, ...props }: A
     <div
       className={cn(
         "relative flex shrink-0 items-center justify-center overflow-hidden border border-soft bg-[color:var(--color-gold)] text-[color:var(--color-ink)] font-black uppercase shadow-[var(--brutal-shadow-sm)]",
-        size === "sm" ? "h-8 w-8 text-xs" : size === "lg" ? "h-16 w-16 text-xl" : "h-12 w-12 text-sm",
+        size === "sm" ? "h-8 w-8 text-[length:var(--text-body)]" : size === "lg" ? "h-16 w-16 text-[length:var(--text-title)]" : "h-12 w-12 text-[length:var(--text-body)]",
         className
       )}
       {...props}
