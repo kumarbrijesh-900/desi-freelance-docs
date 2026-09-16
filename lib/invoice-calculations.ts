@@ -15,6 +15,35 @@ export function flattenMilestonesToLineItems(
 }
 
 /**
+ * Tax on an amount that is NOT the invoice's own line-item total - a single
+ * milestone's value, say. `calculateInvoiceTotals` cannot express this: it
+ * derives the taxable value from the line items.
+ *
+ * Both surfaces that needed this used to call `computeInvoiceTax` directly,
+ * which is a SECOND implementation of the tax rules. That is how the invoice
+ * document came to print correct CGST/SGST rows under a total that excluded
+ * them - the rows came from one implementation and the total from the other,
+ * and nothing could tell they disagreed. One source, or the two will drift.
+ *
+ * `tests/money/run-legacy-parity-tests.ts` sweeps 11,664 combinations and
+ * asserts the engine matches `computeInvoiceTax` on every one, with a single
+ * intended divergence: a LUT that lapsed on 31 March, which the engine catches
+ * and the legacy misses. Callers get the correct answer there.
+ */
+export function computeTaxOnAmount(
+  formData: any,
+  taxableValue: number,
+): InvoiceComputedValues {
+  return calculateInvoiceTotals({
+    ...formData,
+    // One synthetic line carrying the amount. Everything else - registration,
+    // place of supply, LUT, reverse charge, rate - still comes from formData.
+    milestones: undefined,
+    lineItems: [{ qty: 1, rate: Number(taxableValue) || 0 }],
+  });
+}
+
+/**
  * The amount actually payable, tax inclusive. Derived from form_data via the
  * same calculateInvoiceTotals the invoice document uses, so a summary card can
  * never disagree with the PDF it summarises.

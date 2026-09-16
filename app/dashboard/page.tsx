@@ -21,7 +21,7 @@ import { Marker } from "@/components/ui/Marker";
 import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle";
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeTaxOnAmount } from "@/lib/invoice-calculations";
 
 type TriggerMode = "immediate" | "scheduled" | "cancelled";
 
@@ -494,7 +494,7 @@ function DashboardContent() {
         const nextMilestoneNumber = nextMilestone ? (nextMilestone.order_index ?? 0) + 1 : settlementChoice.milestoneNumber + 1;
         const milestoneAmount = Number(currentMilestone?.amount || 0);
         const taxBreakdown = masterInvoice?.form_data
-          ? computeInvoiceTax(masterInvoice.form_data as any, milestoneAmount)
+          ? computeTaxOnAmount(masterInvoice.form_data as any, milestoneAmount)
           : null;
         const settlementAmount = taxBreakdown ? taxBreakdown.totalPayable : milestoneAmount;
         const tdsPercent = settlementChoice.tdsPercent || 0;

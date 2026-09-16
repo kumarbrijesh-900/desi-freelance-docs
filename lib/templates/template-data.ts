@@ -6,10 +6,9 @@
  * All business logic lives HERE, not in templates.
  */
 
-import type { InvoiceFormData } from "@/types/invoice";
+import type { InvoiceFormData, InvoiceTaxBreakdown } from "@/types/invoice";
 import type { TemplateData, TemplateLineItem, TemplateTaxRow } from "./template-types";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { getGstStateCode } from "@/lib/gst-state-codes";
 import { amountToWords } from "@/lib/amount-to-words";
 import {
@@ -53,7 +52,7 @@ function formatCurrency(amount: number, currency = "INR"): string {
 }
 
 function buildTaxRows(
-  taxInfo: ReturnType<typeof computeInvoiceTax>,
+  taxInfo: InvoiceTaxBreakdown,
   currency: string,
 ): TemplateTaxRow[] {
   if (taxInfo.taxType === "cgst_sgst") {
@@ -176,7 +175,11 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
       ? formatCurrency(convertInrToApproximateUsd(totals.grandTotal), "USD")
       : null;
 
-  const taxInfo = computeInvoiceTax(formData, totals.subtotal);
+  // `totals` already carries the full InvoiceTaxBreakdown - InvoiceComputedValues
+  // extends it, and calculateInvoiceTotals returns every field including label
+  // and totalPayable. Deriving the rows from the same object that produces
+  // TOTAL DUE is the point: they cannot disagree.
+  const taxInfo = totals;
   const taxRows = buildTaxRows(taxInfo, displayCurrency);
 
   // Sec 170 CGST Act: surface the rounding applied to reach the whole-rupee

@@ -3,7 +3,7 @@
 import React from "react";
 import { DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { computeSettlementTiming, formatTimingPill, formatProjectedDate } from "@/lib/lifecycle/timing";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeTaxOnAmount } from "@/lib/invoice-calculations";
 import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
@@ -148,7 +148,7 @@ export function ActiveDrilldown({
 
   const dotColors = ["bg-ink"];
   const subtotal = items.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.rate || 0)), 0);
-  const taxBreakdown = computeInvoiceTax(invoice.form_data, subtotal);
+  const taxBreakdown = computeTaxOnAmount(invoice.form_data, subtotal);
   const grandTotal = taxBreakdown.totalPayable;
 
   let dueDays: number | null = null;
