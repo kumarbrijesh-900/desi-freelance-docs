@@ -67,7 +67,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
           </p>
 
           {hasMultipleMilestones && (
-            <div className="rounded-[12px] border border-[#ecd9b0] bg-[#f6ecd6] px-4 py-3">
+            <div className="rounded-[var(--radius-field)] border border-[#ecd9b0] bg-[#f6ecd6] px-4 py-3">
               <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ochre-deep)]">
                 Milestone warning
               </div>

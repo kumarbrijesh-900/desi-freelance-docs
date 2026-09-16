@@ -41,7 +41,7 @@ export function MilestoneFocusCard({
   };
 
   return (
-    <div className="rounded-[14px] border border-soft bg-[color:var(--color-paper-2)] p-4">
+    <div className="rounded-[var(--radius-box)] border border-soft bg-[color:var(--color-paper-2)] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {data.isOverdue && data.daysLate !== null ? (

@@ -10,7 +10,7 @@ export const AppProgressBar = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("relative h-4 w-full overflow-hidden rounded-2xl border border-soft bg-paper-2 shadow-[var(--brutal-shadow-pressed)]", className)}
+      className={cn("relative h-4 w-full overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-pressed)]", className)}
       {...props}
     >
       <div

@@ -12,7 +12,7 @@ export default function Error({
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6">
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-[18px] border border-soft bg-paper-2 px-8 py-14 text-center"
+        className="relative w-full max-w-md overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 px-8 py-14 text-center"
         style={{ boxShadow: "var(--shadow-chunk)" }}
       >
         <div
@@ -35,7 +35,7 @@ export default function Error({
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => reset()}
-              className="inline-flex items-center gap-2 rounded-[12px] bg-acid px-6 py-2.5 text-[15px] font-bold text-acc-ink transition hover:bg-acid-2 active:scale-[0.96]"
+              className="inline-flex items-center gap-2 rounded-[var(--radius-field)] bg-acid px-6 py-2.5 text-[15px] font-bold text-acc-ink transition hover:bg-acid-2 active:scale-[0.96]"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4" />
@@ -45,7 +45,7 @@ export default function Error({
             </button>
             <Link
               href="/dashboard"
-              className="rounded-[12px] border border-strong px-6 py-2.5 text-[15px] font-bold text-acid transition hover:bg-acc-soft"
+              className="rounded-[var(--radius-field)] border border-strong px-6 py-2.5 text-[15px] font-bold text-acid transition hover:bg-acc-soft"
             >
               Back to dashboard
             </Link>

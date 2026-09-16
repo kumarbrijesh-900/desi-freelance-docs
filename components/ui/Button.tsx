@@ -28,7 +28,7 @@ const variants: Record<ButtonVariant, string> = {
 export function buttonClasses(variant: ButtonVariant = "primary", className?: string) {
   return cn(
     "inline-flex items-center justify-center gap-2 px-4 py-2.5",
-    "rounded-xl",
+    "rounded-[var(--radius-field)]",
     "app-focus-ring",
     "font-sans text-xs font-bold tracking-[0.1em] uppercase",
     "cursor-pointer transition-[transform,box-shadow,background-color,border-color] duration-150",

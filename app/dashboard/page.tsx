@@ -392,12 +392,12 @@ function DashboardContent() {
             <div className="flex flex-col min-h-full p-5 md:p-6 relative overflow-x-hidden">
               <button
                 onClick={() => router.replace('/dashboard')}
-                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[11px] bg-[color:var(--color-paper-2)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
+                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
               >
                 ← Projects
               </button>
               {dueSoonAlerts.length > 0 && (
-                <div className="mb-6 rounded-[14px] border border-soft bg-acc-soft shadow-[var(--elev-1)]">
+                <div className="mb-6 rounded-[var(--radius-box)] border border-soft bg-acc-soft shadow-[var(--elev-1)]">
                   <div className="px-4 py-2 border-b border-soft text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
                     <span className="w-4 h-4 flex items-center justify-center rounded-full bg-[color:var(--color-coral)] text-acc-ink text-[10px] font-bold">!</span>
                     PAYMENTS DUE SOON · {dueSoonAlerts.length}
@@ -456,7 +456,7 @@ function DashboardContent() {
 
             </div>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[16px] m-8">
+            <div className="flex h-full flex-col items-center justify-center bg-[color:var(--color-paper-2)] border border-soft rounded-[var(--radius-soft)] m-8">
               <div className="text-2xl font-semibold mb-2 tracking-tight">Select a project</div>
               <p className="text-neutral-500 font-bold tracking-wide">
                 Or click + New invoice to start
@@ -467,7 +467,7 @@ function DashboardContent() {
       </main>
 
       {actionMessage && (
-        <div className="fixed bottom-5 right-5 z-50 border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-3 text-sm font-bold shadow-[var(--brutal-shadow-md)]">
+        <div className="fixed bottom-5 right-5 z-50 border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-3 text-sm font-bold shadow-[var(--brutal-shadow-md)]">
           <button
             type="button"
             onClick={() => setActionMessage(null)}
@@ -554,7 +554,7 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-3 py-1 text-xl font-bold leading-none text-ink transition-colors hover:bg-[color:var(--color-paper-2)]"
+                  className="rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-1 text-xl font-bold leading-none text-ink transition-colors hover:bg-[color:var(--color-paper-2)]"
                   aria-label="Close settlement drawer"
                 >
                   ×
@@ -612,7 +612,7 @@ function DashboardContent() {
                             const next = Math.max(0, Math.min(100, Number(event.target.value) || 0));
                             setSettlementChoice(choice => (choice ? { ...choice, tdsPercent: next } : choice));
                           }}
-                          className="h-9 w-16 rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right text-sm font-semibold tabular-nums outline-none app-focus-ring"
+                          className="h-9 w-16 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-2 text-right text-sm font-semibold tabular-nums outline-none app-focus-ring"
                         />
                         <span className="text-sm font-bold text-[color:var(--color-ink-2)]">%</span>
                       </div>
@@ -641,7 +641,7 @@ function DashboardContent() {
                     Contract authority
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-[9px] border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] font-syne text-base font-bold text-[color:var(--color-acid)]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-chip)] border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] font-syne text-base font-bold text-[color:var(--color-acid)]">
                       §
                     </div>
                     <div className="font-syne text-base font-bold text-[color:var(--color-ink)]">
@@ -727,7 +727,7 @@ function DashboardContent() {
                 </section>
 
                 {drawerActivity.length > 0 && (
-                  <div className="rounded-[14px] border border-soft bg-[color:var(--color-paper-2)] p-4 mb-4">
+                  <div className="rounded-[var(--radius-box)] border border-soft bg-[color:var(--color-paper-2)] p-4 mb-4">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-3">
                       Activity
                     </div>
@@ -802,7 +802,7 @@ function DashboardContent() {
                               min={formatDateInputValue(0)}
                               value={settlementChoice.triggerDate}
                               onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
-                              className="mt-3 w-full rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-sm font-semibold outline-none app-focus-ring"
+                              className="mt-3 w-full rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-sm font-semibold outline-none app-focus-ring"
                             />
                           )}
                         </span>
@@ -844,7 +844,7 @@ function DashboardContent() {
       {/* ── Project Closure Delight Modal ── */}
       {projectClosureData && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-[480px] border border-soft rounded-[16px] bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+          <div className="w-full max-w-[480px] border border-soft rounded-[var(--radius-soft)] bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-lg)] overflow-hidden">
             {/* Header Area */}
             <div className="relative overflow-hidden bg-acid px-8 py-10 text-center">
               {/* Confetti / Delight elements (static CSS representation) */}
@@ -882,7 +882,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border border-soft rounded-[11px] bg-ink py-4 text-[13px] font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border border-soft rounded-[var(--radius-field)] bg-ink py-4 text-[13px] font-bold uppercase tracking-widest text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>

@@ -65,7 +65,7 @@ export function Toaster() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[10px] border border-soft shadow-[var(--brutal-shadow-md)] bg-paper-2 relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
+          className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[var(--radius-field)] border border-soft shadow-[var(--brutal-shadow-md)] bg-paper-2 relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
         >
           {toast.kind === "success" && (
             <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">

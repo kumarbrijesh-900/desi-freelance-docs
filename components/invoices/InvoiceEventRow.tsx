@@ -162,7 +162,7 @@ export function InvoiceEventRow({
                 e.stopPropagation();
                 onDelete(invoice.id);
               }}
-              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all"
+              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-[color:var(--on-coral)] text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all"
               title="Delete Invoice"
             >
               🗑

@@ -130,7 +130,7 @@ export default function NotificationBell() {
           )}
         />
         {hasUnread && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border border-soft bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border border-soft bg-coral text-[9px] font-bold text-[color:var(--on-coral)] animate-in zoom-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}

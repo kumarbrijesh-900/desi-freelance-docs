@@ -123,14 +123,37 @@
   --safe-area-bottom: env(safe-area-inset-bottom);
   --safe-area-left: env(safe-area-inset-left);
 
-  --radius-pill: 9999px;
-  --radius-box:  14px;
-  --radius-soft: 18px;
+  /* Radius scale. Five steps, each ~3px inside the one above, so a nested
+     corner sits concentric with its parent instead of nearly-concentric.
+     Radius is not theme-dependent: these are defined once, not mirrored.
+       chip  — badges, small square controls, things INSIDE a card
+       field — buttons, inputs, pills with text
+       box   — cards, panels, list rows
+       soft  — shells: modals, drawers, outermost containers
+       pill  — fully round */
+  /* On-accent foregrounds. An accent fill and the text on it are a PAIR.
+     Mirroring each side independently is not enough: the accents flip
+     lightness between themes, and --color-strong flips the opposite way from
+     the rest, so no single foreground serves them all. Every "text on a
+     coloured fill" reads --on-<accent>; none of them hardcodes a colour. */
+  --on-acid:   var(--color-acc-ink);
+  --on-coral:  #ffffff;
+  --on-grass:  #ffffff;
+  --on-ochre:  var(--color-ink);
+  --on-gold:   var(--color-ink);
+  --on-strong: var(--color-ink);
+  --on-ink:    var(--color-paper);
 
-  /* App-radius aliases → E radii (referenced across the app but never defined) */
-  --app-radius-button:  var(--radius-box);
-  --app-radius-control: var(--radius-box);
-  --app-radius-card:    var(--radius-soft);
+  --radius-chip:  8px;
+  --radius-field: 11px;
+  --radius-box:   14px;
+  --radius-soft:  18px;
+  --radius-pill:  9999px;
+
+  /* App-radius aliases → the scale above. */
+  --app-radius-button:  var(--radius-field);
+  --app-radius-control: var(--radius-field);
+  --app-radius-card:    var(--radius-box);
   --app-radius-shell:   var(--radius-soft);
 }
 
@@ -1601,6 +1624,15 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-strong:          #c9bb9d;
   --color-acid-2:          #2d5a48;
   --color-acc-soft:        #e7efe7;
+
+  /* On-accent pairs for the light ground (see the :root block for why). */
+  --on-acid:   var(--color-acc-ink);
+  --on-coral:  #ffffff;
+  --on-grass:  #ffffff;
+  --on-ochre:  var(--color-ink);
+  --on-gold:   var(--color-ink);
+  --on-strong: var(--color-ink);
+  --on-ink:    var(--color-paper);
   --color-ochre:           #c8943b;
   --color-ochre-deep:      #a5772a;
   --color-gold:            #caa14e;
@@ -1695,6 +1727,15 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-acid:         #c8f542;
   --color-acid-2:       #b4e32e;
   --color-acc-soft:     #1d201a;
+
+  /* On-accent pairs for the dark ground (see the :root block for why). */
+  --on-acid:   var(--color-paper);
+  --on-coral:  var(--color-paper);
+  --on-grass:  var(--color-paper);
+  --on-ochre:  var(--color-paper);
+  --on-gold:   var(--color-paper);
+  --on-strong: var(--color-ink);
+  --on-ink:    var(--color-paper);
   --color-acc-ink:      #0e0f0c;
   --color-ochre:        #f5c542;
   --color-ochre-deep:   #d9a92e;

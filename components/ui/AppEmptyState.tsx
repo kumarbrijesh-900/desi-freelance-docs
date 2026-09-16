@@ -13,13 +13,13 @@ export function AppEmptyState({ title, description, icon, action, className, ...
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-soft border-dashed bg-[color:var(--color-paper)] p-8 text-center shadow-none",
+        "flex flex-col items-center justify-center rounded-[var(--radius-soft)] border border-soft border-dashed bg-[color:var(--color-paper)] p-8 text-center shadow-none",
         className
       )}
       {...props}
     >
       {icon && (
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-soft bg-paper-2 shadow-[var(--brutal-shadow-sm)]">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-sm)]">
           {icon}
         </div>
       )}

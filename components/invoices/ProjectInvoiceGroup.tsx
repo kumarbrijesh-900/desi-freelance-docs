@@ -60,6 +60,18 @@ const ACCENT: Record<string, string> = {
   revision: "var(--color-coral)",
 };
 
+/* The text that goes ON each accent. An accent and its foreground are a pair:
+   the accents flip lightness between themes, so a fixed `text-white` reads in
+   one theme and is invisible in the other. */
+const ON_ACCENT: Record<string, string> = {
+  partial: "var(--on-ochre)",
+  awaiting: "var(--on-gold)",
+  complete: "var(--on-acid)",
+  live: "var(--on-acid)",
+  overdue: "var(--on-coral)",
+  revision: "var(--on-coral)",
+};
+
 export function ProjectInvoiceGroup({
   projectName,
   clientName,
@@ -96,6 +108,7 @@ export function ProjectInvoiceGroup({
     : { key: labels[0] || "draft", text: cap(labels[0] || "draft") };
 
   const accent = ACCENT[roll.key] || "var(--color-strong)";
+  const onAccent = ON_ACCENT[roll.key] || "var(--on-strong)";
 
   // Milestone progress spine (heuristic): dots = milestone count, filled = settled invoices.
   const master = items[0]?.masterInvoice;
@@ -115,19 +128,19 @@ export function ProjectInvoiceGroup({
   const cInitial = (clientName || "U").slice(0, 2).toUpperCase();
 
   return (
-    <div className="bg-paper-2 border border-soft rounded-[16px] mb-4 overflow-hidden shadow-[0_12px_30px_-20px_rgba(30,61,51,0.4)]">
+    <div className="bg-paper-2 border border-soft rounded-[var(--radius-soft)] mb-4 overflow-hidden shadow-[0_12px_30px_-20px_rgba(30,61,51,0.4)]">
       {/* Project header (click to collapse) */}
       <div
         onClick={() => setExpanded(v => !v)}
         className="relative flex items-center gap-3 px-[18px] py-[15px] cursor-pointer select-none"
       >
-        <span className="absolute left-0 top-3 bottom-3 w-[4px] rounded-r-[3px]" style={{ background: accent }} />
+        <span className="absolute left-0 top-3 bottom-3 w-[4px] rounded-r-full" style={{ background: accent }} />
         <span className={`text-ink/40 text-[13px] w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>
         <div className="flex-1 min-w-0">
           <div className={`font-display font-bold text-[17px] leading-tight tracking-[-0.01em] truncate ${unlinked ? "text-ink-2" : "text-ink"}`}>{pName}</div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[11.5px] text-ink-2 min-w-0">
             {!unlinked && (
-              <span className="w-[18px] h-[18px] rounded-full grid place-items-center text-[8px] font-extrabold text-white shrink-0" style={{ background: accent }}>{cInitial}</span>
+              <span className="w-[18px] h-[18px] rounded-full grid place-items-center text-[8px] font-extrabold shrink-0" style={{ background: accent, color: onAccent }}>{cInitial}</span>
             )}
             {!unlinked && <span className="truncate">{clientName || "Unknown"}</span>}
             {!unlinked && <span className="text-ink/40 font-bold">·</span>}
@@ -170,7 +183,7 @@ export function ProjectInvoiceGroup({
               <Link
                 key={inv.id}
                 href={invoiceRowHref(inv.id, inv.status)}
-                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[11px] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
+                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[var(--radius-field)] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
               >
                 <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
                 <div

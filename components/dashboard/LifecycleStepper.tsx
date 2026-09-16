@@ -214,7 +214,7 @@ export function LifecycleStepper({
         </span>
       </button>
 
-      <div className={`${listOpen ? "block" : "hidden"} max-w-[1100px] bg-[color:var(--color-paper-2)] border border-soft rounded-[14px] p-4 mb-4`}>
+      <div className={`${listOpen ? "block" : "hidden"} max-w-[1100px] bg-[color:var(--color-paper-2)] border border-soft rounded-[var(--radius-box)] p-4 mb-4`}>
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
           const segSolid = idx < liveStopIndex;
@@ -254,7 +254,7 @@ export function LifecycleStepper({
               </div>
               <div className="flex-1 min-w-0 pt-1">
                 {stop.state === "live" && (
-                  <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-bold font-mono uppercase rounded-sm">NOW</span>
+                  <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-bold font-mono uppercase rounded-[var(--radius-chip)]">NOW</span>
                 )}
                 <div className="text-[10px] text-ink-2 font-bold font-mono uppercase tracking-widest mb-0.5">{stop.kicker}</div>
                 <div className={`text-[14px] font-display font-bold leading-tight mb-0.5 ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.name}</div>

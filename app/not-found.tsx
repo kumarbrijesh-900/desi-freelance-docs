@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6">
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-[18px] border border-soft bg-paper-2 px-8 py-14 text-center"
+        className="relative w-full max-w-md overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 px-8 py-14 text-center"
         style={{ boxShadow: "var(--shadow-chunk)" }}
       >
         <div
@@ -27,7 +27,7 @@ export default function NotFound() {
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-[12px] bg-acid px-6 py-2.5 text-[15px] font-bold text-acc-ink transition hover:bg-acid-2 active:scale-[0.96]"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-field)] bg-acid px-6 py-2.5 text-[15px] font-bold text-acc-ink transition hover:bg-acid-2 active:scale-[0.96]"
           >
             Back to dashboard
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

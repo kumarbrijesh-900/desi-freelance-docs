@@ -116,7 +116,7 @@ export default function InvoiceMetaSection({
     <section
       className={cn(
         embedded
-          ? "rounded-2xl border-0 bg-transparent p-0 shadow-none"
+          ? "rounded-[var(--radius-soft)] border-0 bg-transparent p-0 shadow-none"
           : getAppPanelClass(),
       )}
     >

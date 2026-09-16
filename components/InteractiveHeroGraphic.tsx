@@ -111,7 +111,7 @@ export default function InteractiveHeroGraphic() {
       >
         <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rotate-12" />
         <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[color:var(--color-lime-warm)]/10 rounded-full" />
-        <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-sm -rotate-12" />
+        <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-[var(--radius-chip)] -rotate-12" />
       </motion.div>
 
       {/* LAYER 4: Glassmorphic Card */}

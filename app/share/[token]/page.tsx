@@ -290,7 +290,7 @@ export default function PublicInvoiceSharePage({
 
       {showAcceptedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-5 py-3 shadow-lg">
+          <div className="flex items-center gap-2.5 rounded-[var(--radius-field)] border border-[#c7e4d4] bg-[#e4f1ea] px-5 py-3 shadow-lg">
             <span className="text-[#157a54] text-base">✓</span>
             <p className="text-sm font-bold text-[#157a54]">
               Terms accepted — invoice is now active
@@ -301,7 +301,7 @@ export default function PublicInvoiceSharePage({
 
       {showProposedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 rounded-[12px] border border-[#ecd9b0] bg-[#f6ecd6] px-5 py-3 shadow-lg">
+          <div className="flex items-center gap-2.5 rounded-[var(--radius-field)] border border-[#ecd9b0] bg-[#f6ecd6] px-5 py-3 shadow-lg">
             <span className="text-[color:var(--color-ochre-deep)] font-bold text-base">✓</span>
             <p className="text-sm font-bold text-[color:var(--color-ochre-deep)]">
               Proposal sent — waiting for the freelancer to review your changes.

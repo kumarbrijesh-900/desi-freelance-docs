@@ -1105,7 +1105,7 @@ function PreviewContent() {
                   onMouseUp={() => setIsPanning(false)}
                   onMouseLeave={() => setIsPanning(false)}
                   className={cn(
-                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--color-paper)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--color-soft)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
+                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--color-paper)]/30 rounded-t-[var(--radius-soft)] xl:rounded-l-[var(--radius-soft)] xl:rounded-tr-none border border-[color:var(--color-soft)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
                     "overflow-auto cursor-grab active:cursor-grabbing scrollbar-hide"
                   )}
                   style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
@@ -1119,7 +1119,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-2xl border border-[color:var(--color-ink)] bg-paper-2 shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-[var(--radius-soft)] border border-[color:var(--color-ink)] bg-paper-2 shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",
@@ -1137,7 +1137,7 @@ function PreviewContent() {
               </div>
 
               {/* Right: Slim Template Picker Bar */}
-              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--color-soft)] bg-paper-2 overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
+              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--color-soft)] bg-paper-2 overflow-y-auto rounded-b-[var(--radius-soft)] xl:rounded-r-[var(--radius-soft)] xl:rounded-bl-none print:hidden scrollbar-hide">
                 <div className="p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] mb-4">
                     Choose Template

@@ -2645,7 +2645,7 @@ return (
           <div className="space-y-4">
             {clientMsaNote && (
               <MotionReveal preset="fade-up" className="mb-2">
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                <div className="rounded-[var(--radius-field)] border border-amber-200 bg-amber-50 p-4 shadow-sm">
                   <div className="flex items-start gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                       <svg
@@ -2916,7 +2916,7 @@ return (
                     <div className="space-y-4">
                       {/* Inline Meta Card — read-only summary */}
                       {/* Editing lives in the Meta step; this is display only. */}
-                      <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                             Invoice Details
@@ -2955,7 +2955,7 @@ return (
                       </div>
 
                       {/* Expanded Totals Card */}
-                      <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">Totals</p>
                         </div>
@@ -2981,7 +2981,7 @@ return (
                   <div 
                     id="live-totals-footer" 
                     className={cn(
-                      "border border-[color:var(--color-soft)] rounded-[14px] transition-all duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
+                      "border border-[color:var(--color-soft)] rounded-[var(--radius-box)] transition-all duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -3005,7 +3005,7 @@ return (
             <div className="xl:hidden mt-4">
               <div
                 id="mobile-totals-footer"
-                className="border border-soft rounded-[14px] bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
+                className="border border-soft rounded-[var(--radius-box)] bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -3075,9 +3075,9 @@ return (
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] rounded-[16px] p-6 shadow-[var(--brutal-shadow-lg)]"
+            className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] rounded-[var(--radius-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
-            <h3 className="text-lg font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-[color:var(--on-ink)] mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
             </h3>
             <p className="text-sm text-[color:var(--color-ink-2)] mb-6">
@@ -3181,7 +3181,7 @@ return (
               onClick={handleSaveDraft}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-4 border border-[color:var(--color-soft)] rounded-[11px] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                "h-9 px-4 border border-[color:var(--color-soft)] rounded-[var(--radius-field)] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
               )}
             >
               <SaveIcon className="mr-2 h-4 w-4" />

@@ -228,7 +228,7 @@ export default function AgencyDetailsSection({
       <section
         className={cn(
           embedded
-            ? "rounded-2xl border-0 bg-transparent p-0 shadow-none"
+            ? "rounded-[var(--radius-soft)] border-0 bg-transparent p-0 shadow-none"
             : getAppPanelClass(),
         )}
       >
@@ -440,7 +440,7 @@ export default function AgencyDetailsSection({
                         </AnimatePresence>
 
                         {showNoLutTotalsNote && (
-                          <div className="rounded-2xl bg-[color:var(--color-paper-2)] px-3 py-2">
+                          <div className="rounded-[var(--radius-soft)] bg-[color:var(--color-paper-2)] px-3 py-2">
                             <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>
@@ -547,7 +547,7 @@ export default function AgencyDetailsSection({
                   )}
                 />
                 {showSuggestions && showProfileSuggestion && !isReadOnly && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-paper-2 p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[var(--radius-box)] bg-paper-2 p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
                     </div>

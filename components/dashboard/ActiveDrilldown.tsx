@@ -110,7 +110,7 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border border-soft rounded-[11px] font-bold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
+  let btnClass = "border border-soft rounded-[var(--radius-field)] font-bold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
@@ -183,7 +183,7 @@ export function ActiveDrilldown({
 
   return (
     <div className="flex flex-col xl:flex-row gap-5 min-h-0">
-      <div className="flex-1 bg-paper rounded-[14px] p-5 border border-soft flex flex-col">
+      <div className="flex-1 bg-paper rounded-[var(--radius-box)] p-5 border border-soft flex flex-col">
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
@@ -258,7 +258,7 @@ export function ActiveDrilldown({
                   type="button"
                   onClick={onResend}
                   title={nudgeTooltip}
-                  className="px-4 py-2 rounded-[11px] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] is-interactive transition-all group relative"
+                  className="px-4 py-2 rounded-[var(--radius-field)] bg-[color:var(--color-paper-2)] text-ink border border-soft font-bold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] is-interactive transition-all group relative"
                 >
                   NUDGE CLIENT
                 </button>

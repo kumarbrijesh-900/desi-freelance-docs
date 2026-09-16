@@ -359,7 +359,7 @@ function EditableRow({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-3 rounded-[12px] border p-4 transition-colors",
+        "group relative flex flex-col gap-3 rounded-[var(--radius-field)] border p-4 transition-colors",
         isApproved
           ? "border-[#bcd8c8] bg-acc-soft"
           : isLowConfidence
@@ -395,7 +395,7 @@ function EditableRow({
             <button
               onClick={handleToggle}
               className={cn(
-                "flex h-9 w-full items-center justify-between rounded-[10px] border px-3 text-sm transition-colors",
+                "flex h-9 w-full items-center justify-between rounded-[var(--radius-field)] border px-3 text-sm transition-colors",
                 editValue === "true"
                   ? "border-[#bcd8c8] bg-acc-soft text-grass"
                   : "border-soft bg-paper-2 text-ink-2",
@@ -406,7 +406,7 @@ function EditableRow({
               </span>
               <div
                 className={cn(
-                  "flex h-5 w-5 items-center justify-center rounded-[6px] border transition-colors",
+                  "flex h-5 w-5 items-center justify-center rounded-[var(--radius-chip)] border transition-colors",
                   editValue === "true"
                     ? "border-transparent bg-acid"
                     : "border-soft bg-paper",
@@ -425,7 +425,7 @@ function EditableRow({
                   setEditValue(e.target.value);
                   if (isApproved) onApprove(label, e.target.value);
                 }}
-                className="h-9 w-full appearance-none rounded-[10px] border border-soft bg-paper-2 pl-3 pr-10 text-sm text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
+                className="h-9 w-full appearance-none rounded-[var(--radius-field)] border border-soft bg-paper-2 pl-3 pr-10 text-sm text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
               >
                 <option value="">Select {label.toLowerCase()}…</option>
                 {options.map((opt) => (
@@ -447,7 +447,7 @@ function EditableRow({
                 if (isApproved) onApprove(label, e.target.value);
               }}
               placeholder={`Enter ${label.toLowerCase()}…`}
-              className="h-9 w-full rounded-[10px] border border-soft bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
+              className="h-9 w-full rounded-[var(--radius-field)] border border-soft bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
             />
           )}
         </div>
@@ -458,7 +458,7 @@ function EditableRow({
             aria-label="Approve this field"
             disabled={!editValue.trim() || (isApproved && !isLowConfidence)}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-colors",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-field)] border transition-colors",
               isApproved
                 ? "border-transparent bg-acid text-acc-ink"
                 : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid disabled:opacity-40",
@@ -645,12 +645,12 @@ export default function BriefSummaryModal({
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[18px] border border-soft bg-paper-2"
+          className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2"
           style={{ boxShadow: "var(--shadow-chunk-lg)" }}
         >
           <div className="flex items-center justify-between gap-4 border-b border-[#e6dcc6] px-6 py-5">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-acc-soft text-acid">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-field)] bg-acc-soft text-acid">
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
@@ -664,7 +664,7 @@ export default function BriefSummaryModal({
             </div>
             <button
               onClick={() => onContinueManually(localData)}
-              className="is-interactive flex h-9 w-9 items-center justify-center rounded-[9px] text-ink-3 transition-colors hover:text-ink"
+              className="is-interactive flex h-9 w-9 items-center justify-center rounded-[var(--radius-chip)] text-ink-3 transition-colors hover:text-ink"
               aria-label="Close"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -681,7 +681,7 @@ export default function BriefSummaryModal({
                   </h3>
                 </div>
                 <div
-                  className="rounded-[14px] border p-4"
+                  className="rounded-[var(--radius-box)] border p-4"
                   style={{
                     background: "rgba(202,161,78,0.12)",
                     borderColor: "rgba(202,161,78,0.4)",
@@ -694,7 +694,7 @@ export default function BriefSummaryModal({
                   <div className="flex flex-wrap gap-2.5">
                     <button
                       onClick={() => chooseClient(clientNameVal, agencyNameVal)}
-                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
+                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
                       <span className="block text-[11px] tracking-wide text-ink-3">
                         Client
@@ -705,7 +705,7 @@ export default function BriefSummaryModal({
                     </button>
                     <button
                       onClick={() => chooseClient(agencyNameVal, clientNameVal)}
-                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
+                      className="flex-1 basis-[180px] rounded-[var(--radius-field)] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid is-interactive"
                     >
                       <span className="block text-[11px] tracking-wide text-ink-3">
                         Client
@@ -741,7 +741,7 @@ export default function BriefSummaryModal({
                     return (
                       <div
                         key={item.id ?? i}
-                        className="rounded-[14px] border border-soft bg-paper p-4"
+                        className="rounded-[var(--radius-box)] border border-soft bg-paper p-4"
                       >
                         <div className="mb-3 flex items-center justify-between gap-3">
                           {item.type ? (
@@ -762,7 +762,7 @@ export default function BriefSummaryModal({
                           }
                           placeholder="Describe this deliverable…"
                           className={cn(
-                            "mb-3 h-9 w-full rounded-[10px] border bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                            "mb-3 h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
                             i === 0 && primaryDescLow
                               ? "border-[color:rgba(200,148,59,0.5)]"
                               : "border-soft",
@@ -783,7 +783,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { qty: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[10px] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryQtyLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -804,7 +804,7 @@ export default function BriefSummaryModal({
                                 updateLineItem(i, { rate: e.target.value })
                               }
                               className={cn(
-                                "h-9 w-full rounded-[10px] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                "h-9 w-full rounded-[var(--radius-field)] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
                                 i === 0 && primaryRateLow
                                   ? "border-[color:rgba(200,148,59,0.5)]"
                                   : "border-soft",
@@ -813,7 +813,7 @@ export default function BriefSummaryModal({
                           </label>
                           <div className="flex flex-col gap-1">
                             <span className="text-[11px] text-ink-3">Unit</span>
-                            <div className="flex h-9 items-center rounded-[10px] border border-soft bg-paper px-2.5 text-sm text-ink-2">
+                            <div className="flex h-9 items-center rounded-[var(--radius-field)] border border-soft bg-paper px-2.5 text-sm text-ink-2">
                               {item.rateUnit ? prettyUnit(item.rateUnit) : "—"}
                             </div>
                           </div>
@@ -852,7 +852,7 @@ export default function BriefSummaryModal({
                     {parsedMilestones.length === 1 ? "milestone" : "milestones"}
                   </span>
                 </div>
-                <div className="overflow-hidden rounded-[14px] border border-soft bg-paper">
+                <div className="overflow-hidden rounded-[var(--radius-box)] border border-soft bg-paper">
                   {parsedMilestones.map((m, i) => (
                     <div
                       key={i}
@@ -949,7 +949,7 @@ export default function BriefSummaryModal({
                         return (
                           <div
                             key={f.path}
-                            className="rounded-[14px] border border-soft bg-paper p-3"
+                            className="rounded-[var(--radius-box)] border border-soft bg-paper p-3"
                           >
                             <span className="block text-[12px] font-semibold text-ink-2">
                               {f.label}
@@ -966,7 +966,7 @@ export default function BriefSummaryModal({
                                     )
                                   }
                                   className={cn(
-                                    "rounded-[10px] border px-3 py-2 text-left transition-colors",
+                                    "rounded-[var(--radius-field)] border px-3 py-2 text-left transition-colors",
                                     option.selected
                                       ? "border-[#a5772a] bg-[#fbf6ec]"
                                       : "is-interactive border-soft bg-paper-2",
@@ -1031,7 +1031,7 @@ export default function BriefSummaryModal({
                         return (
                           <div
                             key={f.path}
-                            className="rounded-[14px] border border-soft bg-paper p-3"
+                            className="rounded-[var(--radius-box)] border border-soft bg-paper p-3"
                           >
                             <span className="block text-[12px] font-semibold text-ink-2">
                               {f.label}
@@ -1048,7 +1048,7 @@ export default function BriefSummaryModal({
                                     )
                                   }
                                   className={cn(
-                                    "rounded-[10px] border px-3 py-2 text-left transition-colors",
+                                    "rounded-[var(--radius-field)] border px-3 py-2 text-left transition-colors",
                                     option.selected
                                       ? "border-[#c2502f] bg-[#f7ece6]"
                                       : "is-interactive border-soft bg-paper-2",
@@ -1104,7 +1104,7 @@ export default function BriefSummaryModal({
                         Extracted with confidence
                       </h3>
                     </div>
-                    <div className="overflow-hidden rounded-[14px] border border-soft bg-paper">
+                    <div className="overflow-hidden rounded-[var(--radius-box)] border border-soft bg-paper">
                       {successFields.map((f, i) => {
                         const val = formatConfidentValue(
                           f.label,
@@ -1157,7 +1157,7 @@ export default function BriefSummaryModal({
                       <div
                         key={suggestion.path}
                         className={cn(
-                          "flex items-center justify-between gap-3 rounded-[12px] border p-4 transition-colors",
+                          "flex items-center justify-between gap-3 rounded-[var(--radius-field)] border p-4 transition-colors",
                           applied
                             ? "border-[#bcd8c8] bg-acc-soft"
                             : "border-[color:rgba(200,148,59,0.4)] bg-[#faf4e5]",
@@ -1181,7 +1181,7 @@ export default function BriefSummaryModal({
                           }
                           disabled={applied}
                           className={cn(
-                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[10px] border px-3 text-sm font-semibold transition-colors",
+                            "flex h-9 shrink-0 items-center gap-1.5 rounded-[var(--radius-field)] border px-3 text-sm font-semibold transition-colors",
                             applied
                               ? "border-transparent bg-acid text-acc-ink"
                               : "border-soft bg-paper-2 text-ink-2 hover:border-acid hover:text-acid",
@@ -1239,7 +1239,7 @@ export default function BriefSummaryModal({
             )}
 
             {isNewClient && isLoggedIn && (
-              <label className="flex cursor-pointer items-start gap-3 rounded-[12px] border border-[#bcd8c8] bg-acc-soft p-4">
+              <label className="flex cursor-pointer items-start gap-3 rounded-[var(--radius-field)] border border-[#bcd8c8] bg-acc-soft p-4">
                 <input
                   type="checkbox"
                   checked={shouldSaveClient}
@@ -1262,7 +1262,7 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-start gap-1">
               <button
                 onClick={onParseAgain}
-                className="is-interactive rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
+                className="is-interactive rounded-[var(--radius-field)] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:text-ink"
               >
                 Parse again
               </button>
@@ -1275,7 +1275,7 @@ export default function BriefSummaryModal({
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={() => onSubmit(localData, shouldSaveClient)}
-                className="rounded-[12px] bg-acid px-8 py-3 text-sm font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
+                className="rounded-[var(--radius-field)] bg-acid px-8 py-3 text-sm font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
               >
                 Apply to invoice
               </button>

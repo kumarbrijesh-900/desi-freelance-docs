@@ -13,7 +13,7 @@ export function Box({ shadow = "ink", tone, className, children, ...props }: Box
   return (
     <div
       className={cn(
-        "border border-soft rounded-[4px] relative",
+        "border border-soft rounded-[var(--radius-chip)] relative",
         shadow === "ink"      && "shadow-[var(--brutal-shadow-md)]",
         shadow === "coral"    && "shadow-[var(--brutal-shadow-lg)]",
         shadow === "sky"      && "shadow-[var(--brutal-shadow-lg)]",

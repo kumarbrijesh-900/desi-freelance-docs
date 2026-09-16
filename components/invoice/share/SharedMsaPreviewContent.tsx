@@ -265,7 +265,7 @@ export default function SharedMsaPreviewContent({
 
         {!showMsaOverlay && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
+            <div className="flex items-center gap-2.5 rounded-[var(--radius-field)] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-[#157a54]" strokeWidth={2.5} />
               <p className="text-sm font-bold text-[#157a54]">
                 {isChildInvoice
@@ -281,7 +281,7 @@ export default function SharedMsaPreviewContent({
             <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-paper-2 shadow-[var(--brutal-shadow-sm)]">
               <div className="flex flex-col gap-3 border-b border-soft bg-[color:var(--color-paper)] px-5 py-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-acid bg-acid text-[color:var(--color-acc-ink)]" aria-hidden="true">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-field)] border border-acid bg-acid text-[color:var(--color-acc-ink)]" aria-hidden="true">
                     <Banknote className="h-5 w-5" strokeWidth={2.4} />
                   </span>
                   <div>
@@ -293,7 +293,7 @@ export default function SharedMsaPreviewContent({
                     </p>
                   </div>
                 </div>
-                <div className="rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-left md:text-right">
+                <div className="rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-left md:text-right">
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                     Payment reference
                   </p>
@@ -391,7 +391,7 @@ export default function SharedMsaPreviewContent({
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
         {isChildInvoice && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
+            <div className="flex items-center gap-2.5 rounded-[var(--radius-field)] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
               <span className="text-[#157a54] text-sm">✓</span>
               <p className="text-sm text-[#157a54]">
                 <span className="font-bold">MSA previously accepted</span>
@@ -410,7 +410,7 @@ export default function SharedMsaPreviewContent({
           showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
-            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-[var(--radius-soft)] border border-soft bg-paper-2 px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
+            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-[var(--radius-soft)] border border-soft bg-paper-2 px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-[var(--radius-soft)] print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
             preset="scale-in"
           >
             <TemplateRenderer formData={formData} templateId={templateId} />

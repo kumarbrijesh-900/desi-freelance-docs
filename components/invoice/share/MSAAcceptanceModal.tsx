@@ -179,7 +179,7 @@ export default function MSAAcceptanceModal({
             <button
               type="button"
               onClick={onClosePreview}
-              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-[10px] border border-soft bg-[color:var(--color-ochre)] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ochre-deep)] transition-colors"
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-ochre)] text-[color:var(--color-ink)] hover:bg-[color:var(--color-ochre-deep)] transition-colors"
               aria-label="Close Preview"
             >
               <span className="text-2xl font-bold leading-none mb-1">×</span>
@@ -188,7 +188,7 @@ export default function MSAAcceptanceModal({
           {/* Header */}
           <div className="border-b border-soft bg-[color:var(--color-paper)] px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-[12px] bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)]">
+              <span className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-field)] bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)]">
                 <DocumentSparkIcon className="h-6 w-6" />
               </span>
               <div>
@@ -206,7 +206,7 @@ export default function MSAAcceptanceModal({
            !['pending', 'accepted', 'rejected', 'proposed', 'negotiating'].includes(msaResponseText.toLowerCase()) && 
            mode === "view" && (
             <div className="border-b border-soft bg-[#e4f1ea] px-6 py-4 sm:px-8 flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#c7e4d4] bg-paper-2 text-[#157a54]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-chip)] border border-[#c7e4d4] bg-paper-2 text-[#157a54]">
                 <DocumentSparkIcon className="h-4 w-4" />
               </span>
               <div>
@@ -225,7 +225,7 @@ export default function MSAAcceptanceModal({
           <div className="grid border-b border-soft bg-paper-2 sm:grid-cols-3">
             <div className="border-b border-soft p-4 sm:border-b-0 sm:border-r">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#c7e4d4] bg-[#e4f1ea] text-[#157a54]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-chip)] border border-[#c7e4d4] bg-[#e4f1ea] text-[#157a54]">
                   <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -236,7 +236,7 @@ export default function MSAAcceptanceModal({
             </div>
             <div className="border-b border-soft p-4 sm:border-b-0 sm:border-r">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-[#cadbd6] bg-[#e3ecea] text-[#3c6e63]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-chip)] border border-[#cadbd6] bg-[#e3ecea] text-[#3c6e63]">
                   <CreditCard className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -247,7 +247,7 @@ export default function MSAAcceptanceModal({
             </div>
             <div className="p-4">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-chip)] border border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
                   <FileText className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -281,7 +281,7 @@ export default function MSAAcceptanceModal({
                 {(paymentTerms || addendumNotes) && (
                   <div className="rounded-[var(--radius-soft)] border border-[#ecd9b0] bg-[#f6ecd6] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-[color:var(--color-ochre)] text-[10px] font-bold text-[color:var(--color-ink)]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-[color:var(--color-ochre)] text-[10px] font-bold text-[color:var(--color-ink)]">
                         !
                       </span>
                       <div>
@@ -321,7 +321,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 rounded-[12px] border border-soft bg-paper-2 p-4 text-sm outline-none transition-colors resize-none app-focus-ring"
+                    className="w-full h-40 rounded-[var(--radius-field)] border border-soft bg-paper-2 p-4 text-sm outline-none transition-colors resize-none app-focus-ring"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--color-ink-2)] italic">
@@ -331,7 +331,7 @@ export default function MSAAcceptanceModal({
             )}
 
             {actionError && (
-              <div className="mt-5 flex items-start gap-2 rounded-[12px] border border-[#e0b9a6] bg-[#f7e4dc] px-4 py-3" role="alert">
+              <div className="mt-5 flex items-start gap-2 rounded-[var(--radius-field)] border border-[#e0b9a6] bg-[#f7e4dc] px-4 py-3" role="alert">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-coral)]" strokeWidth={2.5} />
                 <p className="text-[12px] font-bold leading-5 text-[color:var(--color-coral)]">
                   {actionError}

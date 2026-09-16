@@ -30,10 +30,10 @@ export default function UploadToast({ message, visible }: UploadToastProps) {
               "shadow-xl",
             )}
           >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-400)] text-[color:var(--color-ink)] shadow-[0_1px_0_rgba(255,255,255,0.2)]">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-grass text-[color:var(--on-grass)] shadow-[0_1px_0_rgba(255,255,255,0.2)]">
               <CheckIcon className="h-4 w-4 stroke-[3]" />
             </span>
-            <span className="text-sm font-bold text-white">{message}</span>
+            <span className="text-sm font-bold text-[color:var(--on-ink)]">{message}</span>
           </div>
         </motion.div>
       ) : null}

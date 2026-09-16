@@ -139,7 +139,7 @@ export default function OnboardingPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-[color:var(--color-paper)] p-6">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="mb-3.5 inline-grid h-[46px] w-[46px] place-items-center rounded-[13px] bg-[color:var(--color-acid)] shadow-[0_12px_24px_-12px_rgba(30,61,51,0.6)]">
+          <div className="mb-3.5 inline-grid h-[46px] w-[46px] place-items-center rounded-[var(--radius-box)] bg-[color:var(--color-acid)] shadow-[0_12px_24px_-12px_rgba(30,61,51,0.6)]">
             <span className="font-display text-[24px] font-extrabold text-[color:var(--color-acc-ink)]">L</span>
           </div>
           <h1 className="font-display text-[27px] font-bold tracking-tight text-[color:var(--color-ink)]">
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
             e.preventDefault();
             handleStart();
           }}
-          className="rounded-[18px] border border-soft bg-[color:var(--color-paper-2)] p-[22px] shadow-[0_18px_44px_-26px_rgba(30,61,51,0.5)]"
+          className="rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-[22px] shadow-[0_18px_44px_-26px_rgba(30,61,51,0.5)]"
         >
           <div className="mb-4">
             <label className={appFieldLabelClass} htmlFor="agencyName">Studio / brand name</label>
@@ -224,8 +224,8 @@ export default function OnboardingPage() {
                 className={getAppFieldClass({ hasValue: Boolean(form.gstin), hasError: gstinError ? "err" : undefined })}
               />
               {detectedState && (
-                <div className="mt-2 flex items-center gap-2 rounded-[9px] border border-[rgba(21,122,84,0.22)] bg-[rgba(21,122,84,0.10)] px-3 py-2 text-[12px] font-semibold text-[color:var(--color-grass)]">
-                  <span className="grid h-4 w-4 flex-none place-items-center rounded-full bg-[color:var(--color-grass)] text-[10px] text-white">✓</span>
+                <div className="mt-2 flex items-center gap-2 rounded-[var(--radius-chip)] border border-[rgba(21,122,84,0.22)] bg-[rgba(21,122,84,0.10)] px-3 py-2 text-[12px] font-semibold text-[color:var(--color-grass)]">
+                  <span className="grid h-4 w-4 flex-none place-items-center rounded-full bg-[color:var(--color-grass)] text-[10px] text-[color:var(--on-grass)]">✓</span>
                   {detectedState} · detected from your GSTIN
                 </div>
               )}
@@ -261,7 +261,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          <div className="mt-1 flex gap-2.5 rounded-[12px] border border-soft bg-[color:var(--color-paper)] px-3.5 py-3">
+          <div className="mt-1 flex gap-2.5 rounded-[var(--radius-field)] border border-soft bg-[color:var(--color-paper)] px-3.5 py-3">
             <span className="flex-none text-[15px] leading-tight">🛡️</span>
             <p className="m-0 text-[11.5px] leading-relaxed text-[color:var(--color-ink-2)]">
               Your contract terms — <b className="font-bold text-[color:var(--color-ink)]">Net 15, late fee, IP transfers on full payment</b> — ship on every invoice automatically. Editable anytime in your profile.

@@ -56,7 +56,7 @@ export default function Home() {
               Invoicing, stripped to the{" "}
               <span className="relative whitespace-nowrap">
                 essentials
-                <span className="absolute -left-[0.06em] -right-[0.06em] bottom-[0.08em] -z-10 h-[0.34em] rounded-[3px] bg-ochre/40" />
+                <span className="absolute -left-[0.06em] -right-[0.06em] bottom-[0.08em] -z-10 h-[0.34em] rounded-full bg-ochre/40" />
               </span>
               .
             </h1>
@@ -76,8 +76,8 @@ export default function Home() {
           </div>
 
           <div className="relative hidden lg:block">
-            <div className="absolute left-[40px] top-[26px] -right-[22px] -bottom-[26px] rotate-[1.4deg] rounded-[26px] bg-ochre/90" />
-            <div className="relative rounded-[18px] border border-soft bg-paper-2 p-[30px] shadow-[var(--brutal-shadow-lg)]">
+            <div className="absolute left-[40px] top-[26px] -right-[22px] -bottom-[26px] rotate-[1.4deg] rounded-[var(--radius-soft)] bg-ochre/90" />
+            <div className="relative rounded-[var(--radius-soft)] border border-soft bg-paper-2 p-[30px] shadow-[var(--brutal-shadow-lg)]">
               <div className="mb-5 flex items-start justify-between border-b border-soft pb-5">
                 <div>
                   <div className="font-display text-[27px] font-bold tracking-[-0.01em] text-ink tabular-nums">INV-042</div>
@@ -149,7 +149,7 @@ export default function Home() {
       {/* ── Closing CTA ── */}
       <section className="bg-paper px-6 pb-20 sm:pb-24">
         <div className="mx-auto max-w-[1180px]">
-          <div className="relative overflow-hidden rounded-[26px] bg-acid px-8 py-14 text-center shadow-[var(--brutal-shadow-lg)] sm:px-12">
+          <div className="relative overflow-hidden rounded-[var(--radius-soft)] bg-acid px-8 py-14 text-center shadow-[var(--brutal-shadow-lg)] sm:px-12">
             <h2 className="font-display text-[clamp(28px,3.4vw,42px)] font-bold leading-[1.05] text-acc-ink">
               Ship your first invoice<br />in two minutes.
             </h2>
@@ -167,7 +167,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-between gap-10">
             <div className="max-w-[22em]">
               <div className="flex items-center gap-2.5">
-                <span className="grid h-[34px] w-[34px] place-items-center rounded-[9px] bg-acid font-display text-[19px] font-extrabold text-acc-ink">L</span>
+                <span className="grid h-[34px] w-[34px] place-items-center rounded-[var(--radius-chip)] bg-acid font-display text-[19px] font-extrabold text-acc-ink">L</span>
                 <span className="font-display text-[22px] font-bold tracking-[-0.01em] text-ink">Lance</span>
               </div>
               <p className="mt-3.5 text-[13.5px] leading-relaxed text-ink-2">GST-compliant, milestone-driven invoicing for independent freelancers and studios across India.</p>

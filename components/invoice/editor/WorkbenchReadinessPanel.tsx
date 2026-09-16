@@ -56,7 +56,7 @@ export function WorkbenchReadinessPanel({
   return (
     <div
       className={cn(
-        "border border-soft rounded-[14px] bg-paper-2 shadow-[var(--brutal-shadow-sm)]",
+        "border border-soft rounded-[var(--radius-box)] bg-paper-2 shadow-[var(--brutal-shadow-sm)]",
         compact ? "px-4 py-3" : "px-3 py-3",
       )}
       aria-label="Invoice workbench readiness"
@@ -65,7 +65,7 @@ export function WorkbenchReadinessPanel({
         <div className="flex min-w-0 items-start gap-2.5">
           <span
             className={cn(
-              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-soft rounded-md",
+              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-soft rounded-[var(--radius-chip)]",
               isReadOnly
                 ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)]"
                 : ready ? "bg-acid text-acc-ink" : "bg-[#FFFBE6] text-[#B45309]",
@@ -156,7 +156,7 @@ export function WorkbenchReadinessPanel({
         <button
           type="button"
           onClick={onReview}
-          className="mt-3 flex h-9 w-full items-center justify-center border border-soft rounded-[11px] bg-[color:var(--color-acid)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+          className="mt-3 flex h-9 w-full items-center justify-center border border-soft rounded-[var(--radius-field)] bg-[color:var(--color-acid)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
           {rail ? "Review" : "Review what's left"}
         </button>
