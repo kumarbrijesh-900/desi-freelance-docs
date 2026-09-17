@@ -59,6 +59,13 @@ export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownS
   } else if ((msaStatus === 'pending' || msaStatus === 'proposed') && master.shared_at) {
     activeMilestone = null;
     primaryAction = 'resend';
+  } else if (msaStatus !== 'accepted') {
+    // Settlement requires acceptance, and the server enforces it with a 409.
+    // 'pending' and 'proposed' are caught by the rungs above; this catches
+    // 'rejected' and any unset value, which previously fell straight through
+    // to mark_settled and would have offered a button the API refuses.
+    activeMilestone = null;
+    primaryAction = 'review_only';
   } else if (firstLive) {
     activeMilestone = firstLive;
     primaryAction = 'mark_settled';

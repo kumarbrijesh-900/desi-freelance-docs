@@ -108,6 +108,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "project_id does not match invoice project" }, { status: 400 });
     }
 
+    // Settlement requires the client to have accepted the terms.
+    //
+    // msa_status lives on the MASTER. Child invoices are never shared for
+    // acceptance, so every child row reads 'pending' regardless of what the
+    // client actually agreed - gating on the row in hand would block every
+    // milestone settlement there is. Resolve upward first.
+    //
+    // This route takes the master's id in practice (milestones hang off the
+    // master, so a child id 400s below on "No milestones found"), but the
+    // lookup is cheap and the assumption is not worth betting a money write on.
+    let msaSource: any = parent;
+    if (parent.parent_invoice_id) {
+      const { data: master } = await supabaseAdmin
+        .from("invoices")
+        .select("id, msa_status, is_offline")
+        .eq("id", parent.parent_invoice_id)
+        .single();
+      if (master) msaSource = master;
+    }
+
+    const masterMsaStatus = String(msaSource.msa_status || "").toLowerCase();
+    if (masterMsaStatus !== "accepted") {
+      // Offline invoices are NOT exempt, by decision. Their client never
+      // accepts through the share link, so msa_status stays 'pending' and
+      // this gate will block them - deliberately, until offline gets its own
+      // acceptance path. Say so explicitly rather than leaving a future
+      // operator to work it out from a generic refusal.
+      const isOffline = msaSource.is_offline === true;
+      return NextResponse.json(
+        {
+          error: isOffline
+            ? "This invoice is marked offline, so the client never accepts through the share link and msa_status stays pending. Offline settlement is deliberately not exempt from the acceptance gate yet and needs its own acceptance path."
+            : "Client has not accepted the terms (msa_status is " +
+              (masterMsaStatus || "unset") +
+              "). Settlement is blocked until the MSA is accepted.",
+          code: isOffline ? "MSA_GATE_OFFLINE_UNSUPPORTED" : "MSA_NOT_ACCEPTED",
+          msa_status: masterMsaStatus || null,
+        },
+        { status: 409 },
+      );
+    }
+
     const effectiveProjectId = requestedProjectId || parent.project_id || null;
     const formData = parent.form_data || {};
     const formMilestones = Array.isArray(formData?.milestones) ? formData.milestones : [];
