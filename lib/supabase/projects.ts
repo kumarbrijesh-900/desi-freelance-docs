@@ -230,6 +230,30 @@ export async function listProjectsByClient(
   return { data: data as ClientProjectOption[], error: null };
 }
 
+/**
+ * The amount of the ONE milestone an invoice bills, taken from the relational
+ * rows rather than form_data.
+ *
+ * A master carries every milestone but bills only order_index 0; a child
+ * carries none of its own (its milestones hang off the master), so this
+ * returns null for a child and the caller falls through.
+ *
+ * This replaces `milestones.reduce(sum of all)`, which was not a rougher
+ * estimate of the same quantity - it was a DIFFERENT quantity, the project's
+ * value instead of the invoice's. On INV-2026-9996 that is 605,000 against a
+ * billed 204,000. The scope disagreement traces to the column's own migration,
+ * whose COMMENT and backfill both define grand_total as every milestone while
+ * saveInvoice has always written only the first.
+ */
+function billedMilestoneAmount(milestones: MilestoneRow[]): number | null {
+  if (!milestones.length) return null;
+  const ordered = [...milestones].sort(
+    (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
+  );
+  const billed = ordered[0];
+  return billed ? Number(billed.amount || 0) : null;
+}
+
 function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): number {
   // Tax-inclusive payable first, so project value agrees with project
   // outstanding and with the invoice document. The branches below are pre-tax
@@ -237,9 +261,8 @@ function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): numbe
   const payable = resolveInvoicePayable(invoice);
   if (payable > 0) return payable;
 
-  if (milestones.length > 0) {
-    return milestones.reduce((sum, milestone) => sum + Number(milestone.amount || 0), 0);
-  }
+  const billed = billedMilestoneAmount(milestones);
+  if (billed !== null) return billed;
 
   const items = invoice.form_data?.lineItems ?? [];
   if (items.length > 0) {
@@ -271,9 +294,8 @@ function getInvoiceTaxableValue(
   } catch {
     // fall through
   }
-  if (milestones.length > 0) {
-    return milestones.reduce((sum, m) => sum + Number(m.amount || 0), 0);
-  }
+  const billed = billedMilestoneAmount(milestones);
+  if (billed !== null) return billed;
   return Number((invoice as any)?.grand_total || 0);
 }
 

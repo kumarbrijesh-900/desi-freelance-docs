@@ -606,11 +606,14 @@ export async function listInvoices(): Promise<{
     // Calculate total amount from relational data if available, fallback to form_data
     let grandTotal = Number(inv.grand_total || 0);
     if (grandTotal === 0 && inv.milestones && inv.milestones.length > 0) {
-      inv.milestones.forEach((m: any) => {
-        // Use the pre-calculated amount column in invoice_milestones
-        const milestoneAmount = Number(m.amount || 0);
-        grandTotal += milestoneAmount;
-      });
+      // The BILLED milestone (order_index 0), not the sum of all of them.
+      // Summing every row returned the project's value where the caller wanted
+      // this invoice's - a different quantity, not a rougher estimate of the
+      // same one. See billedMilestoneAmount in lib/supabase/projects.ts.
+      const ordered = [...inv.milestones].sort(
+        (a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0),
+      );
+      grandTotal = Number(ordered[0]?.amount || 0);
     }
 
     if (grandTotal === 0) {

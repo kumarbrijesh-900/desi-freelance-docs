@@ -204,6 +204,38 @@ const masterFormData = {
   }
 }
 
+/* --- check 5: no resolver sums every milestone row --------------------- */
+
+{
+  // An invoice bills ONE milestone. Summing every invoice_milestones row gives
+  // the project's value instead - a different quantity, not a rougher estimate
+  // of the same one, and it reached three resolvers before anyone noticed. The
+  // one legitimate accumulation is billedMilestoneAmount, which sorts by
+  // order_index and takes [0].
+  const BAD = [
+    "milestones.reduce((sum, milestone) => sum + Number(milestone.amount",
+    "milestones.reduce((sum, m) => sum + Number(m.amount",
+    "grandTotal += milestoneAmount",
+  ];
+  const offenders: string[] = [];
+  for (const p of trackedFiles()) {
+    if (!p.startsWith("lib/supabase/")) continue;
+    const s = stripComments(readFileSync(p, "utf8"));
+    for (const bad of BAD) {
+      if (s.includes(bad)) offenders.push(p + " accumulates every milestone: " + bad);
+    }
+  }
+  const proj = readFileSync("lib/supabase/projects.ts", "utf8");
+  if (!proj.includes("function billedMilestoneAmount")) {
+    offenders.push("lib/supabase/projects.ts has lost billedMilestoneAmount");
+  }
+  if (offenders.length === 0) {
+    pass("5. no invoice-value resolver sums every milestone row");
+  } else {
+    fail("5. milestone scope in the value resolvers", offenders.join("\n"));
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 
 console.log("");
