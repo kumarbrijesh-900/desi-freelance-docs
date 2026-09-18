@@ -1,3 +1,221 @@
+# Session Log - September 16-18, 2026 (invoices.status canon, the MSA gate, and two wrong answers)
+
+## Summary
+
+**Start `91fb625` - End `52f64a1` - 3 commits, each verified byte-exact against a
+rebuilt tree before it was pushed. +125 / -131 across 7 files. One production
+migration. Seven money suites green at every point: 19 - 14 - 11,664 - 12,960 -
+7 - 34,992 - 10.**
+
+They were also green through both of this session's errors. That is the entry.
+
+| | |
+|---|---|
+| `c76d3d4` | status canon - five constraint-violating writers removed, `saveInvoice` stops writing status unconditionally |
+| `248f305` | the migration, named from the version the server assigned, statement order corrected |
+| `52f64a1` | settlement requires the client to have accepted the MSA |
+
+---
+
+## READ FIRST
+
+### The premise of roadmap item 1 was wrong, and checking it was the whole job
+
+The entry said `invoices.status` was plain `text` with no CHECK. It was not.
+`invoices_status_check` has been live since `20260525000600`, permitting
+`draft, finalized, settled, overdue, cancelled, PARTIAL`.
+
+That inverts the problem. It was never casing drift waiting to happen; it was
+casing drift that already failed at the database. Five write paths emitted
+values the fence rejected:
+
+| Site | Wrote | Reachable |
+|---|---|---|
+| `shareInvoice()` | `SENT` | no - 0 callers |
+| `markInvoiceSettled()` | `SETTLED` | no - 0 callers |
+| `preview/page.tsx` reactivate | `DRAFT` | yes - button, broken since written |
+| `InvoiceEditorPage` reactivate | `DRAFT` | yes - button, broken since written |
+| `handleDownloadPdf` | `SENT` | yes, via `handleConfirmShareThenDownload` |
+
+The last one discarded the whole row update - `form_data`, `template_id`,
+`grand_total`, the MSA snapshot - and never read the error, so it looked like
+success. `createInvoice`, named in the previous entry as the `DRAFT` default,
+does not exist in this codebase. The real default was `input.status ?? "DRAFT"`
+in `saveInvoice`, unreachable because all seven callers pass a status.
+
+### saveInvoice persists content. Status transitions are separate.
+
+`row.status` was unconditional, and the same `row` feeds insert and update. So
+every save wrote status, including autosaves that meant nothing by it. Deleting
+the literal from Download-PDF would not have made it status-neutral - it would
+have made the default fire and clobber the stored value.
+
+`status` is now a conditional key, like `client_id` and `project_id` beside it.
+The column default covers INSERT; UPDATE leaves the stored value alone. That
+also removes a latent demotion: rung 5 of `getInvoiceLockState` leaves a
+`finalized` invoice editable when the client has proposed changes, and its next
+autosave wrote `"draft"` over `"finalized"` - which would silently stop the
+reminder cron, whose `AWAITING_PAYMENT` is `["finalized"]` and nothing else.
+
+### A precedent carries its preconditions
+
+The canon migration failed on its first attempt with 23514, on its own UPDATE.
+It copied `20260707120000_milestone_status_canon.sql` - update the data, then
+add the fence. Correct there, because `invoice_milestones` had no CHECK.
+`invoices` does, and the old fence rejects lowercase `partial`, so the data pass
+died against the constraint it was replacing.
+
+The audit that produced the migration had already established that difference.
+The migration was written as though it had not. Order is drop -> update -> add,
+and the applied file says so in a comment.
+
+Postgres rolled it back whole: constraint, default, distribution and migration
+history all verified unchanged before the retry.
+
+### Read the function, not its doc comment
+
+Roadmap item 2 was analysed, a fix was drafted, and the analysis was wrong.
+
+The claim: `/invoices` reports GST inflated 2.85x, because `taxableValue` is
+`grand_total` (milestone[0]) while `amount` is `resolveInvoicePayable` (read as
+all milestones). The claim came from that function's opening line - "The amount
+actually payable, tax inclusive" - and from not reading `billableLineItems`,
+twenty lines below, which documents the invariant in its own words: *a master
+carries the whole milestone array but bills only the first.*
+
+Both sides are milestone[0]. The arithmetic is correct. This entry's predecessor
+already said so: INV-2026-9996's correct total is 240,720.
+
+The drafted fix would have made `grand_total` sum all milestones while the
+engine still billed milestone[0] - two sources disagreeing where nobody can see
+them, which is the `computeInvoiceTax` bug exactly. It was discarded.
+
+What caught it was a throwaway probe written to test the fix, which returned
+204,000 where the prediction said 605,000. `resolveInvoicePayable` now states
+its scope in its first sentence.
+
+### The suites were green for all of it
+
+Seven suites, 59,666 cases, green before and after both errors. They exercise
+the engine. Every defect this session was in a caller: a writer emitting a value
+the column refuses, a migration ordering its own statements wrong, a reader
+misreading a function's scope.
+
+**Nothing in this repo exercises `resolveInvoicePayable` at a call site.** That
+is the same hole the GST bug went through last session, still open. The probe
+that caught the error took four minutes to write and would have caught it in
+seconds as a suite.
+
+---
+
+## The MSA settlement gate (`52f64a1`)
+
+`/api/invoice/trigger-next-milestone` had no MSA check at all - zero matches for
+`msa` in the file. Every settlement path went through it unguarded.
+
+The gate reads the **master's** `msa_status`. Children are never shared for
+acceptance, so every child row says `pending` regardless of what the client
+agreed; gating on the row in hand would have blocked every milestone settlement
+there is. Verified in production: INV-2026-9996 is `accepted` on the master and
+`pending` on both its children.
+
+Offline invoices are deliberately **not** exempt. Their client never accepts
+through the share link, so `msa_status` stays `pending` and this blocks them.
+Zero rows are offline today. The refusal carries
+`MSA_GATE_OFFLINE_UNSUPPORTED` and names the reason, so the breakage identifies
+itself the first time it happens instead of presenting as a generic 409.
+
+`computeActiveDrilldown` gained the matching rung. `pending` and `proposed` were
+caught by earlier rungs; `rejected` fell straight through to `mark_settled` and
+would have offered a button the API now refuses.
+
+Live effect: INV-2026-1230 and INV-2026-4078 are `finalized` with `msa_status`
+`pending`, and are now unsettleable until their client accepts.
+
+Not done, and separable: `markInvoiceSettled` is gone with `c76d3d4`, but the
+`onMarkSettled` prop and the `ActiveDrilldown` component it belongs to are still
+there - 335 lines, imported for `formatInr` only and never mounted. Its own
+commit; `formatInr` has five importers and must survive it.
+
+---
+
+## The migration channel, measured
+
+| | |
+|---|---|
+| repo files in `supabase/migrations/` | 36 |
+| entries in the applied history | 18 (now 19) |
+| applied entries that have a repo file | 7 |
+| of those 7, timestamps that matched | **0** |
+| applied entries with no repo file | 11 |
+| repo files never applied through this channel | 29 |
+
+Two of those 29 define the `invoices_status_check` that was live the whole time.
+The directory is a changelog of intent; the database is the only record of fact.
+
+The timestamps cannot match by guessing: `apply_migration` takes no version
+parameter and stamps its own at apply time. So: apply, read the version back
+with `list_migrations`, then name the file. `20260916180420_invoices_status_canon`
+is the first migration in this repo where the file name, the file content
+(md5 `6c1e3783...`) and the applied history all agree.
+
+Do **not** run `supabase db push` to fix the rest. It would attempt 29 files
+against a database that already has most of their effects, and `001_invoices.sql`
+would recreate `invoices` with `CHECK (status IN ('draft','finalized'))` -
+contradicting both the live constraint and the canon.
+
+Also worth knowing: CI (`tsc --noEmit` plus four suites) does **not** run
+`npm run test:money`. The seven-suite gate is manual.
+
+---
+
+## NEXT SESSION - start here
+
+### 1. A caller-level suite (highest value, and it is not close)
+
+Two sessions running, the defect has been in a caller and the suites have been
+green. Write the one that would have caught them:
+
+- canon membership over every `status:` literal reaching an `invoices` mutation,
+  enumerated with `git ls-files`, comments stripped;
+- every `saveInvoice(` call site destructures `error`;
+- `resolveInvoicePayable` / `resolveInvoiceTaxable` against fixtures with known
+  answers, asserting scope as well as arithmetic;
+- DB invariant: `select count(*) from invoices where status <> lower(status)`.
+
+### 2. `grand_total`, re-audited from the invariant
+
+The previous entry's framing does not survive contact with `billableLineItems`.
+The column holds what the invoice bills, which is correct. What is actually
+left is smaller: the **name** says tax-inclusive while the column is pre-tax,
+and `lib/supabase/invoices.ts:607` has a dead branch summing every milestone's
+`amount` when the stored value is 0 - which contradicts the invariant and would
+be wrong if it ever fired. It cannot fire today. No live consumer reads the
+column as a payable amount. Start from the invariant, not from the old entry.
+
+### 3. Delete the unmounted `ActiveDrilldown` component
+
+335 lines, dead, keeping `formatInr`.
+
+### 4. Reconcile `supabase/migrations/` with the database
+
+Unchanged and still third. Squash: baseline dump, archive all 36 under
+`supabase/migrations/_archive/`, commit the baseline as #1, reconcile. Inert
+until there is a second environment; blocking the moment there is.
+
+### 5. Carried forward, untouched this session
+
+- Lint rule banning bare `0.18` / `1.18` outside `lib/money/`.
+- Delete `computeInvoiceTax` and both its parity suites together.
+- Rounding: `computeInvoiceMoney.amountPayable` is wired to nothing.
+- `projects.msa_accepted_at` is never written; `computeProjectLifecycle` uses it
+  as a fallback that can only be null.
+- The CA-3 guard throws after the parent is already set to `PARTIAL`.
+- Rotate the anon key (exposure window 4-16 Sept).
+- The product and UI list from the previous entry, item 7.
+
+---
+
 # Session Log — September 15–16, 2026 (Design track D1–D3, the backlog, and the GST bug)
 
 ## Summary

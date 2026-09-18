@@ -44,9 +44,20 @@ export function computeTaxOnAmount(
 }
 
 /**
- * The amount actually payable, tax inclusive. Derived from form_data via the
- * same calculateInvoiceTotals the invoice document uses, so a summary card can
- * never disagree with the PDF it summarises.
+ * The amount actually payable, tax inclusive, FOR THE LINE ITEMS THIS INVOICE
+ * BILLS - milestone[0] on a master, the single milestone on a child. It is not
+ * the project total, and on a five-milestone master it is roughly a third of
+ * one. See `billableLineItems` below, which is where that invariant lives.
+ *
+ * That scope is stated here because its absence cost a wrong answer: a reader
+ * took "the amount actually payable" at face value, concluded the ledger was
+ * subtracting an all-milestones payable from a milestone[0] taxable value, and
+ * reported a GST figure inflated 2.85x that was never wrong. Both sides of that
+ * subtraction are milestone[0]. The arithmetic is correct.
+ *
+ * Derived from form_data via the same calculateInvoiceTotals the invoice
+ * document uses, so a summary card can never disagree with the PDF it
+ * summarises.
  *
  * The grand_total COLUMN is the pre-tax subtotal (see lib/supabase/invoices.ts
  * where it is written). It is kept only as a fallback for legacy rows whose
