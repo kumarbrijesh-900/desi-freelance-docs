@@ -25,3 +25,7 @@ jobs:
         run: npx tsx tests/extraction/run-brief-parser-gateway-tests.ts
       - name: Live-battery fixtures
         run: npx tsx tests/extraction/run-live-battery-tests.ts
+      - name: Money engine suites
+        run: npm run test:money
+      - name: Caller contract suite
+        run: npm run test:callers

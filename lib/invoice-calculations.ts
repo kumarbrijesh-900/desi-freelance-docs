@@ -73,8 +73,12 @@ export function resolveInvoicePayable(invoice: any): number {
     const fd = invoice?.form_data;
     if (fd && (fd.milestones?.length || fd.lineItems?.length)) {
       const totals = calculateInvoiceTotals(fd);
-      const payable = Number(totals?.grandTotal || 0);
-      if (payable > 0) return payable;
+      const payable = Number(totals?.grandTotal);
+      // The guard is whether the engine RESOLVED, not whether it returned a
+      // positive number. `payable > 0` treated a legitimately zero invoice -
+      // which the engine models, money fixture 9 - as an unresolved form_data
+      // and reached for a stale grand_total instead of returning 0.
+      if (Number.isFinite(payable)) return payable;
     }
   } catch {
     // fall through to the stored subtotal
