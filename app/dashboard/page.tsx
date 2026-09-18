@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase/client";
 import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
-import { ActiveDrilldown, formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { CloseProjectModal } from "@/components/dashboard/CloseProjectModal";
 import { ProjectInvoicesLedger } from "@/components/dashboard/ProjectInvoicesLedger";
 import { Sticker } from "@/components/ui/Sticker";

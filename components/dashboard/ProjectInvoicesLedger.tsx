@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
-import { formatInr } from "./ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusTint, type StatusKind } from "@/lib/status-tint";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";

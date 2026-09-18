@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatProjectedDate, nextMilestoneStartLabel } from "@/lib/lifecycle/timing";
-import { formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { MilestoneFocusCard } from "@/components/dashboard/MilestoneFocusCard";
 
 type StopState = "done" | "live" | "pending" | "cancelled" | "end";

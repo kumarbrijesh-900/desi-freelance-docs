@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { formatInr } from "../dashboard/ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";

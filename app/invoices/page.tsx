@@ -18,7 +18,7 @@ import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
-import { formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { deleteInvoice } from "@/lib/supabase/invoices";
 
 export default function InvoicesPage() {

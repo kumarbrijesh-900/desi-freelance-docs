@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { formatInr } from "../dashboard/ActiveDrilldown";
+import { formatInr } from "@/lib/format-inr";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusInfo, isInvoiceRowDeletable } from "./InvoiceEventRow";
 import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
