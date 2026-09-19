@@ -25,7 +25,14 @@ export interface InvoiceLockInput {
   msaStatus?: string | null;     // invoice.msa_status, lowercase comparison
   sharedToEmail?: string | null; // null/empty if never shared
   clientMsaNote?: string | null; // populated when client used Propose Changes
-  projectMsaAcceptedAt?: string | null; // populated when project-level MSA accepted
+  projectMsaAcceptedAt?: string | null; // DEPRECATED, no longer read - removed in the follow-up commit
+  /**
+   * Status of the MSA that GOVERNS this invoice - its own if a master, its
+   * master's if a child. Resolve with resolveGoverningMsaStatus in
+   * lib/invoice-msa.ts. Do not pass the row's own msa_status here: on a child
+   * that value is permanently 'pending'.
+   */
+  governingMsaStatus?: string | null;
   projectStatus?: string | null;        // populated with parent project status
 }
 
@@ -43,7 +50,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
   const msaStatus = input.msaStatus?.toLowerCase() || '';
   const sharedToEmail = input.sharedToEmail || '';
   const clientMsaNote = input.clientMsaNote || '';
-  const projectMsaAcceptedAt = input.projectMsaAcceptedAt || null;
+  const governingMsaStatus = input.governingMsaStatus?.toLowerCase() || '';
   const projectStatus = input.projectStatus?.toLowerCase() || '';
 
   // 1. Settled or paid (invoice complete)
@@ -79,15 +86,22 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
     };
   }
 
-  // 4. Terms accepted by client (MSA accepted or project MSA active)
-  if (msaStatus === 'accepted' || projectMsaAcceptedAt !== null) {
+  // 4. Terms accepted by client.
+  //
+  // governingMsaStatus is the authority. A child's own msa_status is
+  // permanently 'pending', so this rule never once fired for a milestone
+  // invoice. msaStatus is kept as a second disjunct on purpose: it means this
+  // change can only ever lock MORE than before, never less, even if a caller
+  // resolves the governing status wrongly. On a read-only guard over money
+  // documents a redundant condition is cheaper than an unlock.
+  if (governingMsaStatus === 'accepted' || msaStatus === 'accepted') {
     return {
       isReadOnly: true,
       canShare: false,
       state: 'msa-accepted',
-      reason: projectMsaAcceptedAt
-        ? 'Project Master Service Agreement is active — invoice is locked.'
-        : 'Terms accepted by client — invoice is locked.',
+      reason: msaStatus === 'accepted'
+        ? 'Terms accepted by client — invoice is locked.'
+        : 'Terms accepted on the master invoice — this milestone invoice is locked.',
       alternativeAction: { label: 'Download PDF', intent: 'download' },
     };
   }

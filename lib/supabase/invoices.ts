@@ -538,7 +538,7 @@ export async function loadInvoice(
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
-    .select("*, project:projects!project_id(id, name, msa_accepted_at, status)")
+    .select("*, project:projects!project_id(id, name, status), parent:invoices!parent_invoice_id(msa_status)")
     .eq("id", invoiceId)
     .single();
 
@@ -707,7 +707,7 @@ export async function loadInvoiceByToken(
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
-    .select("*, project:projects!project_id(id, name, msa_accepted_at, status)")
+    .select("*, project:projects!project_id(id, name, status), parent:invoices!parent_invoice_id(msa_status)")
     .eq("share_token", token)
     .single();
 

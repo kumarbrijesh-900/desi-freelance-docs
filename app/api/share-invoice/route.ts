@@ -5,6 +5,7 @@ import { z } from "zod";
 import { ratelimit } from "@/lib/upstash";
 import { randomBytes } from "crypto";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
+import { resolveGoverningMsaStatus } from "@/lib/invoice-msa";
 import { prepareTemplateData } from "@/lib/templates/template-data";
 import { renderLanceEmail } from "@/lib/email-template";
 
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note, project_id, project:projects!project_id(msa_accepted_at, status)")
+      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note, project_id, parent_invoice_id, project:projects!project_id(status), parent:invoices!parent_invoice_id(msa_status)")
       .eq("id", invoiceId)
       .single();
 
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest) {
       msaStatus: invoice.msa_status,
       sharedToEmail: invoice.shared_to_email,
       clientMsaNote: invoice.client_msa_note,
-      projectMsaAcceptedAt: (invoice.project as any)?.msa_accepted_at,
+      governingMsaStatus: resolveGoverningMsaStatus(invoice),
       projectStatus: (invoice.project as any)?.status,
     });
 
