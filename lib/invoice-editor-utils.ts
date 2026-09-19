@@ -64,7 +64,8 @@ export function getTodayDateString() {
 }
 
 export function getSuggestedDueDate(paymentTerms: number, invoiceDate: string) {
-  return addDays(invoiceDate, paymentTerms);
+  const days = Number(paymentTerms) || 0;
+  return addDays(invoiceDate, days);
 }
 
 export function getDraftPlaceholderNumber() {

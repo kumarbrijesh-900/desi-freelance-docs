@@ -4,17 +4,7 @@ import {
   SavedClient,
   savedClientToClientDetails,
 } from "@/lib/supabase/clients";
-
-function addDays(dateString: string, days: number) {
-  const date = new Date(dateString);
-  date.setDate(date.getDate() + days);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
+import { getSuggestedDueDate } from "@/lib/invoice-editor-utils";
 
 function lateFeeUnitLabel(unit?: ClientDetails["msaLateFeeUnit"]) {
   switch (unit) {
@@ -26,16 +16,6 @@ function lateFeeUnitLabel(unit?: ClientDetails["msaLateFeeUnit"]) {
     default:
       return "per month";
   }
-}
-
-/**
- * Derives a suggested due date based on payment terms and an invoice date.
- * Matches "Net X" or "Due on Receipt".
- */
-export function getSuggestedDueDate(paymentTerms: number, invoiceDate: string) {
-  if (!invoiceDate) return "";
-  const days = Number(paymentTerms) || 0;
-  return addDays(invoiceDate, days);
 }
 
 /**
