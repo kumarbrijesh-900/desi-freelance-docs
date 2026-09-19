@@ -1,3 +1,284 @@
+# Session Log - September 19, 2026 (the squash, three bugs the roadmap did not name, and a full repo scan)
+
+## Summary
+
+**Start `74160da` - End `74c8636` - 12 commits, every one verified with
+`git ls-remote` rather than a stated SHA. Two production migrations. Money
+suites green at every point: 19 - 14 - 11,664 - 12,960 - 7 - 34,992 - 10.
+Caller contract suite 8 -> 12 checks.**
+
+Roadmap items 1 through 4 are done, plus three of item 5. But three of the four
+findings that actually mattered were not in the roadmap at all, and the fourth
+was filed as dead code when it was a live bug.
+
+| | |
+|---|---|
+| `09323e5` `9c16833` | caller-level suite, red then green; CI wired to run it |
+| `786df5f` | grand_total rescoped to the billed milestone |
+| `5d8acad` | unmounted ActiveDrilldown deleted, formatInr extracted |
+| `9d2d701` | 38 migrations squashed to one verified baseline; history reconciled |
+| `aca78b8` | fireMilestoneInvoice marks the parent partial LAST |
+| `430fead` | GST compliance suite repointed at the engine; SEZ LUT fixture corrected |
+| `3e02552` | legacy computeInvoiceTax frozen out of shipping code |
+| `c67d618` `a315151` | governing MSA status resolved for milestone invoices |
+| `c95f717` `74c8636` | dead project-level MSA columns removed; migration recorded |
+
+---
+
+## READ FIRST
+
+### CI's GST gate was certifying a function nothing calls
+
+`tests/compliance/run-gst-compliance-tests.ts` asserted hand-written GST rules -
+same-state CGST+SGST, interstate IGST, SEZ branching - against
+`computeInvoiceTax`. That function has **zero production callers**. It is the
+one that printed correct CGST/SGST rows above a TOTAL DUE that excluded them,
+back in the 15-16 Sept session.
+
+So CI has been certifying the wrong implementation. Nothing, anywhere, checked
+that the engine which actually bills your customers satisfies those rules.
+
+Repointed at `computeTaxOnAmount` in `430fead`. **The engine passes.** But that
+was luck, not design - nobody had established it.
+
+### The repoint immediately found a divergence, and it is deliberate
+
+Domestic SEZ supply with a LUT: legacy said `zero_rated`, the engine says
+`igst`. Neither is a bug. `resolveSez` zero-rates only when `lutValidOn(ctx)` -
+`lutDeclared === "yes"` **and** a recognised financial year **and** a supply
+date inside that year's window. The legacy function consulted only
+`lutAvailability`.
+
+The fixture described a LUT nobody could validate while expecting the treatment
+for one that could. The input was wrong, not either implementation. Corrected to
+three cases where there were two: valid LUT -> `zero_rated`, unvalidatable LUT
+-> `igst`, no LUT -> `igst`.
+
+Field mapping, since finding it cost four reads: `agency.lutValidity` ->
+`ctx.lutFinancialYear`; `meta.invoiceDate` -> `ctx.supplyDate`; FY token format
+`fy_2026_27`.
+
+### The MSA lock has never applied to a single milestone invoice
+
+`getInvoiceLockState` rule 4 asks whether *this row's* MSA is accepted. But
+children are never shared for acceptance - the settlement gate's own comment
+says so - which means every child row reads `msa_status: 'pending'` permanently.
+Rule 4 could not fire for a child. Ever.
+
+`projects.msa_accepted_at` was the abandoned attempt to bridge that. Never
+wired, 0 of 5 rows, and roadmap item 5 filed it as dead code. It was not dead
+code. It was the last trace of an unfixed bug.
+
+Fixed by resolving the **governing** status - own for a master, the master's for
+a child - through one shared helper, `resolveGoverningMsaStatus` in
+`lib/invoice-msa.ts`. Rule 4 keeps `|| msaStatus === 'accepted'` deliberately:
+the change can then only ever lock MORE than before, never less. On a read-only
+guard over money documents, a redundant condition is cheaper than an unlock.
+
+Live row affected: `INV-2026-9998`, finalized, child of an accepted master,
+editable. Its sibling `INV-2026-9997` was already caught by rule 1 (settled).
+
+---
+
+## The migration folder was never a history
+
+38 files in `supabase/migrations/`. 20 rows in `schema_migrations`. **Two
+matched.**
+
+| relationship | count |
+|---|---|
+| exact match, file and applied record | 2 |
+| same name, different timestamp | 7 |
+| applied in production, no file at all | 11 |
+| file present, no applied record | 29 |
+
+Which is what made the squash safe - there was no coherent sequence to preserve.
+The 29 unrecorded files include `001_invoices.sql`, which recreates `invoices`
+with `CHECK (status IN ('draft','finalized'))`. A `db push` would have fought
+the live constraint.
+
+### The baseline needed four corrections before it could replay
+
+1. **pg_dump 18.6 emits `\restrict` / `\unrestrict`.** These are psql
+   meta-commands, not SQL. The Supabase CLI and `apply_migration` both die on
+   the first one. Your server is 17.6; your pg_dump is 18.6; that mismatch is
+   what produces them.
+2. `CREATE SCHEMA public` made idempotent.
+3. `COMMENT ON SCHEMA public` is not executable by the migration role - `public`
+   is owned by `pg_database_owner`.
+4. Twelve `ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin` statements need a
+   role membership `postgres` does not hold.
+
+One addition: **uuid-ossp**. `faqs`, `notifications` and `user_feedback` default
+their id to `extensions.uuid_generate_v4()`, which a `--schema=public` dump does
+not carry. A fresh replay would have failed on those three tables. The other
+twelve use `gen_random_uuid()`, which is core Postgres.
+
+**Never add `--no-privileges` to that dump.** GRANTs must be in the baseline -
+the `_demo_backup_20260904` incident was a grant problem.
+
+**Never edit the baseline.** It is the 19 Sept snapshot; migrations layer on it.
+
+Production now: `20260919000000 baseline` then
+`20260919122355 drop_dead_project_msa_columns`, in order, matching the two files
+in the repo. First time this project has had a history it can trust.
+
+## CA-3 was three throw sites, not one
+
+`fireMilestoneInvoice` wrote the parent's `status: "partial"` first, then ran the
+CA-3 guard, the child insert and the milestone update. All three can throw. Each
+left the parent claiming part-billed with nothing behind it. The third is worst:
+child exists, parent says partial, milestone row says neither.
+
+Fixed by moving the parent write last. A retry cannot double-bill -
+`idx_invoices_unique_parent_milestone` is UNIQUE on
+`(parent_invoice_id, milestone_index)`. That index was one of the 29 unrecorded
+files and could easily have been unapplied. It is not.
+
+## Freeze the legacy oracle, do not delete it
+
+The roadmap said delete `computeInvoiceTax` and both parity suites. That would
+have dropped 24,624 cases and left `computeTaxOnAmount` - live on your dashboard
+- with no tests at all.
+
+It moved to `tests/money/frozen-legacy-tax.ts` instead. Production stops carrying
+a rival tax implementation; all 59,616 regression cases keep their meaning as
+pins against the implementation the engine replaced.
+
+**`run-calculate-totals-parity-tests.ts` must NOT be deleted** when the last
+caller moves to the engine, contrary to what its own comment used to say. It is
+the only thing pinning `calculateInvoiceTotals`' 14-field mapping off `money`. A
+wrong mapping - `subtotal: money.taxTotal`, say - would pass every other suite
+in this repo.
+
+---
+
+## Repo scan - 219 shipping files, 47,027 LOC
+
+Full static pass at `74c8636`. Written up in `ux-debt-inventory.md`, which was
+an empty placeholder until now.
+
+**Clean, and unusually so:** 0 `@ts-ignore`, 0 `eslint-disable`, 0 TODO/FIXME,
+0 `transition-all`, 0 images without `alt`, `bg-white` down to 10 and all in
+templates where the page really is paper. The September design track held.
+
+### Technical
+
+| finding | count |
+|---|---|
+| `autoCloudSave` defined in TWO files | InvoiceEditorPage.tsx + a page.tsx |
+| `any` annotations | 262 |
+| UI components writing to the DB directly | 19 `.from(` outside lib and API routes |
+| `.select("*")` | 28 |
+| `InvoiceEditorPage.tsx` | 3,236 lines, 20 useEffect, 22 localStorage, 3 empty catch |
+| dead-export candidates | 103 |
+| `console.*` in shipping code | 117 |
+| empty `catch` blocks | 8 |
+
+`autoCloudSave` is the headline: two implementations of the **save** path, which
+is money-bearing. Same shape as `computeInvoiceTax`. `checkAuth` and `addDays`
+are duplicated the same way, and `addDays` matters - due dates and LUT windows
+are both date maths.
+
+The 262 `any` are the *mechanism* behind the GST bug: two callers passed a
+flattened object to a function reading nested keys, and `any` is exactly what
+stops tsc catching that.
+
+### UX
+
+| finding | count |
+|---|---|
+| `tabIndex` in the entire repo | 9 |
+| `role=` | 10 |
+| `aria-*` | 55 |
+| `onClick` on a non-interactive `<div>` | 12 |
+| arbitrary Tailwind values | 4,130 |
+| hex colours | 581 |
+| `!important` | 29 (27 in one page.tsx) |
+
+Nine `tabIndex` across 219 files means focus management is essentially
+unimplemented, and the nine modals `lance-E-migration-plan.md` listed for focus
+trap / Esc / scroll-lock verification were evidently never verified. The 12
+div-onClick handlers are controls no keyboard can reach.
+
+Most of `components/ui/*` is in the dead-export list - `AppAlert`, `AppCard`,
+`AppBadge`, `AppEmptyState`, `AppSkeleton`, `Toaster`. A design system that was
+built and then bypassed, which is consistent with 4,130 arbitrary values.
+
+### False positives in that scan, recorded so nobody re-derives them
+
+- `GET`/`POST` duplicated across route.ts files are Next.js handlers.
+- `0.18` in `motion-primitives.tsx` is easing, not a GST rate. Of 11 bare
+  `0.18`/`1.18` hits only some are money - eyeball each before writing the lint
+  rule.
+- Hex and arbitrary values in `lib/templates/*` render printed documents.
+  Tokenising them may be wrong, the same way `bg-white` in a template is right.
+- 103 dead exports is a candidate list, not a verdict.
+
+---
+
+## On the checks themselves
+
+Six times this session a harness failed on an expected value that was wrong
+rather than an artifact that was: index counts (33 total vs 15 standalone),
+extension counts (schema-scoped dump vs database-wide catalog), an applied-rows
+regex anchored on a line start that did not apply to the first row,
+`client_msas` queried for status `accepted` when the value is `active`, and two
+counts in the compliance verification.
+
+Every one was caught. But a check that cries wolf trains you to skim its output,
+and the whole value of this discipline is that its output gets read.
+
+Worse, once: a money-document exposure was asserted before reading past line 83
+of `getInvoiceLockState`, having quoted the "read functions fully" rule one
+message earlier. Rules 1-3 already caught the row in question. One invoice was
+affected, not two, and it was not settled.
+
+---
+
+## NEXT SESSION - start here
+
+### 1. `autoCloudSave` is defined twice
+
+Two implementations of the save path. Audit both, collapse to one. This is the
+`computeInvoiceTax` shape on a money-bearing write, and two commits went into
+undoing that pattern on 19 Sept. Same for `checkAuth` and `addDays`.
+
+### 2. The 12 keyboard-inaccessible controls
+
+`onClick` on `<div>` in DownloadDecisionModal, ProjectInvoiceGroup,
+FeedbackModal, ClientDetailsSection, ConversionModal. Small, self-contained,
+user-facing. Then the nine modals' focus trap / Esc / scroll-lock.
+
+### 3. Type the money paths
+
+Retire `any` in `lib/supabase/invoices.ts` (21), `lib/supabase/milestones.ts`
+(17), `lib/invoice-calculations.ts`. Not the whole 262 - the paths where a
+flattened object would do damage.
+
+### 4. Dead-export pass
+
+103 candidates. Three were found and deleted by hand on 19 Sept
+(`shareInvoice`, `markInvoiceSettled`, `respondToMsa`), so the hit rate is not
+low. Verify before deleting - the heuristic misses dynamic usage.
+
+### 5. Carried forward
+
+- `invoices.msa_accepted_at` vs `msa_responded_at`: the TS type says the former
+  was removed in favour of the latter. The column exists, is written by the
+  share page, and is populated on both accepted rows. Type and reality disagree.
+- Anon key rotation - **premise unverified**. The note never said which key or
+  where. Advisors show no RLS gaps, 15/15 tables, 61 policies, so if it was the
+  anon key rotation buys little; if it meant service_role it is urgent. Establish
+  which before acting.
+- Lint rule banning bare `0.18` / `1.18` outside `lib/money/`.
+- `computeInvoiceMoney.amountPayable` is wired to nothing.
+- `InvoiceEditorPage` decomposition - 3,236 lines. This is what
+  `executive-recovery-plan.md` was really about, and four of its five April
+  blockers are still live. A programme, not a task.
+
+---
+
 # Session Log - September 16-18, 2026 (invoices.status canon, the MSA gate, and two wrong answers)
 
 ## Summary
@@ -169,7 +450,7 @@ Also worth knowing: CI (`tsc --noEmit` plus four suites) does **not** run
 
 ---
 
-## NEXT SESSION - start here
+## NEXT SESSION (superseded 19 September - see the entry above)
 
 ### 1. A caller-level suite (highest value, and it is not close)
 
