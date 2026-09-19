@@ -131,8 +131,17 @@ export function ProjectInvoiceGroup({
     <div className="bg-paper-2 border border-soft rounded-[var(--radius-soft)] mb-4 overflow-hidden shadow-[0_12px_30px_-20px_rgba(30,61,51,0.4)]">
       {/* Project header (click to collapse) */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
         onClick={() => setExpanded(v => !v)}
-        className="relative flex items-center gap-3 px-5 py-4 cursor-pointer select-none"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setExpanded(v => !v);
+          }
+        }}
+        className="relative flex items-center gap-3 px-5 py-4 cursor-pointer select-none app-focus-ring"
       >
         <span className="absolute left-0 top-3 bottom-3 w-[4px] rounded-r-full" style={{ background: accent }} />
         <span className={`text-ink/40 type-body w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>

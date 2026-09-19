@@ -950,7 +950,13 @@ export default function ClientsPage() {
                           <div className={`shrink-0 w-[32px] h-[32px] rounded-full border border-ink flex items-center justify-center type-label font-black ${avatarStyle} shadow-none`}>
                             {initial}
                           </div>
-                          <div className="font-bold type-body uppercase tracking-wide group-hover:underline">{client.client_name}</div>
+                          <Link
+                            href={`/clients/${client.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="font-bold type-body uppercase tracking-wide group-hover:underline app-focus-ring rounded-[var(--radius-chip)]"
+                          >
+                            {client.client_name}
+                          </Link>
                         </div>
                       </td>
                       <td className="py-4 px-6 border-r border-soft">
