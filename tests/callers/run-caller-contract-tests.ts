@@ -236,6 +236,42 @@ const masterFormData = {
   }
 }
 
+/* --- check 6: the parent is marked only after everything that can reject -- */
+
+{
+  // fireMilestoneInvoice used to write the parent's status "partial" first and
+  // run the CA-3 guard, the child insert and the milestone update after it.
+  // Three throw sites sat between them, and each one left the parent claiming
+  // part-billed with nothing behind it. The ordering IS the fix, so it is
+  // asserted rather than trusted.
+  const src = stripComments(readFileSync("lib/supabase/milestones.ts", "utf8"));
+  const anchors: Record<string, string> = {
+    guard: 'gstRegistrationStatus === "registered"',
+    childInsert: 'status: "finalized"',
+    milestoneFired: 'trigger_status: "fired"',
+    parentMark: 'status: "partial"',
+  };
+
+  const problems: string[] = [];
+  const at: Record<string, number> = {};
+  for (const [key, needle] of Object.entries(anchors)) {
+    const n = src.split(needle).length - 1;
+    if (n !== 1) problems.push(key + ' anchor appears ' + n + ' times, expected 1: ' + needle);
+    at[key] = src.indexOf(needle);
+  }
+  if (problems.length === 0) {
+    if (at.guard > at.parentMark) problems.push("the CA-3 guard runs AFTER the parent is marked partial");
+    if (at.childInsert > at.parentMark) problems.push("the child invoice is inserted AFTER the parent is marked partial");
+    if (at.milestoneFired > at.parentMark) problems.push("the milestone is fired AFTER the parent is marked partial");
+  }
+
+  if (problems.length === 0) {
+    pass("6. parent marked partial only after the guard, the child insert and the milestone update");
+  } else {
+    fail("6. fireMilestoneInvoice mutation ordering", problems.join("\n"));
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 
 console.log("");

@@ -98,22 +98,13 @@ export async function fireMilestoneInvoice(
     calculatedDueDate,
   );
 
-  const { error: parentUpdateError } = await supabase
-    .from("invoices")
-    .update({
-      due_date: calculatedDueDate,
-      status: "partial",
-      form_data: updatedParentFormData,
-      ...computeAppliedMsaSnapshot(updatedParentFormData as any),
-      applied_payment_terms: (updatedParentFormData as any).meta?.paymentTerms
-        ? `Net ${(updatedParentFormData as any).meta.paymentTerms} days`
-        : computeAppliedMsaSnapshot(updatedParentFormData as any).applied_payment_terms,
-    })
-    .eq("id", invoiceId);
-
-  if (parentUpdateError) {
-    throw new Error(parentUpdateError.message);
-  }
+  // The parent's status is written LAST, after the CA-3 guard, the child insert
+  // and the invoice_milestones update have all succeeded. It used to be written
+  // here, before all three. Three throw sites sit between this point and the end
+  // of the function, and every one of them left the parent claiming "partial"
+  // with no child invoice behind it. Nothing below reads the parent back from
+  // the database - the child insert uses the in-memory `parent` loaded at the
+  // top of this function - so moving the write is safe.
 
   const year = new Date().getFullYear();
   const prefix = `INV-${year}-`;
@@ -265,6 +256,30 @@ export async function fireMilestoneInvoice(
 
   if (fireMilestoneError) {
     throw new Error(fireMilestoneError.message);
+  }
+
+  // Moved here from the top of this function. Everything that can reject has
+  // now succeeded, so marking the parent part-billed is finally true. If THIS
+  // write fails, the child invoice exists and is correct and only the parent's
+  // label lags - which under-reports rather than claiming a money state that
+  // does not exist. A retry cannot double-bill:
+  // idx_invoices_unique_parent_milestone is UNIQUE on
+  // (parent_invoice_id, milestone_index) where both are NOT NULL.
+  const { error: parentUpdateError } = await supabase
+    .from("invoices")
+    .update({
+      due_date: calculatedDueDate,
+      status: "partial",
+      form_data: updatedParentFormData,
+      ...computeAppliedMsaSnapshot(updatedParentFormData as any),
+      applied_payment_terms: (updatedParentFormData as any).meta?.paymentTerms
+        ? `Net ${(updatedParentFormData as any).meta.paymentTerms} days`
+        : computeAppliedMsaSnapshot(updatedParentFormData as any).applied_payment_terms,
+    })
+    .eq("id", invoiceId);
+
+  if (parentUpdateError) {
+    throw new Error(parentUpdateError.message);
   }
 
   const { data: profile } = await supabase
