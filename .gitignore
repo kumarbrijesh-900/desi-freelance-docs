@@ -53,3 +53,6 @@ scratch/
 screenshot_*.png
 *.swp
 .gemini-scratch/
+
+# Supabase CLI scratch: version probes and the pooler URL.
+supabase/.temp/
