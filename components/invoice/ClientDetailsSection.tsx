@@ -866,9 +866,18 @@ export default function ClientDetailsSection({
           <div className="flex min-w-0 w-full flex-1 flex-col gap-1.5 sm:pr-4">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <div className="flex min-w-0 flex-1 items-start gap-1.5">
-                <span className="text-[color:var(--color-ink)] font-bold type-body-lg leading-snug text-pretty break-normal">
+                <button
+                  type="button"
+                  aria-expanded={isMsaOpen}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsMsaOpen(!isMsaOpen);
+                    setHasInteractedWithMSA(true);
+                  }}
+                  className="min-w-0 rounded-[var(--radius-chip)] text-left app-focus-ring text-[color:var(--color-ink)] font-bold type-body-lg leading-snug text-pretty break-normal"
+                >
                   Client Specific Payment &amp; Legal Terms
-                </span>
+                </button>
                 <AppTooltip content={
                   <div className="space-y-2">
                     <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
