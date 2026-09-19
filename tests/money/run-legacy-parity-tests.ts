@@ -17,7 +17,7 @@
  * When computeInvoiceTax is finally deleted, delete this file with it.
  */
 import assert from "node:assert/strict";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeInvoiceTax } from "./frozen-legacy-tax";
 import { computeInvoiceMoney } from "@/lib/money/compute-invoice-money";
 import { buildTaxContext } from "@/lib/money/tax-context";
 

@@ -25,10 +25,12 @@ export function flattenMilestonesToLineItems(
  * them - the rows came from one implementation and the total from the other,
  * and nothing could tell they disagreed. One source, or the two will drift.
  *
- * `tests/money/run-legacy-parity-tests.ts` sweeps 11,664 combinations and
- * asserts the engine matches `computeInvoiceTax` on every one, with a single
- * intended divergence: a LUT that lapsed on 31 March, which the engine catches
- * and the legacy misses. Callers get the correct answer there.
+ * That second implementation no longer ships. It is frozen at
+ * `tests/money/frozen-legacy-tax.ts`, reachable only from the test tree, where
+ * `run-legacy-parity-tests.ts` sweeps 11,664 combinations and asserts the
+ * engine matches it on every one, with a single intended divergence: a LUT that
+ * lapsed on 31 March, which the engine catches and the frozen copy misses.
+ * Callers get the correct answer there.
  */
 export function computeTaxOnAmount(
   formData: any,
@@ -131,8 +133,12 @@ function contextFor(formData: any): TaxContext {
  *
  * `tests/money/run-calculate-totals-parity-tests.ts` holds a frozen copy of the
  * implementation this replaced and asserts all thirteen fields match across the
- * full input matrix. When the last caller moves to the engine directly, delete
- * this function and that test together.
+ * full input matrix. Its oracle is frozen beside it at
+ * `tests/money/frozen-legacy-tax.ts`, so that suite keeps its meaning without
+ * anything legacy shipping. Do NOT delete it when the last caller moves to the
+ * engine: it is the only thing pinning this adapter's field mapping, and a
+ * wrong mapping - `subtotal: money.taxTotal`, say - would pass every other
+ * suite in the repo.
  */
 export function calculateInvoiceTotals(formData: any): InvoiceComputedValues {
   const ctx = contextFor(formData);

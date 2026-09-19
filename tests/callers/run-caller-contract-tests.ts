@@ -272,6 +272,23 @@ const masterFormData = {
   }
 }
 
+/* --- check 7: the frozen legacy tax function never ships --------------- */
+
+{
+  // computeInvoiceTax was a second implementation of the GST rules. It now
+  // lives frozen under tests/money/, and trackedFiles() excludes tests/, so any
+  // hit here means it has been imported back into shipping code.
+  const offenders = trackedFiles().filter((p) => {
+    const s = stripComments(readFileSync(p, "utf8"));
+    return s.includes("frozen-legacy-tax") || s.includes("lib/invoice-tax");
+  });
+  if (offenders.length === 0) {
+    pass("7. the frozen legacy tax implementation is not reachable from shipping code");
+  } else {
+    fail("7. a legacy tax implementation is back in production", offenders.join("\n"));
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 
 console.log("");

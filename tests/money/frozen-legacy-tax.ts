@@ -1,3 +1,18 @@
+/**
+ * FROZEN. Do not edit, do not fix, do not import from lib/ or app/.
+ *
+ * This was lib/invoice-tax.ts - a second implementation of the GST rules that
+ * ran alongside the money engine. Two callers passing it a flattened object is
+ * how an invoice came to print correct CGST/SGST rows above a TOTAL DUE that
+ * excluded them: the rows came from one implementation, the total from the
+ * other, and nothing could tell they disagreed.
+ *
+ * It has no production callers and no longer ships. It lives here as the oracle
+ * for three regression suites that assert the engine still agrees with the
+ * implementation it replaced, across 59,616 combinations, with one documented
+ * divergence (a LUT lapsing on 31 March, which the engine catches and this does
+ * not). Editing it would destroy that guarantee: its value is that it is fixed.
+ */
 import type { InvoiceTaxBreakdown } from "@/types/invoice";
 
 export function computeInvoiceTax(formData: any, taxableValue: number = 0): InvoiceTaxBreakdown {

@@ -17,7 +17,7 @@
  */
 import assert from "node:assert/strict";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeInvoiceTax } from "./frozen-legacy-tax";
 
 // ---------------------------------------------------------------------------
 // FROZEN COPY — lib/invoice-calculations.ts @ 138c11c

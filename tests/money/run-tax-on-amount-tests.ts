@@ -14,7 +14,7 @@
  *
  * Delete this file when `computeInvoiceTax` is deleted, not before.
  */
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeInvoiceTax } from "./frozen-legacy-tax";
 import { computeTaxOnAmount } from "@/lib/invoice-calculations";
 
 const REG = ["registered", "not-registered", ""];
