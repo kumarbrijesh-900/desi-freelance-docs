@@ -206,25 +206,87 @@ function normalizeClientTaxId(params: {
   return cleaned;
 }
 
-function normalizeDate(value: unknown, warnings: string[]) {
+function isRealCalendarDate(year: number, month: number, day: number) {
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return false;
+  }
+
+  const probe = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    probe.getUTCFullYear() === year &&
+    probe.getUTCMonth() === month - 1 &&
+    probe.getUTCDate() === day
+  );
+}
+
+function toIsoDate(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+export function normalizeDate(value: unknown, warnings: string[]) {
   const cleaned = cleanString(value);
 
   if (!cleaned) {
     return null;
   }
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
-    return cleaned;
+  const iso = cleaned.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+  if (iso) {
+    const year = Number(iso[1]);
+    const month = Number(iso[2]);
+    const day = Number(iso[3]);
+
+    if (!isRealCalendarDate(year, month, day)) {
+      warnings.push(`Could not normalize date "${cleaned}" - it is not a real calendar date.`);
+      return null;
+    }
+
+    return toIsoDate(year, month, day);
+  }
+
+  const numeric = cleaned.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})$/);
+
+  if (numeric) {
+    const first = Number(numeric[1]);
+    const second = Number(numeric[2]);
+    const year = numeric[3].length === 2 ? 2000 + Number(numeric[3]) : Number(numeric[3]);
+
+    if (isRealCalendarDate(year, second, first)) {
+      const resolved = toIsoDate(year, second, first);
+
+      if (first <= 12) {
+        warnings.push(
+          `Read "${cleaned}" as day-first: ${resolved}. Confirm if month-first was meant.`
+        );
+      }
+
+      return resolved;
+    }
+
+    if (isRealCalendarDate(year, first, second)) {
+      const resolved = toIsoDate(year, first, second);
+
+      warnings.push(
+        `Read "${cleaned}" as month-first: ${resolved}. Day-first is not a real date.`
+      );
+
+      return resolved;
+    }
+
+    warnings.push(`Could not normalize date "${cleaned}" - it is not a real calendar date.`);
+    return null;
   }
 
   const parsed = new Date(cleaned);
 
   if (Number.isNaN(parsed.getTime())) {
     warnings.push(`Could not normalize date "${cleaned}".`);
-    return cleaned;
+    return null;
   }
 
-  return parsed.toISOString().slice(0, 10);
+  return toIsoDate(parsed.getFullYear(), parsed.getMonth() + 1, parsed.getDate());
 }
 
 function normalizeType(value: unknown, description?: string | null) {

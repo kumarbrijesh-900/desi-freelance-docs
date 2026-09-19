@@ -11,6 +11,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:extraction": "tsx tests/extraction/run-parsed-hydration-tests.ts",
+    "test:dates": "tsx tests/extraction/run-date-normalization-tests.ts",
     "test:compliance": "tsx tests/compliance/run-gst-compliance-tests.ts",
     "test:domain": "tsx tests/domain/run-merge-normalization-tests.ts",
     "test:money": "tsx tests/money/run-money-engine-fixtures.ts && tsx tests/money/run-tax-context-fixtures.ts && tsx tests/money/run-legacy-parity-tests.ts && tsx tests/money/run-tax-on-amount-tests.ts && tsx tests/money/run-warning-surfacing-tests.ts && tsx tests/money/run-calculate-totals-parity-tests.ts && tsx tests/money/run-live-tax-facts-tests.ts",
