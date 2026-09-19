@@ -45,6 +45,7 @@ import ConversionModal from "@/components/invoice/ConversionModal";
 import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
 import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
 import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
+import { resolveGoverningMsaStatus } from "@/lib/invoice-msa";
 import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import { useToast } from "@/components/ui/AppToast";
 
@@ -131,7 +132,7 @@ function PreviewContent() {
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
   const [invoiceStatusState, setInvoiceStatusState] = useState<string | null>(null);
-  const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
+  const [governingMsaStatus, setGoverningMsaStatus] = useState<string | null>(null);
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -296,7 +297,7 @@ function PreviewContent() {
         setSharedAt(dbInvoice.shared_at);
         setShareToken(dbInvoice.share_token);
         setCurrentMsaId(dbInvoice.msa_id);
-        setProjectMsaAcceptedAt(dbInvoice.project?.msa_accepted_at ?? null);
+        setGoverningMsaStatus(resolveGoverningMsaStatus(dbInvoice));
         setProjectStatus(dbInvoice.project?.status ?? null);
         if (!hasStoredProjectIdRef.current) {
           setProjectId(dbInvoice.project_id ?? null);
@@ -331,10 +332,10 @@ function PreviewContent() {
       msaStatus: msaResponse,
       sharedToEmail: sharedToEmail,
       clientMsaNote: clientMsaNote,
-      projectMsaAcceptedAt: projectMsaAcceptedAt,
+      governingMsaStatus: governingMsaStatus,
       projectStatus: projectStatus,
     });
-  }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote, projectMsaAcceptedAt, projectStatus]);
+  }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote, governingMsaStatus, projectStatus]);
 
   useEffect(() => {
     async function debugAuth() {

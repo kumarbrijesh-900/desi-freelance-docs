@@ -289,6 +289,41 @@ const masterFormData = {
   }
 }
 
+/* --- check 8: the lock is always told which MSA governs ---------------- */
+
+{
+  // A child invoice's own msa_status is permanently 'pending' - children are
+  // never shared for acceptance. So a lock call that omits governingMsaStatus
+  // silently reverts to a rule that has never once fired for a milestone
+  // invoice, and the caller looks correct while doing nothing.
+  const offenders: string[] = [];
+  for (const p of trackedFiles()) {
+    const s = stripComments(readFileSync(p, "utf8"));
+    if (s.includes("projectMsaAcceptedAt")) {
+      offenders.push(p + " still references the removed projectMsaAcceptedAt");
+    }
+    let i = s.indexOf("getInvoiceLockState({");
+    while (i >= 0) {
+      const open = s.indexOf("{", i);
+      let depth = 0;
+      let end = open;
+      for (; end < s.length; end++) {
+        if (s[end] === "{") depth++;
+        else if (s[end] === "}") { depth--; if (depth === 0) break; }
+      }
+      if (!s.slice(open, end).includes("governingMsaStatus")) {
+        offenders.push(p + " calls getInvoiceLockState without governingMsaStatus");
+      }
+      i = s.indexOf("getInvoiceLockState({", end);
+    }
+  }
+  if (offenders.length === 0) {
+    pass("8. every getInvoiceLockState call site supplies the governing MSA status");
+  } else {
+    fail("8. lock called without a governing MSA status", offenders.join("\n"));
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 
 console.log("");

@@ -101,6 +101,7 @@ import {
 } from "@/lib/invoice-validation";
 import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
+import { resolveGoverningMsaStatus } from "@/lib/invoice-msa";
 import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import {
   appContainerCenteredClass,
@@ -216,7 +217,7 @@ function EditorContent() {
   const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null);
   const [msaStatus, setMsaStatus] = useState<string | null>(null);
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
-  const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
+  const [governingMsaStatus, setGoverningMsaStatus] = useState<string | null>(null);
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState("");
@@ -277,10 +278,10 @@ function EditorContent() {
       msaStatus: msaStatus,
       sharedToEmail: sharedToEmail,
       clientMsaNote: clientMsaNote,
-      projectMsaAcceptedAt: projectMsaAcceptedAt,
+      governingMsaStatus: governingMsaStatus,
       projectStatus: projectStatus,
     });
-  }, [invoiceStatus, msaStatus, sharedToEmail, clientMsaNote, projectMsaAcceptedAt, projectStatus]);
+  }, [invoiceStatus, msaStatus, sharedToEmail, clientMsaNote, governingMsaStatus, projectStatus]);
 
   const isReadOnlyMode = useMemo(() => {
     if (!parserDocumentId) return false;
@@ -383,7 +384,7 @@ function EditorContent() {
 
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
       const loadedProjectArray = Array.isArray(data.project) ? data.project[0] : data.project;
-      const loadedProject = loadedProjectArray as { name?: string; msa_accepted_at?: string; status?: string } | null | undefined;
+      const loadedProject = loadedProjectArray as { name?: string; status?: string } | null | undefined;
       const projName =
         loadedProject?.name ??
         (data.form_data as any)?.projectName ??
@@ -395,7 +396,8 @@ function EditorContent() {
       setInvoiceStatus(data.status ?? null);
       setMsaStatus(data.msa_status ?? null);
       setSharedToEmail(data.shared_to_email ?? null);
-      setProjectMsaAcceptedAt(loadedProject?.msa_accepted_at ?? null);
+      // The master's status when this is a child, its own when it is not.
+      setGoverningMsaStatus(resolveGoverningMsaStatus(data));
       setProjectStatus(loadedProject?.status ?? null);
       setProjectId(data.project_id ?? null);
       setProjectName(projName);
@@ -415,7 +417,7 @@ function EditorContent() {
       setInvoiceStatus(null);
       setMsaStatus(null);
       setSharedToEmail(null);
-      setProjectMsaAcceptedAt(null);
+      setGoverningMsaStatus(null);
       setProjectStatus(null);
       setProjectId(null);
       setProjectName("");

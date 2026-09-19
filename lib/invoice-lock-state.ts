@@ -25,7 +25,6 @@ export interface InvoiceLockInput {
   msaStatus?: string | null;     // invoice.msa_status, lowercase comparison
   sharedToEmail?: string | null; // null/empty if never shared
   clientMsaNote?: string | null; // populated when client used Propose Changes
-  projectMsaAcceptedAt?: string | null; // DEPRECATED, no longer read - removed in the follow-up commit
   /**
    * Status of the MSA that GOVERNS this invoice - its own if a master, its
    * master's if a child. Resolve with resolveGoverningMsaStatus in
