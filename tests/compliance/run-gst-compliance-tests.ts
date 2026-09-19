@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { evaluateStateSignals } from "@/lib/invoice-address";
 import { getClientFacingTaxComplianceNote } from "@/lib/invoice-compliance";
 import { parseGstin } from "@/lib/gstin-parser";
-import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { computeTaxOnAmount } from "@/lib/invoice-calculations";
 import {
   defaultInvoiceFormData,
   mergeInvoiceFormData,
@@ -54,12 +54,16 @@ function testGstinMergeAutoDerivation() {
 }
 
 function testRegularDomesticTaxBranches() {
-  const sameState = computeInvoiceTax(mergeInvoiceFormData({
+  // These are hand-written GST rules, and until now they were checked against
+  // computeInvoiceTax - a function no production code calls. computeTaxOnAmount
+  // takes the same (formData, taxableValue) arguments and routes through
+  // calculateInvoiceTotals into computeInvoiceMoney, which prices real invoices.
+  const sameState = computeTaxOnAmount(mergeInvoiceFormData({
     agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
     client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic" },
   }), 1000);
 
-  const differentState = computeInvoiceTax(mergeInvoiceFormData({
+  const differentState = computeTaxOnAmount(mergeInvoiceFormData({
     agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
     client: { ...defaultInvoiceFormData.client, clientState: "Maharashtra", clientLocation: "domestic" },
   }), 1000);
@@ -76,26 +80,74 @@ function testRegularDomesticTaxBranches() {
   );
 }
 
+/**
+ * A LUT only zero-rates a supply if it can be VALIDATED on the supply date:
+ * declared yes, a recognised financial year, and an invoice date inside that
+ * year's window. See `lutValidOn` in lib/money/compute-invoice-money.ts, whose
+ * own comment records the tightening as deliberate ("Rule 2 below is new").
+ *
+ * computeInvoiceTax, which this suite used to call, consulted only
+ * `lutAvailability`. It therefore zero-rated SEZ supplies backed by a LUT that
+ * nobody can check, which is the freelancer's liability if it turns out not to
+ * cover the supply date. The three cases below are three different supplies;
+ * the old function could only see two.
+ */
 function testSezTaxBranching() {
-  const sezWithLut = computeInvoiceTax(mergeInvoiceFormData({
-    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "yes" },
-    client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic", isClientSezUnit: "yes" },
-  }), 1000);
+  const sezBase = (agencyOverrides: Record<string, unknown>) =>
+    mergeInvoiceFormData({
+      agency: {
+        ...defaultInvoiceFormData.agency,
+        agencyState: "Karnataka",
+        gstRegistrationStatus: "registered",
+        ...agencyOverrides,
+      },
+      client: {
+        ...defaultInvoiceFormData.client,
+        clientState: "Karnataka",
+        clientLocation: "domestic",
+        isClientSezUnit: "yes",
+      },
+    });
 
-  const sezWithoutLut = computeInvoiceTax(mergeInvoiceFormData({
-    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
-    client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic", isClientSezUnit: "yes" },
-  }), 1000);
+  // contextFor() reads the supply date from meta.invoiceDate. Set it after the
+  // merge so this does not depend on mergeInvoiceFormData passing meta through.
+  const onDate = (fd: any, invoiceDate: string) => ({
+    ...fd,
+    meta: { ...(fd?.meta ?? {}), invoiceDate },
+  });
+
+  const sezWithValidLut = computeTaxOnAmount(
+    onDate(
+      sezBase({ lutAvailability: "yes", lutValidity: "fy_2026_27" }),
+      "2026-06-15",
+    ),
+    1000,
+  );
+
+  const sezLutUnvalidatable = computeTaxOnAmount(
+    sezBase({ lutAvailability: "yes" }),
+    1000,
+  );
+
+  const sezWithoutLut = computeTaxOnAmount(
+    sezBase({ lutAvailability: "no" }),
+    1000,
+  );
 
   assert.notEqual(
-    sezWithLut.taxType,
+    sezWithValidLut.taxType,
     "cgst_sgst",
     "Domestic SEZ supply should never fall back to CGST + SGST"
   );
   assert.equal(
-    sezWithLut.taxType,
+    sezWithValidLut.taxType,
     "zero_rated",
-    "Domestic SEZ with LUT should stay zero-rated in the tax engine"
+    "Domestic SEZ with a LUT valid on the supply date should be zero-rated"
+  );
+  assert.equal(
+    sezLutUnvalidatable.taxType,
+    "igst",
+    "Domestic SEZ with a LUT that cannot be validated should be taxed, not zero-rated"
   );
   assert.equal(
     sezWithoutLut.taxType,
