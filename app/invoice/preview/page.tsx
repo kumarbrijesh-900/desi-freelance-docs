@@ -400,7 +400,7 @@ function PreviewContent() {
       try {
         ({ error, data: saved } = await saveInvoice({
           formData: currentData,
-          existingId: undefined,
+          existingId: cloudInvoiceId ?? searchParams.get("id") ?? undefined,
           templateId: selectedTemplate, // Pass the selected template!
           projectId,
         }));

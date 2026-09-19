@@ -32,7 +32,6 @@ import {
   motion,
 } from "@/components/ui/motion-primitives";
 import { Marker } from "@/components/ui/Marker";
-import { addDays } from "@/lib/date-math";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
 import ClientDetailsSection from "@/components/invoice/ClientDetailsSection";
@@ -627,9 +626,11 @@ function EditorContent() {
 
       if (error) {
         console.warn("Background cloud save failed:", error);
+        push({ kind: "info", ttl: "Failed to save draft to cloud. Please try manual save." });
+        return;
       }
 
-      if (!error) {
+      if (data) {
         await syncProfileFromInvoice(formData);
         push({ kind: "info", ttl: "Draft saved to cloud ☁ Welcome back!" });
         playInteractionCue("saveSuccess");
@@ -637,7 +638,7 @@ function EditorContent() {
         url.searchParams.delete("restore");
         window.history.replaceState({}, "", url.toString());
         announceInvoiceDataChanged({
-          invoiceId: data?.id,
+          invoiceId: data.id,
           action: "cloud_save_restore",
         });
       }
