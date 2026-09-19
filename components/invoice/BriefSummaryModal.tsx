@@ -57,6 +57,7 @@ interface BriefSummaryModalProps {
   overriddenFields: ParsedInvoiceHydrationResult["overriddenFields"];
   preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
   pendingConfirmations: { label: string; path: string; value: string }[];
+  warnings: string[];
   onContinueManually: (data: InvoiceFormData) => void;
   onParseAgain: () => void;
   onSubmit: (data: InvoiceFormData, shouldSaveClient: boolean) => void;
@@ -487,6 +488,7 @@ export default function BriefSummaryModal({
   overriddenFields,
   preservedFields,
   pendingConfirmations,
+  warnings,
   onContinueManually,
   onParseAgain,
   onSubmit,
@@ -672,6 +674,29 @@ export default function BriefSummaryModal({
           </div>
 
           <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
+            {warnings.length > 0 && (
+              <div role="status" className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-[color:var(--color-ochre-deep)]" />
+                  <h3 className="type-body font-semibold text-ink">
+                    Check these first
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {warnings.map((warning) => (
+                    <p
+                      key={warning}
+                      className="flex items-start gap-2 rounded-[var(--radius-chip)] border border-[color:var(--color-ochre-deep)] bg-[color:var(--state-warning-bg)] px-3 py-2 type-body text-[color:var(--state-warning-text)]"
+                    >
+                      <span aria-hidden="true" className="shrink-0 font-bold leading-5">
+                        !
+                      </span>
+                      <span className="min-w-0">{warning}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
             {showRoleQuestion && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 px-0.5">

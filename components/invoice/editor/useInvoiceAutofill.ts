@@ -18,6 +18,7 @@ export function useInvoiceAutofill() {
     overriddenFields: ParsedInvoiceHydrationResult["overriddenFields"];
     preservedFields: ParsedInvoiceHydrationResult["preservedFields"];
     pendingConfirmations: { label: string; path: string; value: string }[];
+    warnings: string[];
   } | null>(null);
 
   const [postSubmitActionModal, setPostSubmitActionModal] = useState<{

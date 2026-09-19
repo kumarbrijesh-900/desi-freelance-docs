@@ -1972,6 +1972,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
         path: f.path,
         value: f.incomingValue ?? "",
       })),
+      warnings: parserResponse.warnings,
     });
 
     return true;
@@ -3039,6 +3040,7 @@ return (
         overriddenFields={briefSummaryData.overriddenFields}
         preservedFields={briefSummaryData.preservedFields}
         pendingConfirmations={briefSummaryData.pendingConfirmations}
+        warnings={briefSummaryData.warnings}
         isLoggedIn={!isGuestMode}
         onContinueManually={handleContinueManually}
         onParseAgain={handleParseAgain}
