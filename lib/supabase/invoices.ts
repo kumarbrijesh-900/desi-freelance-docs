@@ -102,7 +102,6 @@ export interface SavedInvoice {
   created_project?: { id: string; name: string } | null;
   project_persistence_error?: string | null;
   project?: {
-    msa_accepted_at: string | null;
     status: string;
   } | null;
 }
@@ -844,47 +843,15 @@ export async function loadMsaForSharedInvoice(
   return { title: data.title, content: data.content };
 }
 
-/** Respond to MSA on a shared invoice (public — anon user) */
-export async function respondToMsa(
-  shareToken: string,
-  status: "accepted" | "rejected",
-): Promise<{ error: string | null }> {
-  const now = new Date().toISOString();
-  const updateFields: Record<string, unknown> = {
-    msa_status: status,
-  };
-
-  if (status === "accepted") {
-    updateFields.msa_accepted_at = now;
-  } else {
-    updateFields.msa_responded_at = now;
-  }
-
-  const { data: inv, error: fetchErr } = await supabase
-    .from("invoices")
-    .update(updateFields)
-    .eq("share_token", shareToken)
-    .not("msa_id", "is", null)
-    .select("id, user_id, invoice_number")
-    .single();
-
-  if (fetchErr) return { error: fetchErr.message };
-
-  // Create notification for the agency
-  await supabase.from("notifications").insert({
-    user_id: inv.user_id,
-    invoice_id: inv.id,
-    type: status === "accepted" ? "msa_accepted" : "msa_rejected",
-    title: status === "accepted" ? "MSA Accepted" : "MSA Rejected",
-    message:
-      status === "accepted"
-        ? `Client accepted the MSA for invoice ${inv.invoice_number}.`
-        : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
-    is_read: false,
-  });
-
-  return { error: null };
-}
+/*
+ * respondToMsa was removed here. It had zero call sites, and its two branches
+ * disagreed: accept wrote msa_accepted_at and left msa_responded_at null,
+ * reject did the reverse, and neither set msa_response. The live path is the
+ * direct update in app/share/[token]/page.tsx, which writes all five fields.
+ * It also raised an msa_accepted / msa_rejected notification that the live path
+ * does not - if that notification is wanted, add it there rather than reviving
+ * a second acceptance writer.
+ */
 
 /** Update the shared_to_email on an invoice */
 export async function setSharedToEmail(
@@ -1339,7 +1306,7 @@ export async function listProjectsByClient(
   }
   const { data, error } = await supabase
     .from("projects")
-    .select("id, name, description, status, msa_accepted_at")
+    .select("id, name, description, status")
     .eq("user_id", userId)
     .eq("client_id", clientId)
     .order("created_at", { ascending: false });

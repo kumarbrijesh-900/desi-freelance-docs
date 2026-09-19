@@ -324,6 +324,42 @@ const masterFormData = {
   }
 }
 
+/* --- check 9: the project-level MSA columns stay out of shipping code --- */
+
+{
+  // invoices.msa_accepted_at is real and still written by the share page.
+  // projects.msa_accepted_at and projects.msa_accepted_via_invoice_id are not -
+  // nothing has ever written either, and a reader of them gets null forever
+  // while looking like it has a second source of truth. This catches them where
+  // they can only mean the project's.
+  const offenders: string[] = [];
+  for (const p of trackedFiles()) {
+    const s = stripComments(readFileSync(p, "utf8"));
+
+    if (s.includes("msa_accepted_via_invoice_id")) {
+      offenders.push(p + " references msa_accepted_via_invoice_id");
+    }
+    if (p === "lib/supabase/projects.ts" && s.includes("msa_accepted_at")) {
+      offenders.push(p + " still carries projects.msa_accepted_at");
+    }
+
+    for (const anchor of ['projects!project_id(', '.from("projects")']) {
+      let i = s.indexOf(anchor);
+      while (i >= 0) {
+        if (s.slice(i, i + 220).includes("msa_accepted_at")) {
+          offenders.push(p + " selects msa_accepted_at from projects");
+        }
+        i = s.indexOf(anchor, i + anchor.length);
+      }
+    }
+  }
+  if (offenders.length === 0) {
+    pass("9. the dead project-level MSA columns are not read by shipping code");
+  } else {
+    fail("9. project-level MSA columns back in shipping code", offenders.join("\n"));
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 
 console.log("");

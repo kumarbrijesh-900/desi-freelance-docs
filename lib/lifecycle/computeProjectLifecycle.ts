@@ -71,7 +71,13 @@ export function computeProjectLifecycle(project: ProjectWithInvoices): Lifecycle
 
   // Step 6: MSA accepted
   const isMsaAccepted = msaStatus === 'accepted';
-  const msaAcceptedDate = (master as any).msa_accepted_at || project.project.msa_accepted_at;
+  // Acceptance is recorded on the MASTER invoice. This used to fall back to
+  // projects.msa_accepted_at, a column nothing has ever written - 0 of 5 rows
+  // in production, and the only code touching it wrote null explicitly. The
+  // fallback could only ever evaluate to null, so it read like a safety net
+  // while doing nothing. See lib/invoice-msa.ts for where acceptance is now
+  // resolved.
+  const msaAcceptedDate = (master as any).msa_accepted_at ?? null;
   addStep('msa_accepted', 'MSA accepted', isMsaAccepted, isMsaAccepted ? msaAcceptedDate : null);
 
   // Filter out cancelled milestones from the core order unless they need rendering

@@ -13,8 +13,6 @@ export interface Project {
   name: string;
   description: string | null;
   status: "active" | "completed" | "cancelled" | "closed";
-  msa_accepted_at: string | null;
-  msa_accepted_via_invoice_id: string | null;
   project_addendum_text: string | null;
   master_po_number: string | null;
   created_at: string;
@@ -469,8 +467,6 @@ export async function getAllProjectsWithInvoices(): Promise<{
         name: getInvoiceProjectLabel(master),
         description: "Historical invoice grouped as a dashboard project.",
         status: "active",
-        msa_accepted_at: null,
-        msa_accepted_via_invoice_id: null,
         project_addendum_text: null,
         master_po_number: null,
         created_at: master.created_at,
