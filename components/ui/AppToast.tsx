@@ -21,17 +21,26 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+/**
+ * A failure needs longer on screen than a confirmation. Resolved once, at push
+ * time, so the countdown bar and the dismissal timer can never disagree.
+ */
+function resolveToastDuration(toast: Omit<ToastData, "id">) {
+  if (toast.duration) return toast.duration;
+  return toast.kind === "error" ? 6000 : 3400;
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const push = useCallback((toast: Omit<ToastData, "id">) => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => {
-      const updated = [...prev, { ...toast, id }];
+      const updated = [...prev, { ...toast, id, duration: resolveToastDuration(toast) }];
       return updated.slice(-3);
     });
 
-    const duration = toast.duration || 3400;
+    const duration = resolveToastDuration(toast);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, duration);
@@ -58,13 +67,19 @@ export function useToast() {
 }
 
 export function Toaster() {
-  const { toasts } = useToast();
+  const { toasts, dismiss } = useToast();
 
   return (
-    <div className="fixed right-3.5 bottom-3.5 left-3.5 z-[99999] flex flex-col gap-2 pointer-events-none md:left-auto md:w-80">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+      className="fixed right-3.5 bottom-3.5 left-3.5 z-[99999] flex flex-col gap-2 pointer-events-none md:left-auto md:w-80"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
+          role={toast.kind === "error" ? "alert" : undefined}
           className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[var(--radius-field)] border border-soft shadow-[var(--brutal-shadow-md)] bg-paper-2 relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
         >
           {toast.kind === "success" && (
@@ -94,9 +109,18 @@ export function Toaster() {
             {toast.sub && <div className="type-label text-ink-2 mt-0.5">{toast.sub}</div>}
           </div>
 
+          <button
+            type="button"
+            onClick={() => dismiss(toast.id)}
+            aria-label="Dismiss notification"
+            className="shrink-0 -mr-1 -mt-0.5 flex h-6 w-6 items-center justify-center rounded-[var(--radius-chip)] text-ink-3 hover:text-ink app-focus-ring"
+          >
+            <XIcon size={14} strokeWidth={3} />
+          </button>
+
           <div
             className="absolute left-0 bottom-0 h-[3px] bg-ink"
-            style={{ animation: `prog ${toast.duration || 3400}ms linear forwards` }}
+            style={{ animation: `prog ${toast.duration ?? 3400}ms linear forwards` }}
           />
         </div>
       ))}
