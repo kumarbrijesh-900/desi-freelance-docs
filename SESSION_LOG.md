@@ -1,3 +1,248 @@
+# Session Log - September 19-20, 2026 (the duplication that was not duplication, a silent date transposition, and the first index that stops a compliance bug)
+
+## Summary
+
+**Start `3aca66a` - End `238aa2b` - 12 commits. Every one verified with
+`git ls-remote` for true HEAD and a `git write-tree` hash predicted before the
+commit existed; 10 of 10 predicted hashes matched byte-exact, the one miss was a
+bad anchor of mine, not a bad commit. One edge function deploy (parse-brief
+v25). One production migration. Money suites green throughout:
+19 - 14 - 11,664 - 12,960 - 7 - 34,992 - 10.**
+
+Roadmap item 1 was the assignment. Its premise was wrong in three separate ways,
+and the two defects that actually mattered were not in the roadmap at all: a
+parser silently reading Indian dates as American ones, and a save path that
+could mint two invoices with the same number.
+
+| | |
+|---|---|
+| `692fe63` | `addDays` + `getSuggestedDueDate` collapsed onto one guarded implementation |
+| `baf2a79` | brief dates read day-first, impossible dates rejected, raw strings never returned; 21-case suite |
+| `a1eacdb` | restore-save keeps the known invoice id; background save failure made visible |
+| `71d9c3c` | live engine probe capture, 73/75, re-scored independently |
+| `b766b0b` | parser warnings surfaced in the review modal |
+| `02a21ce` | real link on the client row, operable disclosure on the project group header |
+| `9917d99` | MSA terms accordion title became a real toggle button |
+| `802f912` | toasts announced to assistive tech, dismissible, failures dwell longer |
+| `f6963ff` `d218b27` | Save Draft and Preview share one in-flight guard; a failed cloud save stops reporting as success |
+| `2306ce4` `238aa2b` | unique index on `(user_id, invoice_number)`, applied and reconciled |
+
+---
+
+## READ FIRST
+
+### The parser was reading 05/09/2026 as 9 May
+
+`normalizeDate` in `supabase/functions/parse-brief/postprocess.ts` handed any
+non-ISO string to `new Date()`, which parses slash dates as US month-first. A
+freelancer writing `05/09/2026` meaning 5 September got **2026-05-09** stored on
+the invoice. Four months wrong, on a GST document, **with no warning raised** -
+the ambiguity was invisible to every check because both date code paths agreed
+on the wrong answer.
+
+Two more holes in the same function: the ISO gate was `/^\d{4}-\d{2}-\d{2}$/`,
+shape-only, so `2026-13-45` passed through unwarned; and an unparseable string
+was **returned as-is** rather than as null, which is what let junk reach a
+`date` column.
+
+Now: numeric forms are day-first, month-first only as a fallback when day-first
+is impossible, ambiguous values (day <= 12) resolve day-first **and warn**,
+anything unresolvable returns null. Pinned by `npm run test:dates`, 21 cases.
+
+Autofill is live in production (`NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL`, Production
+scope, set 20 July - verified against Vercel, and
+`PROJECT_OPERATING_MANUAL.md:21` still wrongly says "Production = unset").
+So this was hitting real briefs.
+
+### Roadmap item 1 was wrong three ways
+
+"`autoCloudSave` is defined twice... same for `checkAuth` and `addDays`."
+
+- **`checkAuth` is a namesake, not a duplicate.** `AppHeader` sets a user object
+  from `getClientSessionUser()`; `InvoiceEditorPage` sets `isGuestMode` from
+  `getCurrentUserId()`. Different helper, different state, different purpose.
+  Nothing to collapse.
+- **The two `autoCloudSave` are two different save paths**, not one function
+  that drifted - preview owns template selection and the profile-assets prompt,
+  the editor owns content-gating and project name, and they read different
+  state. They were never merged and should not be; what was wrong was four
+  divergences, three now fixed. A literal collapse means an eight-parameter
+  shared hook, which is `InvoiceEditorPage` decomposition, not this task.
+- **`addDays`'s twins each guarded what the other did not.** `date-math` guarded
+  the date and not the term: `paymentTerms: "15"` as a string produced
+  `"2031-11-28"` - five years out, valid for Postgres, silently stored, on a
+  path with seven call sites. `msa-sync-utils` guarded the term and not the
+  date: `"19/09/2026"` produced `"NaN-NaN-NaN"`, which the `due_date` column
+  rejects, failing the whole write. **Picking either side would have kept a
+  bug.** The collapse took the union.
+
+The duplication was also one layer above where the scan put it:
+`getSuggestedDueDate` was defined twice as well, once wrapping each `addDays`,
+and `InvoiceEditorPage` imported both at once.
+
+### The "12 keyboard-inaccessible controls" were 3
+
+A repo-wide scan found 15 `onClick` handlers on non-interactive elements (the
+16th was my own false positive - `onClickCapture` matched as a substring). But
+the number conflates three unrelated things:
+
+| kind | count | what it actually needs |
+|---|---|---|
+| genuine controls built as divs | 3 | a real button or link |
+| checkbox proxy wrappers | 2 | handler on the `<input>`, which is `readOnly` |
+| modal backdrops | 6 | **Esc on the dialog, not a role or tabIndex** |
+| `stopPropagation` wrappers | 2 | nothing, they are not controls |
+| already correct | 1 | `ShareLinkModal` is the right pattern |
+
+**Adding `role` + `tabIndex` to all 15 - the obvious reading - would have made
+it worse**, putting an invisible tab stop in the middle of every modal.
+
+`AppTooltip` was also a false positive in a subtler way: `children` is never
+passed at any call site (zero `</AppTooltip>` in the repo), so its default
+`<button>` always renders, takes focus, and keyboard activation bubbles to the
+div handler. It works today; it only lacks `aria-expanded`.
+
+### Two invoices could share a number, and nothing stopped it
+
+`handleSaveDraft` had no in-flight guard and no `isSaving` state. On a fresh
+draft: both clicks see the `INV-<year>-000` placeholder, both call
+`generateNextInvoiceNumber()` - a read-then-compute-max with **no reservation**,
+so both return the same number - both call `saveInvoice` with
+`existingId: undefined`, both miss the `(user_id, invoice_number)` fallback
+lookup, both INSERT.
+
+**There was no unique index on `(user_id, invoice_number)`.** GST Rule 46
+requires a unique consecutive serial. Production had 0 duplicates, so this was
+latent, not an incident.
+
+A `disabled` prop would have looked like a fix and not been one: a window
+keydown listener calls `handleSaveDraft()` directly on Ctrl+S, bypassing the
+button entirely. The guard is a **ref** (synchronous); the state is only the
+affordance. And it is **shared with `handlePreviewInvoice`**, because the
+contended resource is the draft's cloud identity and both handlers mint it.
+
+The index is the part that survives the next new code path.
+
+### The May accessibility sweep was partly fictional
+
+`SESSION_LOG_2026-05-31.md:2012` claims `role="dialog"` / `aria-modal` were
+added to six named modals. ConversionModal, ShareLinkModal and
+DownloadDecisionModal have them. **BriefSummaryModal and ExitConfirmModal have
+neither, and `SettlementModal.tsx` does not exist in the repo.**
+
+---
+
+## Deploy and migration state
+
+**parse-brief v25** (`verify_jwt: false`, no import map). Fetch-back parity run
+after deploy: `index.ts`, `normalization.ts`, `provider-adapters.ts`,
+`persistence.ts`, `postprocess.ts` all **byte-identical** to `baf2a79` by
+sha256. `types.ts` is absent from the bundle and that is correct - all five
+importers use `import type`, so it is erased at compile time. Verified per
+import statement, not inferred.
+
+**Migration `20260920030149_unique_user_invoice_number`** applied and verified:
+index exists, `indisunique` and `indisvalid` both true, 7 rows intact, 0
+duplicate groups, definition character-identical to the file.
+
+**`apply_migration` assigns its own version** from application time in UTC and
+ignores any timestamp in the name you pass. The file was written as
+`20260920073000` and the record came back `20260920030149`, so the file needed
+renaming to match. **Apply first, read the version back, then name the file** -
+the order I got wrong.
+
+---
+
+## On the checks themselves
+
+Four harnesses of mine failed on a wrong expectation rather than a wrong
+artifact: a type-stripper that mangled `string[]` into `[]`, an import regex
+that ran across statement boundaries and falsely flagged `index.ts`, a bare
+`return cleaned;` grep that hit five unrelated helpers, and a 220-character
+window that could not reach past a `returnUrl` block and reported a flag leak
+that was not there. Each was caught before it reached a claim, but the pattern
+from the 19 September entry held: **scope the match to the construct, not the
+file.**
+
+One wrong number of my own reached Brijesh: I said "thirteen commits" twice when
+the range is 12.
+
+**AG's numeric claims did not survive checking, four times out of four.** Money
+suite counts were reported as `11664+1 / 12960+1 / 34992+1` three times (no test
+file was touched, so the fixture counts cannot move), and once as "73/73", a
+number borrowed from the live probe's 73/75. Separately, on four commits it
+reported BUILD RESULT having run **only** `test:callers`, without saying the
+other five were not run. **Every code claim it made was accurate; no numeric or
+coverage claim was.** Treat its exit codes as signal and its numbers as noise.
+
+## What this session could verify that previous ones could not
+
+`npm ci` works here (517 packages, 16s), so `npx tsc --noEmit` and all six
+suites were run locally on every commit rather than taken from AG's report.
+`npm run build` **cannot** run here - `next/font` fetches Space Grotesk and
+Space Mono from Google Fonts at build time and the container cannot reach
+`fonts.googleapis.com`. All three build errors are that fetch, on any commit.
+The build result stays AG's; everything else does not have to be.
+
+---
+
+## NEXT SESSION - start here
+
+### 1. Retag the save-failure toasts
+
+`802f912` gave toasts `role="status"` / `aria-live="polite"`, a dismiss button,
+`role="alert"` for errors and a 6s dwell for them. But 57 of 61 `push()` call
+sites pass `kind: "info"` and only 4 pass `"error"` - and until `d218b27` none
+of the save failures were among them. The alert path exists and almost nothing
+reaches it. Mechanical pass over the call sites.
+
+### 2. Finish the keyboard work
+
+`aria-expanded` on `AppTooltip`'s trigger. The two checkbox wrappers
+(`InvoiceEventRow.tsx:110`, `ProjectInvoiceGroup.tsx:189`) where the handler is
+on the wrapper and the `<input>` is `readOnly`, so Space does nothing.
+
+### 3. Esc and scroll lock across the modal set
+
+Across 14 modal-bearing files: Esc handled in **1**, focus trapped in **0**,
+scroll locked in **0**. `AppModal.tsx` - the shared primitive - has none of the
+four and exactly one consumer, so fixing the primitive is not the leverage it
+looks like. One shared hook, then applied per modal. Focus trap after that.
+
+### 4. Loading states
+
+`AppSkeleton` exists with **zero consumers**; so do `AppEmptyState`, `AppCard`,
+`AppBanner`, `AppAlert`, `AppBadge`. There is no `loading.tsx` or `error.tsx`
+anywhere. Four routes hand-roll four different text treatments, and `/clients`
+and `/profile` **early-return a tree without `AppPageShell`**, so the page jumps
+when data lands - which is what the page-shell contract exists to prevent, just
+time-shifted into the first second. Skeletons inside the shell, never instead
+of it.
+
+Full write-up and the page-shell contract both live in the claude.ai project,
+not in this repo: `claude/ux-findings-2026-09-19-evening.md` and
+`claude/page-shell-contract.md`.
+
+### 5. Carried forward
+
+- `PROJECT_OPERATING_MANUAL.md:21` says the autofill gate is unset in
+  Production. It has been on since 20 July. A cold start will believe it.
+- `tests/extraction/live-engine-capture-2026-07-19.json` is overwritten in place
+  by the probe and now holds a 19 September run under a 19 July name.
+- `tsconfig.json` excludes `supabase/functions/**/*.ts`. The parser that turns
+  brief text into invoice dates has **never been typechecked**. A test importing
+  it does pull it into the program, and that is clean today.
+- 11 async action buttons still have no `disabled` guard; Save Draft and Preview
+  are now covered, the rest are not.
+- The UX findings doc exists at two paths in the project - `claude/` and bare.
+  Delete one before a cold start reads the wrong copy.
+- Unchanged from 19 September: `invoices.msa_accepted_at` vs `msa_responded_at`
+  type/reality mismatch; anon key rotation premise still unverified; lint rule
+  banning bare `0.18`/`1.18`; `computeInvoiceMoney.amountPayable` wired to
+  nothing; `InvoiceEditorPage` decomposition, now 3,250+ lines.
+
+---
+
 # Session Log - September 19, 2026 (the squash, three bugs the roadmap did not name, and a full repo scan)
 
 ## Summary
@@ -236,7 +481,7 @@ affected, not two, and it was not settled.
 
 ---
 
-## NEXT SESSION - start here
+## NEXT SESSION (superseded 20 September - see the entry above)
 
 ### 1. `autoCloudSave` is defined twice
 
