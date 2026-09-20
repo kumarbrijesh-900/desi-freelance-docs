@@ -195,11 +195,15 @@ export function ProjectInvoiceGroup({
                 className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 mb-2 rounded-[var(--radius-field)] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
               >
                 <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
-                <div
-                  className="flex items-center shrink-0"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect(inv.id); }}
-                >
-                  <input type="checkbox" checked={selected} readOnly className="w-4 h-4 border border-soft accent-ink cursor-pointer" />
+                <div className="flex items-center shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => onToggleSelect(inv.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Select invoice ${inv.invoice_number || "draft"}`}
+                    className="w-4 h-4 border border-soft accent-ink cursor-pointer app-focus-ring"
+                  />
                 </div>
                 <div className="flex-1 sm:flex-none sm:w-[150px] min-w-0 shrink sm:shrink-0">
                   <div className="font-mono font-bold type-body tracking-[-0.02em] text-ink truncate">{inv.invoice_number || "DRAFT"}</div>

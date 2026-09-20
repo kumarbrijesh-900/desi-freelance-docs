@@ -107,15 +107,14 @@ export function InvoiceEventRow({
       className="flex items-stretch bg-paper-2 border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition"
     >
       {selectable && (
-        <div
-          className="flex items-center pl-3 pr-1 shrink-0"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect?.(invoice.id); }}
-        >
+        <div className="flex items-center pl-3 pr-1 shrink-0">
           <input
             type="checkbox"
             checked={!!selected}
-            readOnly
-            className="w-4 h-4 border border-soft accent-ink cursor-pointer"
+            onChange={() => onToggleSelect?.(invoice.id)}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Select invoice ${invoice.invoice_number || "draft"}`}
+            className="w-4 h-4 border border-soft accent-ink cursor-pointer app-focus-ring"
           />
         </div>
       )}
