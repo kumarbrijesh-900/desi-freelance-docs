@@ -18,6 +18,14 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
   onClose?: () => void
 ) {
   const ref = useRef<T>(null);
+  // Held in a ref so an inline onClose - the normal case at a call site - does
+  // not retrigger the effect on every parent render, which would re-run the
+  // focus-on-open step and pull focus back while someone is typing.
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -33,9 +41,9 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
     (getFocusable()[0] ?? node).focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && onClose) {
+      if (e.key === "Escape" && onCloseRef.current) {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key === "Tab") {
@@ -61,7 +69,7 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
       document.removeEventListener("keydown", onKeyDown);
       previouslyFocused?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return ref;
 }

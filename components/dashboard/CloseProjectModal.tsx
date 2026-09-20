@@ -58,8 +58,8 @@ export function CloseProjectModal({
   const options = [...CLOSURE_REASONS, "Other"];
 
   return (
-    <AppModal isOpen={isOpen} onClose={handleClose}>
-      <h2 className="type-heading font-display font-black tracking-tight text-ink">
+    <AppModal isOpen={isOpen} onClose={handleClose} aria-labelledby="close-project-title">
+      <h2 id="close-project-title" className="type-heading font-display font-black tracking-tight text-ink">
         Close project
       </h2>
       <p className="mt-1.5 type-body font-semibold text-ink-2 leading-snug">

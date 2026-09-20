@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 import {
   XMarkIcon,
   CheckIcon,
@@ -507,6 +508,12 @@ export default function BriefSummaryModal({
     }
   }, [isOpen, extractedData]);
 
+  // Escape does what the close control does: keep what the user has edited here
+  // and drop them back into the form, rather than discarding the extraction.
+  const panelRef = useModalA11y<HTMLDivElement>(isOpen, () =>
+    onContinueManually(localData),
+  );
+
   if (!isOpen) return null;
 
   const lowConfLabels = new Set(lowConfidenceFields.map((f) => f.label));
@@ -644,6 +651,11 @@ export default function BriefSummaryModal({
         className="fixed inset-0 z-[120] flex items-center justify-center bg-[#16110c]/60 p-4"
       >
         <motion.div
+          ref={panelRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="brief-summary-title"
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -656,7 +668,10 @@ export default function BriefSummaryModal({
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="font-display type-title font-bold leading-tight tracking-[-0.01em] text-ink">
+                <h2
+                  id="brief-summary-title"
+                  className="font-display type-title font-bold leading-tight tracking-[-0.01em] text-ink"
+                >
                   Review the details
                 </h2>
                 <p className="mt-1 type-body text-ink-2">

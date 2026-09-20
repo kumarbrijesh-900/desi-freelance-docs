@@ -204,10 +204,27 @@ on the wrapper and the `<input>` is `readOnly`, so Space does nothing.
 
 ### 3. Esc and scroll lock across the modal set
 
-Across 14 modal-bearing files: Esc handled in **1**, focus trapped in **0**,
-scroll locked in **0**. `AppModal.tsx` - the shared primitive - has none of the
-four and exactly one consumer, so fixing the primitive is not the leverage it
-looks like. One shared hook, then applied per modal. Focus trap after that.
+**Corrected 20 September.** An earlier draft of this entry said "Esc handled in
+1, focus trapped in 0, scroll locked in 0". That was wrong: a shared hook
+already exists - `lib/use-modal-a11y.ts`, added in `2d1a193` - doing
+Esc-to-close, focus-on-open, Tab focus-trap and focus-restore, and it was
+already wired into four modals. `DownloadDecisionModal` handles Escape itself.
+True state before today: **5 of 14 covered, focus trapping 4 not 0**. Only
+scroll lock was genuinely 0 everywhere, including inside the hook.
+
+The wrong figure came from grepping each component file for `"Escape"` and
+`.focus()` - which finds nothing when the behaviour lives in an imported hook,
+and also missed `DownloadDecisionModal` writing `'Escape'` in single quotes.
+Scope the match to the construct, not the file.
+
+`2d1a193` also records that the client-facing MSA modals were **deliberately**
+left out of that sweep. Do not "fix" them without asking.
+
+Remaining: the four inline overlays in the `clients`, `dashboard`, `invoices`
+and `profile` pages need per-site wiring rather than a component change, and
+`DownloadDecisionModal`'s own Escape handler should move onto the shared hook
+rather than stay a second implementation. Scroll lock is a separate hook by
+decision, not folded into `useModalA11y`.
 
 ### 4. Loading states
 
