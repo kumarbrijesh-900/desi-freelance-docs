@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { CheckCircleIcon, DocumentSparkIcon, SparklesIcon } from "@/components/ui/app-icons";
 import { getAppButtonClass } from "@/lib/ui-foundation";
@@ -221,6 +222,7 @@ export default function ShareLinkModal({
 
 
   const overlayRef = useModalA11y(true, onClose);
+  useScrollLock(true);
 
   return sent ? (
   <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70" role="dialog" aria-modal="true" aria-labelledby="share-link-modal-title">

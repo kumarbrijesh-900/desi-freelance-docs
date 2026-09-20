@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/ui-foundation";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 export interface AppModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
@@ -11,6 +12,7 @@ export interface AppModalProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function AppModal({ isOpen, onClose, className, children, ...props }: AppModalProps) {
   const panelRef = useModalA11y<HTMLDivElement>(isOpen, onClose);
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase/client";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 interface ConversionModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export default function ConversionModal({
   subtitle = "Create a free Lance account to download your PDF, save this client, and lock in your agency branding.",
 }: ConversionModalProps) {
   const overlayRef = useModalA11y(isOpen, onClose);
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 

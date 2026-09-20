@@ -1050,6 +1050,16 @@ input::placeholder, select::placeholder, textarea::placeholder {
     print-color-adjust: exact;
   }
 
+  /* A modal's scroll lock writes overflow:hidden as an INLINE style on body,
+     which a plain rule cannot override - only !important can. Without this the
+     print job can be clipped to the first page whenever a dialog is open, and
+     the share-then-download path does exactly that: it opens the share modal
+     and calls window.print(). */
+  html,
+  body {
+    overflow: visible !important;
+  }
+
   /* Hide all non-essential UI */
   nav, header, .sidebar, .print\:hidden, button, [role="button"], .invoice-action-dock, .app-dropzone-surface, [aria-modal="true"] {
     display: none !important;

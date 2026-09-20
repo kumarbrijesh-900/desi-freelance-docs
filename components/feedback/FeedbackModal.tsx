@@ -14,6 +14,7 @@ import AppSelectField from "@/components/ui/AppSelectField";
 
 import { useToast } from "@/components/ui/AppToast";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const { push } = useToast();
 
   const overlayRef = useModalA11y(isOpen, onClose);
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 

@@ -1,5 +1,6 @@
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 export function ExitConfirmModal({
   onSkip,
@@ -11,6 +12,7 @@ export function ExitConfirmModal({
   onClose: () => void;
 }) {
   const overlayRef = useModalA11y(true, onClose);
+  useScrollLock(true);
 
   return (
     <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">

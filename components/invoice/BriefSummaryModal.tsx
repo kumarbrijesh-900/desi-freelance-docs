@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import {
   XMarkIcon,
   CheckIcon,
@@ -513,6 +514,7 @@ export default function BriefSummaryModal({
   const panelRef = useModalA11y<HTMLDivElement>(isOpen, () =>
     onContinueManually(localData),
   );
+  useScrollLock(isOpen);
 
   if (!isOpen) return null;
 
