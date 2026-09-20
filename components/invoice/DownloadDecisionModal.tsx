@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useModalA11y } from '@/lib/use-modal-a11y'
+import { useScrollLock } from '@/lib/use-scroll-lock'
 
 export interface DownloadDecisionModalProps {
   isOpen: boolean
@@ -21,14 +22,8 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
     onCancel,
   } = props
 
-  useEffect(() => {
-    if (!isOpen) return
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCancel()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [isOpen, onCancel])
+  const overlayRef = useModalA11y<HTMLDivElement>(isOpen, onCancel)
+  useScrollLock(isOpen)
 
   if (!isOpen) return null
 
@@ -36,6 +31,8 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
 
   return (
     <div
+      ref={overlayRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="download-decision-title"
