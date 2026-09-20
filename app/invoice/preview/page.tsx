@@ -410,7 +410,7 @@ function PreviewContent() {
 
       if (error) {
         console.error("Restoration Save Failed:", error);
-        push({ kind: "info", ttl: "Failed to save draft to cloud. Please try manual save." });
+        push({ kind: "error", ttl: "Failed to save draft to cloud. Please try manual save." });
         return;
       }
 
@@ -541,7 +541,7 @@ function PreviewContent() {
         // Fall through to local-only save on error
         console.warn("handleSaveDraft: cloud save failed:", error);
         setSaveState("error");
-        push({ kind: "info", ttl: 
+        push({ kind: "error", ttl: 
           `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
          });
         return;
@@ -555,7 +555,7 @@ function PreviewContent() {
     } catch (err) {
       console.error("handleSaveDraft: unexpected exception:", err);
       setSaveState("error");
-      push({ kind: "info", ttl: "An unexpected error occurred while saving. Please try again." });
+      push({ kind: "error", ttl: "An unexpected error occurred while saving. Please try again." });
     }
   };
 
@@ -583,7 +583,7 @@ function PreviewContent() {
 
       if (error || !saved) {
         setSaveState("error");
-        push({ kind: "info", ttl: "Save failed. Cannot share." });
+        push({ kind: "error", ttl: "Save failed. Cannot share." });
         return;
       }
 
@@ -611,7 +611,7 @@ function PreviewContent() {
     } catch (err) {
       console.error("SHARE_AUTOFLOW_ERROR:", err);
       setSaveState("error");
-      push({ kind: "info", ttl: "An error occurred during save & share." });
+      push({ kind: "error", ttl: "An error occurred during save & share." });
     } finally {
       setIsSavingAndSharing(false);
     }
@@ -646,7 +646,7 @@ function PreviewContent() {
       });
       if (pdfSaveError) {
         console.error("PDF_PRESAVE_FAILED:", pdfSaveError);
-        push({ kind: "info", ttl: "Could not save before export. Your PDF is unchanged." });
+        push({ kind: "error", ttl: "Could not save before export. Your PDF is unchanged." });
       }
       if (saved) {
         setCloudInvoiceId(saved.id);
@@ -716,7 +716,7 @@ function PreviewContent() {
       case "resend": {
         const clientEmail = sharedToEmail || data?.client?.clientEmail;
         if (!cloudInvoiceId || !clientEmail) {
-          push({ kind: "info", ttl: "Missing saved invoice email for resend." });
+          push({ kind: "error", ttl: "Missing saved invoice email for resend." });
           return;
         }
         try {
@@ -731,13 +731,13 @@ function PreviewContent() {
           });
           if (!response.ok) {
             const error = await response.json().catch(() => null);
-            push({ kind: "info", ttl: error?.error || "Could not resend invoice email." });
+            push({ kind: "error", ttl: error?.error || "Could not resend invoice email." });
             return;
           }
           push({ kind: "info", ttl: `Resent invoice to ${clientEmail}.` });
         } catch (error) {
           console.error("PREVIEW_LOCKED_RESEND_FAILED:", error);
-          push({ kind: "info", ttl: "Could not resend invoice email." });
+          push({ kind: "error", ttl: "Could not resend invoice email." });
         }
         return;
       }
@@ -756,7 +756,7 @@ function PreviewContent() {
           .eq("id", cloudInvoiceId);
         if (error) {
           console.error("PREVIEW_LOCKED_REACTIVATE_FAILED:", error);
-          push({ kind: "info", ttl: "Could not reactivate invoice." });
+          push({ kind: "error", ttl: "Could not reactivate invoice." });
           return;
         }
         setInvoiceStatusState("draft");

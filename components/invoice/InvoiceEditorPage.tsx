@@ -382,7 +382,7 @@ function EditorContent() {
 
       if (error || !data) {
         console.error("Failed to load cloud invoice:", error);
-        push({ kind: "info", ttl: "Could not load invoice from cloud. Starting fresh." });
+        push({ kind: "error", ttl: "Could not load invoice from cloud. Starting fresh." });
         initializeFresh();
         return;
       }
@@ -632,7 +632,7 @@ function EditorContent() {
 
       if (error) {
         console.warn("Background cloud save failed:", error);
-        push({ kind: "info", ttl: "Failed to save draft to cloud. Please try manual save." });
+        push({ kind: "error", ttl: "Failed to save draft to cloud. Please try manual save." });
         return;
       }
 
@@ -1425,7 +1425,7 @@ const handlePreviewInvoice = async () => {
 
       if (result?.error) {
         console.error("Failed to cloud-save invoice on preview:", result.error);
-        push({ kind: "info", ttl: "Cloud save failed. Previewing local changes only." });
+        push({ kind: "error", ttl: "Cloud save failed. Previewing local changes only." });
       }
     }
 
@@ -1486,7 +1486,7 @@ const handleLockedAlternativeAction = async () => {
       return;
     case "resend": {
       if (!parserDocumentId || !sharedToEmail) {
-        push({ kind: "info", ttl: "Missing saved invoice email for resend." });
+        push({ kind: "error", ttl: "Missing saved invoice email for resend." });
         return;
       }
       try {
@@ -1501,13 +1501,13 @@ const handleLockedAlternativeAction = async () => {
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          push({ kind: "info", ttl: error?.error || "Could not resend invoice email." });
+          push({ kind: "error", ttl: error?.error || "Could not resend invoice email." });
           return;
         }
         push({ kind: "info", ttl: `Resent invoice to ${sharedToEmail}.` });
       } catch (error) {
         console.error("LOCKED_RESEND_FAILED:", error);
-        push({ kind: "info", ttl: "Could not resend invoice email." });
+        push({ kind: "error", ttl: "Could not resend invoice email." });
       }
       return;
     }
@@ -1526,7 +1526,7 @@ const handleLockedAlternativeAction = async () => {
         .eq("id", parserDocumentId);
       if (error) {
         console.error("LOCKED_REACTIVATE_FAILED:", error);
-        push({ kind: "info", ttl: "Could not reactivate invoice." });
+        push({ kind: "error", ttl: "Could not reactivate invoice." });
         return;
       }
       setInvoiceStatus("draft");
@@ -1586,7 +1586,7 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
     }
   } catch (error) {
     console.error("Failed to save draft:", error);
-    push({ kind: "info", ttl: "Could not save draft. Please try again." });
+    push({ kind: "error", ttl: "Could not save draft. Please try again." });
   }
 };
 
@@ -2029,7 +2029,7 @@ const handleModalSubmit = async (
       }
     } catch (e) {
       console.warn("Save-client from brief review failed:", e);
-      push({ kind: "info", ttl: "Couldn't save the client — you can add them from Clients later." });
+      push({ kind: "error", ttl: "Couldn't save the client — you can add them from Clients later." });
     }
   }
 
