@@ -2,9 +2,9 @@
 
 ## Summary
 
-**Start `3aca66a` - End `238aa2b` - 12 commits. Every one verified with
+**Start `3aca66a` - End `f7817dc` - 16 commits. Every one verified with
 `git ls-remote` for true HEAD and a `git write-tree` hash predicted before the
-commit existed; 10 of 10 predicted hashes matched byte-exact, the one miss was a
+commit existed; every prediction issued matched byte-exact, the one miss was a
 bad anchor of mine, not a bad commit. One edge function deploy (parse-brief
 v25). One production migration. Money suites green throughout:
 19 - 14 - 11,664 - 12,960 - 7 - 34,992 - 10.**
@@ -26,6 +26,9 @@ could mint two invoices with the same number.
 | `802f912` | toasts announced to assistive tech, dismissible, failures dwell longer |
 | `f6963ff` `d218b27` | Save Draft and Preview share one in-flight guard; a failed cloud save stops reporting as success |
 | `2306ce4` `238aa2b` | unique index on `(user_id, invoice_number)`, applied and reconciled |
+| `0075be7` | genuine save and send failures retagged so they reach the alert path |
+| `c2c0b25` | invoice select checkboxes made keyboard-operable and given names |
+| `f7817dc` | modal a11y hook wired into `AppModal` and `BriefSummaryModal`; hook stops re-firing on every parent render |
 
 ---
 
@@ -167,6 +170,20 @@ file.**
 One wrong number of my own reached Brijesh: I said "thirteen commits" twice when
 the range is 12.
 
+**The modal correction below was itself wrong, in the same way, one layer down.**
+It gave the denominator as 14 - the count of files matching `fixed inset-0`.
+That predicate cannot see `CloseProjectModal`, which paints no overlay of its
+own and delegates to `<AppModal>`. The set is 15 files. The file is also the
+wrong unit: the five files still needing work hold eight dialogs between them,
+three of them two apiece. Same root cause as the Escape miscount - **a
+predicate that cannot see behaviour living in another file** - caught once and
+left sitting in the denominator.
+
+The header's "10 of 10 predicted hashes" was dropped rather than extended. The
+transcript holding the earlier predictions had been compacted, so the count
+could not be re-derived from an artifact; extending it by arithmetic is the
+error this log already records twice.
+
 **AG's numeric claims did not survive checking, four times out of four.** Money
 suite counts were reported as `11664+1 / 12960+1 / 34992+1` three times (no test
 file was touched, so the fixture counts cannot move), and once as "73/73", a
@@ -209,8 +226,11 @@ on the wrapper and the `<input>` is `readOnly`, so Space does nothing.
 already exists - `lib/use-modal-a11y.ts`, added in `2d1a193` - doing
 Esc-to-close, focus-on-open, Tab focus-trap and focus-restore, and it was
 already wired into four modals. `DownloadDecisionModal` handles Escape itself.
-True state before today: **5 of 14 covered, focus trapping 4 not 0**. Only
-scroll lock was genuinely 0 everywhere, including inside the hook.
+True state before today: **5 of 15 covered, focus trapping 4 not 0**. Only
+scroll lock was genuinely 0 everywhere, including inside the hook. `f7817dc`
+then moved Esc to **8 of 15** and focus trapping to **7** - three modals, not
+the two predicted: `CloseProjectModal` flipped for free the moment the shared
+primitive got the hook.
 
 The wrong figure came from grepping each component file for `"Escape"` and
 `.focus()` - which finds nothing when the behaviour lives in an imported hook,
@@ -220,11 +240,15 @@ Scope the match to the construct, not the file.
 `2d1a193` also records that the client-facing MSA modals were **deliberately**
 left out of that sweep. Do not "fix" them without asking.
 
-Remaining: the four inline overlays in the `clients`, `dashboard`, `invoices`
-and `profile` pages need per-site wiring rather than a component change, and
-`DownloadDecisionModal`'s own Escape handler should move onto the shared hook
-rather than stay a second implementation. Scroll lock is a separate hook by
-decision, not folded into `useModalA11y`.
+Remaining: **8 dialog sites across 5 files** need per-site wiring rather than a
+component change - two each in `clients`, `dashboard` and `invoices`, one in
+`profile`, one in `InvoiceEditorPage`. The bulk "Delete selected?" confirm on
+`/invoices` cascades to milestones the user did not select, so it is the
+highest-stakes dialog still without an Esc. `InvoiceEditorPage:2475` is **not**
+a dialog - it is a blocking busy overlay with zero focusable children, and Esc
+must not close it. `DownloadDecisionModal`'s own Escape handler should move onto
+the shared hook rather than stay a second implementation. Scroll lock is a
+separate hook by decision, not folded into `useModalA11y`.
 
 ### 4. Loading states
 
