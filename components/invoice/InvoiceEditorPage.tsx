@@ -226,6 +226,11 @@ function EditorContent() {
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
+  // Ctrl+S reaches handleSaveDraft without going through the button, so a
+  // disabled prop cannot guard this on its own. The ref is the guard; the
+  // state is only the affordance.
+  const saveDraftInFlightRef = useRef(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedClientMsa, setSelectedClientMsa] =
@@ -1579,6 +1584,8 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
 };
 
 const handleSaveDraft = async () => {
+  if (saveDraftInFlightRef.current) return;
+
   if (isReadOnlyMode) {
     push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
@@ -1591,11 +1598,16 @@ const handleSaveDraft = async () => {
     return;
   }
 
+  saveDraftInFlightRef.current = true;
+  setIsSavingDraft(true);
+
   persistDraft();
 
   const userId = await getCurrentUserId();
 
   if (!userId) {
+    saveDraftInFlightRef.current = false;
+    setIsSavingDraft(false);
     const returnUrl = parserDocumentId 
       ? `/invoice/new?id=${parserDocumentId}&restore=1`
       : "/invoice/new?restore=1";
@@ -1681,6 +1693,9 @@ const handleSaveDraft = async () => {
     }
   } catch {
     push({ kind: "info", ttl: "Saved locally" });
+  } finally {
+    saveDraftInFlightRef.current = false;
+    setIsSavingDraft(false);
   }
 };
 
@@ -3165,13 +3180,14 @@ return (
             <button
               type="button"
               onClick={handleSaveDraft}
+              disabled={isSavingDraft}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-[var(--control-sm)] px-4 border border-[color:var(--color-soft)] rounded-[var(--radius-field)] text-[color:var(--color-ink)] sm:h-[var(--control-md)] sm:px-5 active:scale-[0.97] transition-transform",
+                "h-[var(--control-sm)] px-4 border border-[color:var(--color-soft)] rounded-[var(--radius-field)] text-[color:var(--color-ink)] sm:h-[var(--control-md)] sm:px-5 active:scale-[0.97] transition-transform disabled:cursor-not-allowed disabled:opacity-60",
               )}
             >
               <SaveIcon className="mr-2 h-4 w-4" />
-              Save Draft
+              {isSavingDraft ? "Saving…" : "Save Draft"}
             </button>
           )}
           {isReadOnlyMode ? (
