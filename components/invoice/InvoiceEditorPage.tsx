@@ -226,10 +226,11 @@ function EditorContent() {
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
-  // Ctrl+S reaches handleSaveDraft without going through the button, so a
-  // disabled prop cannot guard this on its own. The ref is the guard; the
-  // state is only the affordance.
-  const saveDraftInFlightRef = useRef(false);
+  // Both Save Draft and Preview create the draft's cloud identity, so one
+  // shared guard - not one per button. Ctrl+S reaches handleSaveDraft without
+  // touching the button, so a disabled prop cannot guard this on its own:
+  // the ref is the guard, the state is only the affordance.
+  const saveInFlightRef = useRef(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -1362,6 +1363,8 @@ const scrollToStep = (
 };
 
 const handlePreviewInvoice = async () => {
+  if (saveInFlightRef.current) return;
+
   if (!invoiceReadyForPreview) {
     setShowAllValidationErrors(true);
     if (firstInvalidStep) {
@@ -1376,6 +1379,8 @@ const handlePreviewInvoice = async () => {
     push({ kind: "info", ttl: "Add an amount before previewing — this invoice still totals zero." });
     return;
   }
+
+  saveInFlightRef.current = true;
 
   try {
     let invoiceNumberForPreview = formData.meta.invoiceNumber;
@@ -1456,7 +1461,9 @@ const handlePreviewInvoice = async () => {
     router.push(previewUrl);
   } catch (error) {
     console.error("Failed to save preview data:", error);
-    push({ kind: "info", ttl: "Could not open preview. Please try again." });
+    push({ kind: "error", ttl: "Could not open preview. Please try again." });
+  } finally {
+    saveInFlightRef.current = false;
   }
 };
 
@@ -1584,7 +1591,7 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
 };
 
 const handleSaveDraft = async () => {
-  if (saveDraftInFlightRef.current) return;
+  if (saveInFlightRef.current) return;
 
   if (isReadOnlyMode) {
     push({ kind: "info", ttl: "This invoice is in read-only mode." });
@@ -1598,7 +1605,7 @@ const handleSaveDraft = async () => {
     return;
   }
 
-  saveDraftInFlightRef.current = true;
+  saveInFlightRef.current = true;
   setIsSavingDraft(true);
 
   persistDraft();
@@ -1606,7 +1613,7 @@ const handleSaveDraft = async () => {
   const userId = await getCurrentUserId();
 
   if (!userId) {
-    saveDraftInFlightRef.current = false;
+    saveInFlightRef.current = false;
     setIsSavingDraft(false);
     const returnUrl = parserDocumentId 
       ? `/invoice/new?id=${parserDocumentId}&restore=1`
@@ -1688,13 +1695,20 @@ const handleSaveDraft = async () => {
         action: clientMsaNote ? "invoice_reissued" : "invoice_saved",
       });
     } else {
-      push({ kind: "info", ttl: "Saved locally (cloud save failed)" });
-      playInteractionCue("saveSuccess");
+      push({
+        kind: "error",
+        ttl: "Could not save to the cloud",
+        sub: "Your draft is still saved on this device.",
+      });
     }
   } catch {
-    push({ kind: "info", ttl: "Saved locally" });
+    push({
+      kind: "error",
+      ttl: "Could not save to the cloud",
+      sub: "Your draft is still saved on this device.",
+    });
   } finally {
-    saveDraftInFlightRef.current = false;
+    saveInFlightRef.current = false;
     setIsSavingDraft(false);
   }
 };
