@@ -439,7 +439,11 @@ export default function InvoicesPage() {
       <main className={`${appPageShellContainerClass} pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
-          <div className="mb-6 px-4 py-3 bg-ink text-acc-ink type-body font-bold shadow-none">
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-6 px-4 py-3 bg-ink text-acc-ink type-body font-bold shadow-none"
+          >
             {actionMessage}
           </div>
         )}
@@ -691,7 +695,7 @@ export default function InvoicesPage() {
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete} disabled={bulkDeletePlan.roots.length === 0}
-                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform">
+                className="bg-coral px-4 py-2 rounded-[var(--radius-field)] type-body font-semibold text-[color:var(--on-coral)] shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform disabled:opacity-50 disabled:shadow-none disabled:hover:brightness-100 disabled:active:scale-100 disabled:cursor-not-allowed">
                 Delete selected
               </button>
             </div>
