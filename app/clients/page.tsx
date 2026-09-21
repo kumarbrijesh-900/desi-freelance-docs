@@ -181,8 +181,21 @@ function ClientForm({
     setIsSaving(false);
   };
 
+  // Mounted only while open - the parent gates on showForm - so the hook takes
+  // true rather than a flag. Escape maps to onCancel, matching the backdrop,
+  // which already discards on an outside click.
+  const drawerRef = useModalA11y<HTMLDivElement>(true, onCancel);
+  useScrollLock(true);
+
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div
+      ref={drawerRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="client-form-title"
+      className="fixed inset-0 z-50 flex justify-end"
+    >
       {/* Overlay */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -202,7 +215,7 @@ function ClientForm({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] p-6">
-          <h3 className="type-title font-bold text-[color:var(--color-ink)]">
+          <h3 id="client-form-title" className="type-title font-bold text-[color:var(--color-ink)]">
             {initial ? "Edit Client" : "Add New Client"}
           </h3>
           <button
