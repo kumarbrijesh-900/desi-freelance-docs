@@ -53,6 +53,8 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/image-crop-utils";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from '@/lib/default-msa';
 
 /* ─── Section Label Component ─────────────────────── */
@@ -127,6 +129,14 @@ function ImageUploadField({
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // This component is instantiated three times on the page, so the dialog's
+  // label id is derived from `folder` rather than being a constant.
+  const cropTitleId = `crop-title-${folder}`;
+  const cropDialogRef = useModalA11y<HTMLDivElement>(cropModalOpen, () =>
+    setCropModalOpen(false),
+  );
+  useScrollLock(cropModalOpen);
 
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
@@ -312,13 +322,20 @@ function ImageUploadField({
 
       {/* Cropper Modal */}
       {cropModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+        <div
+          ref={cropDialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={cropTitleId}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+        >
           <MotionReveal
             preset="fade-up"
             className="w-full max-w-2xl overflow-hidden bg-[color:var(--color-paper)] shadow-[var(--brutal-shadow-lg)]"
           >
             <div className="border-b border-[color:var(--color-soft)] p-4 flex justify-between items-center bg-[color:var(--color-paper)]">
-              <h3 className="font-bold text-[color:var(--color-ink)]">
+              <h3 id={cropTitleId} className="font-bold text-[color:var(--color-ink)]">
                 Optimize Your {label}
               </h3>
               <button
