@@ -94,6 +94,282 @@ function FieldRow({
   );
 }
 
+/* Hoisted to module scope deliberately. Declared inside ProfilePage this was
+   a new component type on every parent render, so React unmounted and
+   remounted all three instances and reset isUploading, cropModalOpen and
+   tempImgSrc. onUrlChange calls a parent setter, so finishing a crop
+   triggered exactly that. */
+function ImageUploadField({
+  label,
+  helper,
+  value,
+  onUrlChange,
+  folder,
+  userId,
+  setSaveState,
+  setSaveFeedback,
+  setIsDirty,
+}: {
+  label: string;
+  helper: string;
+  value: string;
+  onUrlChange: (url: string) => void;
+  folder: string;
+  userId: string;
+  setSaveState: (state: "idle" | "saving" | "success" | "partial" | "error") => void;
+  setSaveFeedback: (message: string | null) => void;
+  setIsDirty: (dirty: boolean) => void;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [tempImgSrc, setTempImgSrc] = useState("");
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    const aspect = label.toLowerCase().includes("qr") ? 1 : undefined;
+    const initialCrop = centerCrop(
+      makeAspectCrop(
+        { unit: "%", width: 90 },
+        aspect || width / height,
+        width,
+        height,
+      ),
+      width,
+      height,
+    );
+    setCrop(initialCrop);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setTempImgSrc(reader.result?.toString() || "");
+      setCropModalOpen(true);
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async () => {
+    if (!imgRef.current || !completedCrop || !userId) return;
+
+    setIsUploading(true);
+    setCropModalOpen(false);
+
+    try {
+      const croppedFile = await getCroppedImg(
+        imgRef.current,
+        completedCrop,
+        `cropped-${Date.now()}.png`,
+      );
+
+      const fileName = `${folder}/${userId}-${Date.now()}-cropped.png`;
+      const { url, error } = await uploadProfessionalAsset(
+        croppedFile,
+        fileName,
+      );
+
+      if (url) {
+        onUrlChange(url);
+        setIsDirty(true);
+      } else if (error) {
+        setSaveState("error");
+        setSaveFeedback(`Upload failed: ${error}`);
+      }
+    } catch (err) {
+      console.error("Cropping error:", err);
+    } finally {
+      setIsUploading(false);
+      setTempImgSrc("");
+    }
+  };
+
+  return (
+    <div className="col-span-1">
+      <FieldRow label={label} helper={helper}>
+        <div className="mt-1">
+          {value ? (
+            <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-paper-2 p-1 shadow-sm ring-1 ring-gray-200">
+                  <img
+                    src={value}
+                    alt={label}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0 overflow-hidden">
+                  <p className="truncate type-body font-normal text-[color:var(--color-ink)]">
+                    {label} Attached
+                  </p>
+                  <p className="truncate type-label text-[color:var(--color-ink-2)]">
+                    Optimized for invoice placement
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)]"
+                  title="Change image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onUrlChange("");
+                    setIsDirty(true);
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-coral"
+                  title="Remove"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-paper-2 px-4 transition hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
+            >
+              {isUploading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
+                  <span className="type-body font-bold text-[color:var(--color-ink)]">
+                    Processing...
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-[color:var(--color-ink-2)] group-hover:text-[color:var(--color-ink)]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
+                  </svg>
+                  <span className="type-body font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-ink)]">
+                    Upload {label}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            onClick={(e) => (e.currentTarget.value = "")}
+          />
+        </div>
+      </FieldRow>
+
+      {/* Cropper Modal */}
+      {cropModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+          <MotionReveal
+            preset="fade-up"
+            className="w-full max-w-2xl overflow-hidden bg-[color:var(--color-paper)] shadow-[var(--brutal-shadow-lg)]"
+          >
+            <div className="border-b border-[color:var(--color-soft)] p-4 flex justify-between items-center bg-[color:var(--color-paper)]">
+              <h3 className="font-bold text-[color:var(--color-ink)]">
+                Optimize Your {label}
+              </h3>
+              <button
+                onClick={() => setCropModalOpen(false)}
+                className="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
+              <p className="mb-4 type-body text-[color:var(--color-ink-2)] text-center">
+                Crop your image to remove unnecessary margins for a perfect
+                fit on the invoice.
+              </p>
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={label.toLowerCase().includes("qr") ? 1 : undefined}
+                className="max-h-[50vh]"
+              >
+                <img
+                  ref={imgRef}
+                  src={tempImgSrc}
+                  onLoad={onImageLoad}
+                  alt="To Crop"
+                  style={{ maxWidth: "100%", maxHeight: "50vh" }}
+                />
+              </ReactCrop>
+            </div>
+            <div className="border-t border-[color:var(--color-soft)] p-4 bg-[color:var(--color-paper)] flex justify-end gap-3">
+              <button
+                onClick={() => setCropModalOpen(false)}
+                className="px-4 py-2 type-body font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropComplete}
+                className={getAppButtonClass({ variant: "primary" })}
+              >
+                Save & Upload
+              </button>
+            </div>
+          </MotionReveal>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main Page Component ─────────────────────────── */
 
 type ProfileTab = 'agency' | 'banking' | 'contract' | 'compliance';
@@ -282,269 +558,6 @@ export default function ProfilePage() {
   const fc = getAppFieldClass;
 
   /* ── Image Upload Helper ────────────────────────── */
-  const ImageUploadField = ({
-    label,
-    helper,
-    value,
-    onUrlChange,
-    folder,
-  }: {
-    label: string;
-    helper: string;
-    value: string;
-    onUrlChange: (url: string) => void;
-    folder: string;
-  }) => {
-    const [isUploading, setIsUploading] = useState(false);
-    const [cropModalOpen, setCropModalOpen] = useState(false);
-    const [tempImgSrc, setTempImgSrc] = useState("");
-    const [crop, setCrop] = useState<Crop>();
-    const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-    const imgRef = useRef<HTMLImageElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-      const { width, height } = e.currentTarget;
-      const aspect = label.toLowerCase().includes("qr") ? 1 : undefined;
-      const initialCrop = centerCrop(
-        makeAspectCrop(
-          { unit: "%", width: 90 },
-          aspect || width / height,
-          width,
-          height,
-        ),
-        width,
-        height,
-      );
-      setCrop(initialCrop);
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        setTempImgSrc(reader.result?.toString() || "");
-        setCropModalOpen(true);
-      });
-      reader.readAsDataURL(file);
-    };
-
-    const handleCropComplete = async () => {
-      if (!imgRef.current || !completedCrop || !userId) return;
-
-      setIsUploading(true);
-      setCropModalOpen(false);
-
-      try {
-        const croppedFile = await getCroppedImg(
-          imgRef.current,
-          completedCrop,
-          `cropped-${Date.now()}.png`,
-        );
-
-        const fileName = `${folder}/${userId}-${Date.now()}-cropped.png`;
-        const { url, error } = await uploadProfessionalAsset(
-          croppedFile,
-          fileName,
-        );
-
-        if (url) {
-          onUrlChange(url);
-          setIsDirty(true);
-        } else if (error) {
-          setSaveState("error");
-          setSaveFeedback(`Upload failed: ${error}`);
-        }
-      } catch (err) {
-        console.error("Cropping error:", err);
-      } finally {
-        setIsUploading(false);
-        setTempImgSrc("");
-      }
-    };
-
-    return (
-      <div className="col-span-1">
-        <FieldRow label={label} helper={helper}>
-          <div className="mt-1">
-            {value ? (
-              <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-paper-2 p-1 shadow-sm ring-1 ring-gray-200">
-                    <img
-                      src={value}
-                      alt={label}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  <div className="min-w-0 overflow-hidden">
-                    <p className="truncate type-body font-normal text-[color:var(--color-ink)]">
-                      {label} Attached
-                    </p>
-                    <p className="truncate type-label text-[color:var(--color-ink-2)]">
-                      Optimized for invoice placement
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)]"
-                    title="Change image"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onUrlChange("");
-                      setIsDirty(true);
-                    }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-coral"
-                    title="Remove"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-paper-2 px-4 transition hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
-              >
-                {isUploading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span className="type-body font-bold text-[color:var(--color-ink)]">
-                      Processing...
-                    </span>
-                  </div>
-                ) : (
-                  <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-[color:var(--color-ink-2)] group-hover:text-[color:var(--color-ink)]"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                      />
-                    </svg>
-                    <span className="type-body font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-ink)]">
-                      Upload {label}
-                    </span>
-                  </>
-                )}
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              onClick={(e) => (e.currentTarget.value = "")}
-            />
-          </div>
-        </FieldRow>
-
-        {/* Cropper Modal */}
-        {cropModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
-            <MotionReveal
-              preset="fade-up"
-              className="w-full max-w-2xl overflow-hidden bg-[color:var(--color-paper)] shadow-[var(--brutal-shadow-lg)]"
-            >
-              <div className="border-b border-[color:var(--color-soft)] p-4 flex justify-between items-center bg-[color:var(--color-paper)]">
-                <h3 className="font-bold text-[color:var(--color-ink)]">
-                  Optimize Your {label}
-                </h3>
-                <button
-                  onClick={() => setCropModalOpen(false)}
-                  className="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
-                <p className="mb-4 type-body text-[color:var(--color-ink-2)] text-center">
-                  Crop your image to remove unnecessary margins for a perfect
-                  fit on the invoice.
-                </p>
-                <ReactCrop
-                  crop={crop}
-                  onChange={(c) => setCrop(c)}
-                  onComplete={(c) => setCompletedCrop(c)}
-                  aspect={label.toLowerCase().includes("qr") ? 1 : undefined}
-                  className="max-h-[50vh]"
-                >
-                  <img
-                    ref={imgRef}
-                    src={tempImgSrc}
-                    onLoad={onImageLoad}
-                    alt="To Crop"
-                    style={{ maxWidth: "100%", maxHeight: "50vh" }}
-                  />
-                </ReactCrop>
-              </div>
-              <div className="border-t border-[color:var(--color-soft)] p-4 bg-[color:var(--color-paper)] flex justify-end gap-3">
-                <button
-                  onClick={() => setCropModalOpen(false)}
-                  className="px-4 py-2 type-body font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCropComplete}
-                  className={getAppButtonClass({ variant: "primary" })}
-                >
-                  Save & Upload
-                </button>
-              </div>
-            </MotionReveal>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const handleSave = async () => {
     setSaveState("saving");
     setSaveFeedback(null);
@@ -906,6 +919,10 @@ export default function ProfilePage() {
                       value={logoUrl}
                       onUrlChange={setLogoUrl}
                       folder="logos"
+                      userId={userId}
+                      setSaveState={setSaveState}
+                      setSaveFeedback={setSaveFeedback}
+                      setIsDirty={setIsDirty}
                     />
 
                     <ImageUploadField
@@ -914,6 +931,10 @@ export default function ProfilePage() {
                       value={signatureUrl}
                       onUrlChange={setSignatureUrl}
                       folder="signatures"
+                      userId={userId}
+                      setSaveState={setSaveState}
+                      setSaveFeedback={setSaveFeedback}
+                      setIsDirty={setIsDirty}
                     />
 
                     <ImageUploadField
@@ -922,6 +943,10 @@ export default function ProfilePage() {
                       value={qrCodeUrl}
                       onUrlChange={setQrCodeUrl}
                       folder="qrcodes"
+                      userId={userId}
+                      setSaveState={setSaveState}
+                      setSaveFeedback={setSaveFeedback}
+                      setIsDirty={setIsDirty}
                     />
                   </div>
                 </div>
