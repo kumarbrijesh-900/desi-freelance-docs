@@ -18,6 +18,7 @@
 
   /* E palette — deep + soothing */
   --color-acid:         #3a6e59;  /* PRIMARY · bottle-green (legacy token name) */
+  --interactive-primary: var(--color-acid);
   --color-acid-2:       #2d5a48;  /* primary hover */
   --color-acc-soft:     #e7efe7;  /* soft green tint surface */
   --color-acc-ink:      #f0e9d6;  /* cream — text on primary */
@@ -1700,6 +1701,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
   --color-ink-3:           #988e7c;
   --color-soft:            #ddd3bd;
   --color-acid:            #3a6e59;
+  --interactive-primary: var(--color-acid);
   --color-acc-ink:         #f0e9d6;
 
   /* Mirrors of every cockpit-overridden token, sourced from @theme.
@@ -1809,6 +1811,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
   color: var(--color-ink);
 
   --color-acid:         #c8f542;
+  --interactive-primary: var(--color-acid);
   --color-acid-2:       #b4e32e;
   --color-acc-soft:     #1d201a;
 
