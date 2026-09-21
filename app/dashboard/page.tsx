@@ -12,6 +12,7 @@ import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/
 import { supabase } from "@/lib/supabase/client";
 import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
+import { AppSkeleton } from "@/components/ui/AppSkeleton";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
 import { formatInr } from "@/lib/format-inr";
 import { CloseProjectModal } from "@/components/dashboard/CloseProjectModal";
@@ -380,13 +381,28 @@ function DashboardContent() {
           projects={projects}
           selectedProjectId={projectId || undefined}
           onNewInvoice={() => router.push('/invoice/new?fresh=1')}
+          loading={loading}
         />
 
         {/* Right Content */}
         <div className={`${selectedProject ? "block" : "hidden md:block"} flex-1 bg-paper-2 overflow-y-auto no-scrollbar`}>
           {loading ? (
-            <div className="flex h-full items-center justify-center font-bold tracking-wide text-neutral-400">
-              Loading projects…
+            <div className="flex flex-col min-h-full p-5 md:p-6 gap-6">
+              <div>
+                <AppSkeleton className="h-7 w-[260px] mb-3" />
+                <AppSkeleton className="h-4 w-[180px]" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={`dash-stat-skeleton-${i}`} className="border border-soft rounded-[var(--radius-box)] bg-paper-2 p-4">
+                    <AppSkeleton className="h-3 w-[80px] mb-3" />
+                    <AppSkeleton className="h-6 w-[110px]" />
+                  </div>
+                ))}
+              </div>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <AppSkeleton key={`dash-row-skeleton-${i}`} className="h-[96px] w-full rounded-[var(--radius-box)]" />
+              ))}
             </div>
           ) : selectedProject ? (
             <div className="flex flex-col min-h-full p-5 md:p-6 relative overflow-x-hidden">

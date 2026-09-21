@@ -6,6 +6,7 @@ import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { Search } from "lucide-react";
 import { getStatusTint, statusKindFromSummary } from "@/lib/status-tint";
 import { isInvoiceUnanswered } from "@/lib/lifecycle/timing";
+import { AppSkeleton } from "@/components/ui/AppSkeleton";
 
 type FilterMode = "ALL" | "ACTIVE" | "AT RISK" | "AWAITING CLIENT" | "COMPLETE";
 
@@ -13,10 +14,15 @@ export function ProjectRail({
   projects,
   selectedProjectId,
   onNewInvoice,
+  loading = false,
 }: {
   projects: ProjectWithInvoices[];
   selectedProjectId?: string;
   onNewInvoice: () => void;
+  /** The rail renders while the page loads, so it has to tell "none" from
+   *  "not known yet" - otherwise it claims zero projects and says there are
+   *  none found, both of which are wrong for a second. */
+  loading?: boolean;
 }) {
   const [filter, setFilter] = useState<FilterMode>("ALL");
   const [search, setSearch] = useState("");
@@ -135,7 +141,7 @@ export function ProjectRail({
   return (
     <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-[color:var(--color-paper-2)] border-r border-soft w-full md:w-[240px] shrink-0`}>
       <div className="p-4 flex flex-col gap-4">
-        <div className="type-label uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
+        <div className="type-label uppercase tracking-wide font-bold">PROJECTS · {loading ? "—" : projects.length}</div>
 
         <button
           onClick={onNewInvoice}
@@ -173,7 +179,16 @@ export function ProjectRail({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {filtered.length === 0 ? (
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={`rail-skeleton-${i}`} className="min-h-[90px] p-4 pl-5 border-b border-soft relative">
+              <div className="absolute left-0 top-0 bottom-0 w-[10px] border-r border-ink bg-soft" />
+              <AppSkeleton className="h-4 w-[130px] mb-2" />
+              <AppSkeleton className="h-3 w-[90px] mb-3" />
+              <AppSkeleton shape="pill" className="h-5 w-[70px]" />
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
           <div className="p-6 text-center type-body text-ink/70">No projects found.</div>
         ) : (
           filtered.map(p => {
