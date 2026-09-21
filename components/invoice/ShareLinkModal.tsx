@@ -230,7 +230,7 @@ export default function ShareLinkModal({
       <div className="inline-flex h-14 w-14 items-center justify-center border border-soft bg-grass mb-4">
         <svg className="h-7 w-7 text-[color:var(--on-grass)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
       </div>
-      <h2 className="type-title font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
+      <h2 id="share-link-modal-title" className="type-title font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
       <p className="type-body text-[color:var(--color-ink-2)] mb-6">
         A secure link has been delivered to <strong>{emailDraft}</strong>. You will be notified when they view or accept it.
       </p>
@@ -266,7 +266,7 @@ export default function ShareLinkModal({
         <div className="mx-4 w-full max-w-lg border border-soft bg-paper-2 p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--color-soft)] px-6 py-4">
-            <h2 className="type-title font-bold text-[color:var(--color-ink)]">
+            <h2 id="share-link-modal-title" className="type-title font-bold text-[color:var(--color-ink)]">
               Send Invoice to Client
             </h2>
             <p className="mt-0.5 type-body text-[color:var(--color-ink)]">

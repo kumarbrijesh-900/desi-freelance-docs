@@ -70,7 +70,7 @@ export default function ConversionModal({
             Your invoice is safe — sign up to download it
           </p>
 
-          <h2 className="font-syne type-title font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
+          <h2 id="conversion-modal-title" className="font-syne type-title font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
           <p className="type-body text-[color:var(--color-ink-2)] leading-relaxed mb-8">
             Your draft is saved locally and will be restored after sign-in. Create a free account to enable cloud save, PDF export, and sharing.
           </p>

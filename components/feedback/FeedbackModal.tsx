@@ -71,7 +71,14 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   };
 
   return (
-    <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div
+      ref={overlayRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="feedback-modal-title"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40"
@@ -99,7 +106,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 />
               </svg>
             </div>
-            <h3 className="type-title font-bold text-[color:var(--color-ink)] mb-2">
+            <h3 id="feedback-modal-title" className="type-title font-bold text-[color:var(--color-ink)] mb-2">
               Feedback Received!
             </h3>
             <p className="text-[color:var(--color-ink-2)]">
@@ -109,7 +116,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         ) : (
           <>
             <div className="border-b border-[color:var(--color-soft)] px-6 py-4 flex items-center justify-between bg-[color:var(--color-paper)]/50">
-              <h2 className="type-title font-bold text-[color:var(--color-ink)]">
+              <h2 id="feedback-modal-title" className="type-title font-bold text-[color:var(--color-ink)]">
                 Help us improve Lance
               </h2>
               <button

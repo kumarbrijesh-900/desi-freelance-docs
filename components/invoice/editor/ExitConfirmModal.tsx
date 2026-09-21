@@ -15,9 +15,16 @@ export function ExitConfirmModal({
   useScrollLock(true);
 
   return (
-    <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
+    <div
+      ref={overlayRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="exit-confirm-title"
+      className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4"
+    >
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
-        <h2 className="type-title font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
+        <h2 id="exit-confirm-title" className="type-title font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
           Leave invoice editor?
         </h2>
         <p className="mt-3 type-body leading-6 text-[color:var(--color-ink)]">
