@@ -102,6 +102,8 @@ import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
 import { resolveGoverningMsaStatus } from "@/lib/invoice-msa";
 import { announceInvoiceDataChanged } from "@/lib/invoice-events";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import {
   appContainerCenteredClass,
   appContainerFullClass,
@@ -258,6 +260,14 @@ function EditorContent() {
     markFieldsAutoFilled,
     markFieldManual,
   } = useInvoiceAutofill();
+
+  // EditorContent has a single return, so these run on every render. The modal
+  // has no backdrop dismiss, so Esc is the only way out that is not a button.
+  const postSubmitModalRef = useModalA11y<HTMLDivElement>(
+    !!postSubmitActionModal?.isOpen,
+    () => setPostSubmitActionModal(null),
+  );
+  useScrollLock(!!postSubmitActionModal?.isOpen);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -3083,6 +3093,11 @@ return (
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          ref={postSubmitModalRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="post-submit-action-title"
           className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4"
         >
           <motion.div
@@ -3090,7 +3105,7 @@ return (
             animate={{ scale: 1, opacity: 1, y: 0 }}
             className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] rounded-[var(--radius-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
-            <h3 className="type-title font-bold text-[color:var(--on-ink)] mb-2">
+            <h3 id="post-submit-action-title" className="type-title font-bold text-[color:var(--on-ink)] mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
             </h3>
             <p className="type-body text-[color:var(--color-ink-2)] mb-6">
