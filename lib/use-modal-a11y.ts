@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 const FOCUSABLE_SELECTOR =
   'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -17,10 +17,15 @@ const FOCUSABLE_SELECTOR =
  *
  * @param isOpen  whether the modal is currently mounted/visible
  * @param onClose called on Escape (omit to disable Escape-to-close)
+ * @param restoreFocusTo where to send focus when the trigger no longer exists
+ *        on close - the case for a confirm whose action deletes the very row
+ *        the trigger lived in. Nominate something that outlives the action,
+ *        such as the section heading, and give it `tabIndex={-1}`.
  */
 export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
   isOpen: boolean,
-  onClose?: () => void
+  onClose?: () => void,
+  restoreFocusTo?: RefObject<HTMLElement | null>
 ) {
   const ref = useRef<T>(null);
   // Held in a ref so an inline onClose - the normal case at a call site - does
@@ -38,6 +43,10 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
     if (!node) return;
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
+    // Read on open rather than in the cleanup: the nominated fallback is an
+    // element that outlives the action, so the node is the same either way,
+    // and reading a ref during cleanup is what react-hooks warns about.
+    const fallbackTarget = restoreFocusTo?.current ?? null;
     const getFocusable = () =>
       Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
         (el) => el.offsetParent !== null
@@ -82,9 +91,17 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      previouslyFocused?.focus?.();
+      // A confirm whose action removes its own trigger leaves previouslyFocused
+      // detached. .focus() on a node that is no longer in the document is a
+      // no-op, so activeElement falls back to <body> and a keyboard user is
+      // dumped at the top of the page. Only restore a trigger that survived.
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      } else {
+        fallbackTarget?.focus?.();
+      }
     };
-  }, [isOpen]);
+  }, [isOpen, restoreFocusTo]);
 
   return ref;
 }

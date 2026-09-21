@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
@@ -56,10 +56,12 @@ function MsaCard({
   msa,
   onUpdate,
   onDelete,
+  restoreFocusTo,
 }: {
   msa: ClientMsa;
   onUpdate: (updated: ClientMsa) => void;
   onDelete: (id: string) => void;
+  restoreFocusTo?: RefObject<HTMLElement | null>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(msa.title);
@@ -213,6 +215,7 @@ function MsaCard({
       <AppModal
         isOpen={confirmDelete}
         onClose={() => setConfirmDelete(false)}
+        restoreFocusTo={restoreFocusTo}
         aria-labelledby={deleteTitleId}
         className="max-w-md"
       >
@@ -260,6 +263,8 @@ export default function ClientDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<SavedClient | null>(null);
   const [msas, setMsas] = useState<ClientMsa[]>([]);
+  // Focus lands here when an MSA delete removes the card the trigger lived in.
+  const msaSectionHeadingRef = useRef<HTMLHeadingElement>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
@@ -761,7 +766,11 @@ export default function ClientDetailPage() {
               <div className="mb-4">
                 <div className="flex items-end justify-between">
                   <div>
-                    <h2 className={appSectionTitleClass}>
+                    <h2
+                      ref={msaSectionHeadingRef}
+                      tabIndex={-1}
+                      className={appSectionTitleClass}
+                    >
                       <span className="mr-2">📄</span>
                       Service Agreements
                     </h2>
@@ -844,6 +853,7 @@ export default function ClientDetailPage() {
                       msa={msa}
                       onUpdate={handleUpdateMsa}
                       onDelete={handleDeleteMsa}
+                      restoreFocusTo={msaSectionHeadingRef}
                     />
                   ))}
                   {msas.length === 0 && !isAddingMsa && (

@@ -8,10 +8,12 @@ import { useScrollLock } from "@/lib/use-scroll-lock";
 export interface AppModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   onClose: () => void;
+  /** Focus target for when the trigger is gone by the time the modal closes. */
+  restoreFocusTo?: React.RefObject<HTMLElement | null>;
 }
 
-export function AppModal({ isOpen, onClose, className, children, ...props }: AppModalProps) {
-  const panelRef = useModalA11y<HTMLDivElement>(isOpen, onClose);
+export function AppModal({ isOpen, onClose, restoreFocusTo, className, children, ...props }: AppModalProps) {
+  const panelRef = useModalA11y<HTMLDivElement>(isOpen, onClose, restoreFocusTo);
   useScrollLock(isOpen);
 
   if (!isOpen) return null;
