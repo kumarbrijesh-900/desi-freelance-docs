@@ -31,6 +31,7 @@ import {
   cn,
 } from "@/lib/ui-foundation";
 import { SaveIcon } from "@/components/ui/app-icons";
+import { AppModal } from "@/components/ui/AppModal";
 import {
   getClient,
   upsertClient,
@@ -65,6 +66,11 @@ function MsaCard({
   const [content, setContent] = useState(msa.content);
   const [status, setStatus] = useState<MsaStatus>(msa.status);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  // A page renders one MsaCard per agreement, so the dialog's label id is
+  // derived from the row rather than being a constant.
+  const deleteTitleId = `msa-delete-title-${msa.id}`;
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -78,7 +84,7 @@ function MsaCard({
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this MSA?")) return;
+    setConfirmDelete(false);
     const { error } = await deleteMsa(msa.id);
     if (!error) {
       playInteractionCue("saveSuccess");
@@ -194,7 +200,7 @@ function MsaCard({
         </button>
         <button
           type="button"
-          onClick={handleDelete}
+          onClick={() => setConfirmDelete(true)}
           className={getAppButtonClass({
             variant: "destructive-lite",
             size: "sm",
@@ -203,6 +209,44 @@ function MsaCard({
           Delete
         </button>
       </div>
+
+      <AppModal
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        aria-labelledby={deleteTitleId}
+        className="max-w-md"
+      >
+        <h2
+          id={deleteTitleId}
+          className="type-heading font-display font-black tracking-tight text-ink"
+        >
+          Delete this MSA?
+        </h2>
+        <p className="mt-2 type-body text-[color:var(--color-ink-2)]">
+          &ldquo;{msa.title}&rdquo; will be removed for good. Invoices already
+          shared under it keep the terms they were sent with.
+        </p>
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(false)}
+            data-modal-initial-focus
+            className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className={getAppButtonClass({
+              variant: "destructive-lite",
+              size: "sm",
+            })}
+          >
+            Delete MSA
+          </button>
+        </div>
+      </AppModal>
     </div>
   );
 }
