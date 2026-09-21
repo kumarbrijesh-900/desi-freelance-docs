@@ -55,6 +55,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/image-crop-utils";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { AppSkeleton } from "@/components/ui/AppSkeleton";
 import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from '@/lib/default-msa';
 
 /* ─── Section Label Component ─────────────────────── */
@@ -576,6 +577,7 @@ export default function ProfilePage() {
 
   /* ── Image Upload Helper ────────────────────────── */
   const handleSave = async () => {
+    if (isLoading) return;
     setSaveState("saving");
     setSaveFeedback(null);
     playInteractionCue("stepComplete");
@@ -670,16 +672,6 @@ export default function ProfilePage() {
     window.location.reload();
   };
 
-  if (isLoading) {
-    return (
-      <main className={appPageShellClass}>
-        <AppHeader />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-[color:var(--color-ink-2)]">Loading profile…</p>
-        </div>
-      </main>
-    );
-  }
 
   if (loadError) {
     return (
@@ -704,7 +696,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isLoading && !isAuthenticated) {
     return (
       <main className={appPageShellClass}>
         <AppHeader />
@@ -771,7 +763,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {(!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
+            {!isLoading && (!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
               <div className="mb-6 border border-amber-200 bg-amber-50 p-4 shadow-sm">
                 <div className="flex gap-3">
                   <span className="text-amber-600 type-title">⚠️</span>
@@ -786,7 +778,22 @@ export default function ProfilePage() {
             )}
 
             {/* Agency Details Tab */}
-            {activeTab === 'agency' && (
+            {isLoading && (
+              <div className={getAppPanelClass()}>
+                <AppSkeleton className="h-5 w-[160px] mb-2" />
+                <AppSkeleton className="h-4 w-[280px] mb-6" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={`profile-skeleton-${i}`} className={i === 0 ? "sm:col-span-2" : undefined}>
+                      <AppSkeleton className="h-3 w-[120px] mb-2" />
+                      <AppSkeleton className="h-10 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!isLoading && activeTab === 'agency' && (
               <MotionReveal preset="fade-up" delay={5}>
                 <div className={getAppPanelClass()}>
                   <SectionLabel
@@ -971,7 +978,7 @@ export default function ProfilePage() {
             )}
 
             {/* Banking Tab */}
-            {activeTab === 'banking' && (
+            {!isLoading && activeTab === 'banking' && (
               <MotionReveal preset="fade-up" delay={5}>
                 <div className={getAppPanelClass()}>
                   <SectionLabel
@@ -1059,7 +1066,7 @@ export default function ProfilePage() {
             )}
 
             {/* Contract & MSA Tab */}
-            {activeTab === 'contract' && (
+            {!isLoading && activeTab === 'contract' && (
               <div className="space-y-4">
                 <MotionReveal preset="fade-up" delay={5}>
                   <div className={getAppPanelClass()}>
@@ -1260,7 +1267,7 @@ export default function ProfilePage() {
             )}
 
             {/* Compliance Tab */}
-            {activeTab === 'compliance' && (
+            {!isLoading && activeTab === 'compliance' && (
               <MotionReveal preset="fade-up" delay={5}>
                 <div className={getAppPanelClass()}>
                   <button
@@ -1354,7 +1361,7 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={saveState === "saving"}
+            disabled={isLoading || saveState === "saving"}
             className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 type-body font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
