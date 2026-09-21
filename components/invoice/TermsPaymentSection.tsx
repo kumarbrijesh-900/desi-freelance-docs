@@ -641,7 +641,8 @@ export default function TermsPaymentSection({
                               className={cn(
                                 value.license.isLicenseIncluded
                                   ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer ",
+                                "disabled:opacity-50 disabled:cursor-not-allowed"
                               )}
                             >
                               Yes
@@ -655,7 +656,8 @@ export default function TermsPaymentSection({
                               className={cn(
                                 !value.license.isLicenseIncluded
                                   ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
-                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
+                                  : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer ",
+                                "disabled:opacity-50 disabled:cursor-not-allowed"
                               )}
                             >
                               No
@@ -688,7 +690,8 @@ export default function TermsPaymentSection({
                                         className={cn(
                                           value.license.licenseType === opt.value
                                             ? "border border-soft rounded-[var(--radius-field)] bg-ink text-acc-ink font-bold px-5 py-2.5 type-body cursor-pointer transition"
-                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer "
+                                            : "is-interactive border border-soft rounded-[var(--radius-field)] bg-paper-2 text-[color:var(--color-ink)] font-bold px-5 py-2.5 type-body cursor-pointer ",
+                                          "disabled:opacity-50 disabled:cursor-not-allowed"
                                         )}
                                       >
                                         {opt.label}

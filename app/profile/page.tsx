@@ -229,7 +229,7 @@ function ImageUploadField({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)]"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   title="Change image"
                 >
                   <svg

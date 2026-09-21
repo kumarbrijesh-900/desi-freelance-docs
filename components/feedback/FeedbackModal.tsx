@@ -181,7 +181,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 h-[var(--control-md)] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-2)] transition-colors"
+                  className="flex-1 h-[var(--control-md)] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-2)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   disabled={isSubmitting}
                 >
                   Cancel

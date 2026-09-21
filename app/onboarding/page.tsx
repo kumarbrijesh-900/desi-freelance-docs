@@ -284,7 +284,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={handleLater}
               disabled={isSubmitting}
-              className="mt-3.5 block w-full text-center text-[13.5px] font-semibold text-[color:var(--color-ink-2)] underline decoration-[color:var(--color-strong)] underline-offset-[3px] transition-colors hover:text-[color:var(--color-ink)]"
+              className="mt-3.5 block w-full text-center text-[13.5px] font-semibold text-[color:var(--color-ink-2)] underline decoration-[color:var(--color-strong)] underline-offset-[3px] transition-colors hover:text-[color:var(--color-ink)] disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
             >
               I&rsquo;ll set this up later
             </button>
