@@ -10,6 +10,11 @@ const FOCUSABLE_SELECTOR =
  * Attach the returned ref to the modal's overlay root element, and give
  * that root `tabIndex={-1}` so it can receive focus as a fallback.
  *
+ * On open, focus goes to the element marked `data-modal-initial-focus` if the
+ * modal has one, otherwise to its first focusable element. Mark one wherever
+ * the first control is destructive, fires something, or closes the dialog - a
+ * confirm's Cancel, a form's first field - so a reflexive Enter is harmless.
+ *
  * @param isOpen  whether the modal is currently mounted/visible
  * @param onClose called on Escape (omit to disable Escape-to-close)
  */
@@ -38,7 +43,17 @@ export function useModalA11y<T extends HTMLElement = HTMLDivElement>(
         (el) => el.offsetParent !== null
       );
 
-    (getFocusable()[0] ?? node).focus();
+    // A nominated target, when the modal marks one; the first focusable
+    // otherwise, which is the old behaviour and still right for most dialogs.
+    // Carried on the element rather than in the signature so the consumers
+    // that are already correct need no change at all.
+    const nominated = node.querySelector<HTMLElement>(
+      "[data-modal-initial-focus]"
+    );
+    const initial =
+      nominated && nominated.offsetParent !== null ? nominated : null;
+
+    (initial ?? getFocusable()[0] ?? node).focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && onCloseRef.current) {

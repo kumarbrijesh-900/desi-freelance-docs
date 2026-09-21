@@ -241,6 +241,7 @@ function ClientForm({
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Acme Studios"
                   required
+                  data-modal-initial-focus
                   className={fc({ hasValue: Boolean(name) })}
                 />
               </div>

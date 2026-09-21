@@ -112,6 +112,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
             <button
               type="button"
               onClick={onCancel}
+              data-modal-initial-focus
               className="type-body font-semibold text-[color:var(--color-ink-3)] underline-offset-4 hover:underline"
             >
               Cancel
