@@ -91,6 +91,12 @@ function MsaCard({
     if (!error) {
       playInteractionCue("saveSuccess");
       onDelete(msa.id);
+      // onDelete unmounts this card - and the card holds the Delete button
+      // that focus was restored to when the dialog closed. That happens here,
+      // after an awaited request, far too late for the modal hook's own
+      // cleanup to help. Hand focus over once React has committed the
+      // removal, or it falls to <body> and the keyboard lands at the top.
+      requestAnimationFrame(() => restoreFocusTo?.current?.focus());
     }
   };
 
