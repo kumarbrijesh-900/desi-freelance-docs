@@ -13,6 +13,8 @@ import { supabase } from "@/lib/supabase/client";
 import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { AppSkeleton } from "@/components/ui/AppSkeleton";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
 import { formatInr } from "@/lib/format-inr";
 import { CloseProjectModal } from "@/components/dashboard/CloseProjectModal";
@@ -108,6 +110,19 @@ function DashboardContent() {
   const [closeProjectFor, setCloseProjectFor] = useState<{ id: string; name: string } | null>(null);
   const [drawerActivity, setDrawerActivity] = useState<Array<{ title: string; type: string; count: number; latest: string }>>([]);
   const [settlementChoice, setSettlementChoice] = useState<SettlementChoice | null>(null);
+
+  // DashboardContent has no early return, so these sit with the state. The
+  // drawer is rendered from an inline IIFE further down, which closes over
+  // this scope, so the ref reaches it.
+  const settlementDrawerRef = useModalA11y<HTMLDivElement>(!!settlementChoice, () =>
+    setSettlementChoice(null),
+  );
+  useScrollLock(!!settlementChoice);
+
+  const closureModalRef = useModalA11y<HTMLDivElement>(!!projectClosureData, () =>
+    setProjectClosureData(null),
+  );
+  useScrollLock(!!projectClosureData);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -548,6 +563,11 @@ function DashboardContent() {
 
         return (
           <div
+            ref={settlementDrawerRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settlement-drawer-title"
             className="fixed inset-0 z-[120] bg-black/40"
             onClick={() => setSettlementChoice(null)}
           >
@@ -560,7 +580,7 @@ function DashboardContent() {
                   <div className="type-label font-bold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     Settlement drawer
                   </div>
-                  <h2 className="mt-1 font-syne type-heading font-bold tracking-tight text-[color:var(--color-ink)]">
+                  <h2 id="settlement-drawer-title" className="mt-1 font-syne type-heading font-bold tracking-tight text-[color:var(--color-ink)]">
                     Settle M{settlementChoice.milestoneNumber}?
                   </h2>
                   <p className="mt-1 type-body font-bold text-[color:var(--color-ink-2)]">
@@ -859,7 +879,14 @@ function DashboardContent() {
 
       {/* ── Project Closure Delight Modal ── */}
       {projectClosureData && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
+        <div
+          ref={closureModalRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="project-closure-title"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4"
+        >
           <div className="w-full max-w-[480px] border border-soft rounded-[var(--radius-soft)] bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-lg)] overflow-hidden">
             {/* Header Area */}
             <div className="relative overflow-hidden bg-acid px-8 py-10 text-center">
@@ -870,7 +897,7 @@ function DashboardContent() {
               <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-ink bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-md)]">
                 <span className="text-4xl text-acid">✓</span>
               </div>
-              <h2 className="relative z-10 type-display font-bold uppercase tracking-tight text-[color:var(--color-acc-ink)] drop-shadow-[var(--brutal-shadow-sm)]">
+              <h2 id="project-closure-title" className="relative z-10 type-display font-bold uppercase tracking-tight text-[color:var(--color-acc-ink)] drop-shadow-[var(--brutal-shadow-sm)]">
                 Project Complete!
               </h2>
             </div>
