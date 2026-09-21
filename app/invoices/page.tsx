@@ -15,6 +15,8 @@ import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
 import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
@@ -32,6 +34,20 @@ export default function InvoicesPage() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+
+  // These overlays live in the page rather than in a component, so the hooks
+  // belong here, unconditionally, above the single return. Cancel is first in
+  // DOM order in both dialogs, so focus-on-open lands there and not on the
+  // destructive button.
+  const deleteDialogRef = useModalA11y<HTMLDivElement>(!!deleteConfirm, () =>
+    setDeleteConfirm(null),
+  );
+  useScrollLock(!!deleteConfirm);
+
+  const bulkDeleteDialogRef = useModalA11y<HTMLDivElement>(bulkDeleteConfirm, () =>
+    setBulkDeleteConfirm(false),
+  );
+  useScrollLock(bulkDeleteConfirm);
 
   const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Overdue", "Unanswered", "Settled", "Complete", "Offline"];
 
@@ -608,9 +624,16 @@ export default function InvoicesPage() {
 
       {/* ── Delete Confirmation Dialog ── */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+        <div
+          ref={deleteDialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-invoice-title"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4"
+        >
           <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[var(--radius-soft)] shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
+            <h3 id="delete-invoice-title" className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
             <p className="type-body font-medium text-ink-2 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
             </p>
@@ -636,9 +659,16 @@ export default function InvoicesPage() {
 
       {/* ── Bulk Delete Confirmation Dialog ── */}
       {bulkDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+        <div
+          ref={bulkDeleteDialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bulk-delete-title"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4"
+        >
           <div className="w-full max-w-sm border border-soft bg-paper-2 rounded-[var(--radius-soft)] shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
+            <h3 id="bulk-delete-title" className="type-title font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
             <p className="type-body font-medium text-ink-2 mb-5">
               {bulkDeletePlan.roots.length > 0 ? (
                 <>
