@@ -52,6 +52,8 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { ClientDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { appFieldHelperTextClass } from "@/lib/ui-foundation";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 
 /* ─── Section Label Component ─────────────────────── */
 
@@ -788,6 +790,15 @@ export default function ClientsPage() {
     setShowForm(true);
   };
 
+  // Placed here on purpose: after handleDeleteCancel is initialised, so the
+  // hook can reference it directly, and above all three early returns below,
+  // so the call is unconditional.
+  const deleteDialogRef = useModalA11y<HTMLDivElement>(
+    !!deletingClientId,
+    handleDeleteCancel,
+  );
+  useScrollLock(!!deletingClientId);
+
   if (isLoading) {
     return (
       <main className={appPageShellClass}>
@@ -1040,9 +1051,16 @@ export default function ClientsPage() {
 
       {/* ── Delete Confirmation Dialog ── */}
       {deletingClientId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+        <div
+          ref={deleteDialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-client-title"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+        >
           <div className="w-full max-w-sm border border-soft rounded-[var(--radius-soft)] bg-paper-2 shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="type-title font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete client?</h3>
+            <h3 id="delete-client-title" className="type-title font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete client?</h3>
             <p className="type-body font-bold text-neutral-600 mb-5">
               This will permanently delete this client. Invoices associated with this client will not be deleted but they will lose the client association.
             </p>
