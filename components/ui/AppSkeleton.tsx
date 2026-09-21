@@ -9,7 +9,9 @@ export function AppSkeleton({ shape = "rect", className, ...props }: AppSkeleton
   return (
     <div
       className={cn(
-        "animate-pulse bg-[color:var(--color-paper-2)]",
+        // Not paper-2: that is the fill of the cards a skeleton sits on, in
+        // every theme, so the default was invisible wherever it would be used.
+        "animate-pulse bg-[color:var(--color-soft)]",
         shape === "rect" && "rounded-[var(--radius-soft)]",
         shape === "pill" && "rounded-[var(--app-radius-pill)]",
         shape === "circle" && "rounded-[var(--app-radius-circular)]",

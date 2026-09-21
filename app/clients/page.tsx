@@ -54,6 +54,7 @@ import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { AppSkeleton } from "@/components/ui/AppSkeleton";
 
 /* ─── Section Label Component ─────────────────────── */
 
@@ -813,16 +814,6 @@ export default function ClientsPage() {
   );
   useScrollLock(!!deletingClientId);
 
-  if (isLoading) {
-    return (
-      <main className={appPageShellClass}>
-        <AppHeader />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-[color:var(--color-ink-2)]">Loading clients…</p>
-        </div>
-      </main>
-    );
-  }
 
   if (loadError) {
     return (
@@ -847,7 +838,7 @@ export default function ClientsPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isLoading && !isAuthenticated) {
     return (
       <main className={appPageShellClass}>
         <AppHeader />
@@ -872,7 +863,11 @@ export default function ClientsPage() {
 
       <AppPageShell
         title="Your roster"
-        meta={`${clients.filter(c => c.client_type === 'international').length} intl · ${clients.filter(c => !c.gstin && c.client_type !== 'international').length} no GSTIN`}
+        meta={
+          isLoading
+            ? undefined
+            : `${clients.filter(c => c.client_type === 'international').length} intl · ${clients.filter(c => !c.gstin && c.client_type !== 'international').length} no GSTIN`
+        }
         actions={
           <>
             <AppPageShellAction>↑ Import CSV</AppPageShellAction>
@@ -898,11 +893,19 @@ export default function ClientsPage() {
             live money, and acid is reserved for money that is. */}
         <AppStatLine
           className="mb-4"
-          stats={[
-            { label: "Clients", value: `${clients.length}`, sub: "in your roster" },
-            { label: "MSAs signed", value: `${clients.filter(c => c.has_msa).length} of ${clients.length}`, sub: "contracts on file" },
-            { label: "Repeat clients", value: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, sub: "billed more than once" },
-          ]}
+          stats={
+            isLoading
+              ? [
+                  { label: "Clients", value: <AppSkeleton className="h-5 w-10" />, sub: "in your roster" },
+                  { label: "MSAs signed", value: <AppSkeleton className="h-5 w-16" />, sub: "contracts on file" },
+                  { label: "Repeat clients", value: <AppSkeleton className="h-5 w-10" />, sub: "billed more than once" },
+                ]
+              : [
+                  { label: "Clients", value: `${clients.length}`, sub: "in your roster" },
+                  { label: "MSAs signed", value: `${clients.filter(c => c.has_msa).length} of ${clients.length}`, sub: "contracts on file" },
+                  { label: "Repeat clients", value: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, sub: "billed more than once" },
+                ]
+          }
         />
 
         {/* Filter / Search strip */}
@@ -940,7 +943,7 @@ export default function ClientsPage() {
             the right edge — it was eating the ACTIONS column. Auto still clips to
             the rounded corners but scrolls instead of hiding, and the min-width
             stops the columns squashing below the point where they are readable. */}
-        <div className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-x-auto mb-6">
+        <div aria-busy={isLoading} className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-x-auto mb-6">
           <table className="w-full min-w-[980px] text-left border-collapse">
             <thead>
               <tr className="bg-paper-2 border-b border-soft type-label font-extrabold uppercase tracking-widest text-ink">
@@ -955,7 +958,25 @@ export default function ClientsPage() {
               </tr>
             </thead>
             <tbody>
-              {clients.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`client-skeleton-${i}`} className="border-b border-soft last:border-b-0">
+                    <td className="py-4 px-6 border-r border-soft">
+                      <div className="flex items-center gap-3">
+                        <AppSkeleton shape="circle" className="shrink-0 w-[32px] h-[32px]" />
+                        <AppSkeleton className="h-4 w-[140px]" />
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[180px]" /></td>
+                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[90px]" /></td>
+                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[120px]" /></td>
+                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton shape="pill" className="h-6 w-[70px]" /></td>
+                    <td className="py-4 px-6 border-r border-soft text-right"><AppSkeleton className="h-4 w-[24px] ml-auto" /></td>
+                    <td className="py-4 px-6 border-r border-soft text-right"><AppSkeleton shape="pill" className="h-6 w-[88px] ml-auto" /></td>
+                    <td className="py-4 px-4 text-center"><AppSkeleton className="h-4 w-[60px] mx-auto" /></td>
+                  </tr>
+                ))
+              ) : clients.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center">
                     <div className="type-body font-bold text-ink/60 uppercase tracking-widest">No clients found. Add one above!</div>
