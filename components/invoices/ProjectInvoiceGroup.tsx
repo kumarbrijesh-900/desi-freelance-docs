@@ -189,24 +189,34 @@ export function ProjectInvoiceGroup({
             const deletable = isInvoiceRowDeletable(inv, it.masterMsaStatus, it.masterHasClientMsaNote);
             const selected = selectedIds.has(inv.id);
             return (
-              <Link
+              <div
                 key={inv.id}
-                href={invoiceRowHref(inv.id, inv.status)}
                 className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 mb-2 rounded-[var(--radius-field)] border border-soft bg-paper-2 is-interactive hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)]"
               >
                 <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
-                <div className="flex items-center shrink-0">
+                {/* Above the stretched link, so the checkbox is a sibling of the
+                    anchor rather than a child of it. Padding cancelled by equal
+                    negative margin: a 28px hit target, unchanged row height. */}
+                <label className="relative z-10 flex items-center shrink-0 -m-1.5 p-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={selected}
                     onChange={() => onToggleSelect(inv.id)}
-                    onClick={(e) => e.stopPropagation()}
                     aria-label={`Select invoice ${inv.invoice_number || "draft"}`}
                     className="w-4 h-4 border border-soft accent-ink cursor-pointer app-focus-ring"
                   />
-                </div>
+                </label>
                 <div className="flex-1 sm:flex-none sm:w-[150px] min-w-0 shrink sm:shrink-0">
-                  <div className="font-mono font-bold type-body tracking-[-0.02em] text-ink truncate">{inv.invoice_number || "DRAFT"}</div>
+                  {/* The row's only anchor. Its ::after stretches over the whole
+                      row, so the row stays clickable and keeps a real href -
+                      cmd-click, middle-click and the status bar all still work -
+                      without any interactive element sitting inside the link. */}
+                  <Link
+                    href={invoiceRowHref(inv.id, inv.status)}
+                    className="block font-mono font-bold type-body tracking-[-0.02em] text-ink truncate app-focus-ring after:absolute after:inset-0 after:content-['']"
+                  >
+                    {inv.invoice_number || "DRAFT"}
+                  </Link>
                   <div className="type-label font-bold uppercase tracking-[0.08em] text-ink/50 mt-0.5 truncate">{tag}</div>
                 </div>
                 <div className="hidden sm:block sm:flex-1 min-w-0 type-body text-ink-2 truncate">{desc}</div>
@@ -219,8 +229,8 @@ export function ProjectInvoiceGroup({
                 {deletable ? (
                   <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(inv.id, inv.invoice_number || "this draft"); }}
-                    className="shrink-0 w-[22px] text-center text-ink/30 hover:text-coral type-body transition-colors"
+                    onClick={() => onDelete(inv.id, inv.invoice_number || "this draft")}
+                    className="relative z-10 shrink-0 w-[22px] text-center text-ink/30 hover:text-coral type-body transition-colors"
                     title="Delete invoice"
                   >
                     ✕
@@ -229,7 +239,7 @@ export function ProjectInvoiceGroup({
                   <span className="shrink-0 w-[22px]" />
                 )}
                 <span className="shrink-0 w-[18px] text-center text-ink/30 group-hover:text-acid font-bold type-body transition-colors">→</span>
-              </Link>
+              </div>
             );
           })}
         </div>
