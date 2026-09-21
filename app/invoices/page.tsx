@@ -17,6 +17,7 @@ import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { AppSkeleton } from "@/components/ui/AppSkeleton";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
@@ -481,12 +482,21 @@ export default function InvoicesPage() {
             is live money owed. */}
         <AppStatLine
           className="mb-4 shrink-0"
-          stats={[
-            { label: "Outstanding", value: formatInr(outstandingSum), sub: `${outstandingInvoices.length} invoices`, hero: true },
-            { label: "Collected", value: formatInr(settledSum), sub: `${settledInvoices.length} invoices` },
-            { label: "Avg paid in", value: avgPaidDays !== null ? `${avgPaidDays} days` : "—", sub: avgPaidDays !== null ? "turnaround" : "none yet" },
-            { label: "GST collected", value: formatInr(gstCollected), sub: "FY 25-26" },
-          ]}
+          stats={
+            loading
+              ? [
+                  { label: "Outstanding", value: <AppSkeleton className="h-6 w-[130px]" />, sub: "invoices", hero: true },
+                  { label: "Collected", value: <AppSkeleton className="h-6 w-[120px]" />, sub: "invoices" },
+                  { label: "Avg paid in", value: <AppSkeleton className="h-6 w-[70px]" />, sub: "turnaround" },
+                  { label: "GST collected", value: <AppSkeleton className="h-6 w-[100px]" />, sub: "FY 25-26" },
+                ]
+              : [
+                  { label: "Outstanding", value: formatInr(outstandingSum), sub: `${outstandingInvoices.length} invoices`, hero: true },
+                  { label: "Collected", value: formatInr(settledSum), sub: `${settledInvoices.length} invoices` },
+                  { label: "Avg paid in", value: avgPaidDays !== null ? `${avgPaidDays} days` : "—", sub: avgPaidDays !== null ? "turnaround" : "none yet" },
+                  { label: "GST collected", value: formatInr(gstCollected), sub: "FY 25-26" },
+                ]
+          }
         />
 
         {/* Filter tabs */}
@@ -521,7 +531,7 @@ export default function InvoicesPage() {
                 onClick={() => setFilter(f)}
                 className={`px-3.5 py-1.5 type-label font-semibold border transition-colors ${toneClass} rounded-full`}
               >
-                {f} · {count}
+                {f} · {loading ? "—" : count}
               </button>
             );
           })}
@@ -573,8 +583,28 @@ export default function InvoicesPage() {
         )}
 
         {loading ? (
-          <div className="py-20 text-center font-display font-bold tracking-tight type-title text-ink-3">
-            Loading invoices…
+          <div className="flex flex-col flex-1 min-h-0">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={`invoice-group-skeleton-${i}`}
+                className="bg-paper-2 border border-soft rounded-[var(--radius-soft)] mb-4 overflow-hidden"
+              >
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <AppSkeleton className="w-[14px] h-4 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <AppSkeleton className="h-5 w-[240px] mb-2" />
+                    <AppSkeleton className="h-3 w-[160px]" />
+                  </div>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <AppSkeleton shape="pill" className="h-6 w-[88px]" />
+                    <AppSkeleton className="h-5 w-[110px]" />
+                  </div>
+                </div>
+                <div className="px-3 sm:pl-10 sm:pr-5 pb-4">
+                  <AppSkeleton className="h-[56px] w-full rounded-[var(--radius-field)]" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredInvoices.length === 0 ? (
           <div className="py-20 text-center flex flex-col items-center justify-center bg-paper-2 border border-soft rounded-[var(--radius-soft)]">
