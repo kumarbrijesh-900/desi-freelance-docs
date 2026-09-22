@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/ui-foundation";
 
@@ -30,6 +30,13 @@ export interface AppPageShellProps {
    * where the page already owns an h1 that names the route itself.
    */
   titleAs?: "h1" | "h2";
+  /**
+   * Ref to the rendered title. Pass it on a page whose destructive action
+   * removes the row that held focus, so focus can land on the page's own
+   * heading rather than falling to <body>. Passing it also makes the heading
+   * programmatically focusable; pages that omit it are unchanged.
+   */
+  titleRef?: RefObject<HTMLHeadingElement | null>;
   /** Quiet context beside the title — counts, scope, a date range. Never an action. */
   meta?: ReactNode;
   /** Bar-scale controls: sort, export, save. Primary creation belongs in AppHeader. */
@@ -50,6 +57,7 @@ export interface AppPageShellProps {
 export default function AppPageShell({
   title,
   titleAs: TitleTag = "h1",
+  titleRef,
   meta,
   actions,
   back,
@@ -70,7 +78,11 @@ export default function AppPageShell({
         </Link>
       )}
 
-      <TitleTag className="min-w-0 truncate font-display type-body-lg font-bold leading-none text-ink">
+      <TitleTag
+        ref={titleRef}
+        tabIndex={titleRef ? -1 : undefined}
+        className="min-w-0 truncate font-display type-body-lg font-bold leading-none text-ink"
+      >
         {title}
       </TitleTag>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AppHeader from "@/components/AppHeader";
 import { appPageShellClass } from "@/lib/layout-foundation";
 import AppPageShell, {
@@ -26,6 +26,8 @@ import { deleteInvoice } from "@/lib/supabase/invoices";
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
+  // Focus lands here when a delete removes the row the trigger lived in.
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -81,6 +83,11 @@ export default function InvoicesPage() {
     } else {
       setActionMessage("Invoice deleted.");
       await loadProjects();
+      // loadProjects drops the deleted row, and that row held the Delete
+      // button focus was restored to when the dialog closed. The removal
+      // lands after this await, far too late for the modal hook's cleanup,
+      // so hand focus to the page title once React has committed the list.
+      requestAnimationFrame(() => titleRef.current?.focus());
     }
     setDeleteConfirm(null);
     setTimeout(() => setActionMessage(null), 3000);
@@ -107,6 +114,9 @@ export default function InvoicesPage() {
     await loadProjects();
     clearSelection();
     setBulkDeleteConfirm(false);
+    // clearSelection also removes the bulk bar the Delete trigger lived in,
+    // so there is nothing left to restore focus to either way.
+    requestAnimationFrame(() => titleRef.current?.focus());
     const parts = [`${ok} deleted`];
     if (ok > 0 && cascadeCount > 0) {
       parts.push(`${cascadeCount} milestone ${cascadeCount === 1 ? "invoice" : "invoices"} with them`);
@@ -454,6 +464,7 @@ export default function InvoicesPage() {
           <AppPageShell
             bare
             title="Invoices"
+            titleRef={titleRef}
             meta={`All time · ${filteredInvoices.length} results`}
             actions={
               <>

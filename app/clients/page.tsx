@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import { AppPagination } from "@/components/ui/AppPagination";
@@ -682,6 +682,8 @@ function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 export default function ClientsPage() {
   const [isLoading, setIsLoading] = useState(true);
+  // Focus lands here when a delete removes the card the trigger lived in.
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [clients, setClients] = useState<ClientWithMsa[]>([]);
@@ -789,6 +791,10 @@ export default function ClientsPage() {
     playInteractionCue("saveSuccess");
     setClients((prev) => prev.filter((c) => c.id !== deletingClientId));
     setDeletingClientId(null);
+    // The filter above removes the card holding the Delete button that focus
+    // was restored to when the dialog closed. That happens after an awaited
+    // request, so hand focus to the page title once React has committed it.
+    requestAnimationFrame(() => titleRef.current?.focus());
   };
 
   const handleDeleteCancel = () => {
@@ -863,6 +869,7 @@ export default function ClientsPage() {
 
       <AppPageShell
         title="Your roster"
+        titleRef={titleRef}
         meta={
           isLoading
             ? undefined
