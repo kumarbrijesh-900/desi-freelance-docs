@@ -429,8 +429,6 @@ export async function saveInvoice(
     row.project_id = resolvedProjectId;
   }
 
-  console.log("saveInvoice - sending row:", row);
-
   let result;
   
   // Task 1: Upsert logic — check for existing by ID or invoice_number

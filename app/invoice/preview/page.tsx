@@ -338,17 +338,6 @@ function PreviewContent() {
   }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote, governingMsaStatus, projectStatus]);
 
   useEffect(() => {
-    async function debugAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("PreviewContent: session on mount:", !!session);
-      if (session?.user) {
-        console.log("PreviewContent: user detected:", session.user.email);
-      }
-    }
-    void debugAuth();
-  }, []);
-
-  useEffect(() => {
     defaultTitleRef.current = previewTitle;
     document.title = previewTitle;
 
@@ -495,7 +484,6 @@ function PreviewContent() {
   };
 
   const handleSaveDraft = async () => {
-    console.log("handleSaveDraft: initiating cloud save...");
     if (!data) {
       console.warn("handleSaveDraft: No invoice data found to save.");
       return;
@@ -509,7 +497,6 @@ function PreviewContent() {
 
       // Attempt cloud save for authenticated users
       const userId = await getCurrentUserId();
-      console.log("handleSaveDraft: userId detected:", userId);
 
       if (userId) {
         const { data: saved, error } = await saveInvoice({
@@ -520,7 +507,6 @@ function PreviewContent() {
         });
 
         if (!error && saved) {
-          console.log("handleSaveDraft: cloud save success, id:", saved.id);
           setCloudInvoiceId(saved.id);
           setSaveState("cloud-saved");
 
@@ -545,8 +531,6 @@ function PreviewContent() {
           `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
          });
         return;
-      } else {
-        console.log("handleSaveDraft: No authenticated user found, performing local save only.");
       }
 
       // Success state for local-only save (guest mode)

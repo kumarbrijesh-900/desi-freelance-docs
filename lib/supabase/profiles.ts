@@ -176,18 +176,6 @@ export async function loadProfile(): Promise<{
     return { data: null, error: error.message };
   }
 
-  if (!data) {
-    console.log(
-      "SUPABASE_LOAD_INFO: No profile row found for user_id:",
-      user.id,
-    );
-  } else {
-    console.log(
-      "SUPABASE_LOAD_SUCCESS: Profile found for agency:",
-      data.agency_name,
-    );
-  }
-
   return { data: data as UserProfile | null, error: null };
 }
 
