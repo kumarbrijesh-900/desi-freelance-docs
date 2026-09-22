@@ -32,7 +32,11 @@ export async function GET(
   // Statuses that require gating: PENDING, REVISION ASKED, NEGOTIATING
   const msaStatus = (invoice.msa_status || invoice.msa_response || "pending").toLowerCase();
   const hasMsaGate = Boolean(invoice.msa_id);
-  const isAccepted = msaStatus === "ACCEPTED";
+  // msaStatus is lowercased on the line above, so the comparison has to be in
+  // lower case too. This read "ACCEPTED" and so was never true, which stripped
+  // the line items from every gated invoice whether or not the client had
+  // accepted the MSA.
+  const isAccepted = msaStatus === "accepted";
 
   let formData = mergeInvoiceFormData(invoice.form_data);
 
