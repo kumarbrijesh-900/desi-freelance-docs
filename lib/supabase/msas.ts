@@ -139,6 +139,25 @@ export async function deleteMsa(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
+  // An invoice issued under an agreement keeps that agreement on record, so a
+  // referenced MSA is not deletable. The FK is ON DELETE SET NULL, meaning a
+  // delete would not remove those invoices, it would strand them: the
+  // agreement text exists nowhere else, and clearing msa_id also clears the
+  // gate, which silently exposes the line items of any invoice that was
+  // withholding them pending acceptance.
+  const { count, error: countError } = await supabase
+    .from("invoices")
+    .select("id", { count: "exact", head: true })
+    .eq("msa_id", msaId);
+
+  if (countError) return { error: countError.message };
+
+  if ((count ?? 0) > 0) {
+    return {
+      error: `This agreement is attached to ${count} invoice${count === 1 ? "" : "s"} and cannot be deleted.`,
+    };
+  }
+
   const { error } = await supabase
     .from("client_msas")
     .delete()

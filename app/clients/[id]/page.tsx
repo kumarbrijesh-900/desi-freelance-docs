@@ -69,6 +69,7 @@ function MsaCard({
   const [status, setStatus] = useState<MsaStatus>(msa.status);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // A page renders one MsaCard per agreement, so the dialog's label id is
   // derived from the row rather than being a constant.
@@ -86,18 +87,25 @@ function MsaCard({
   };
 
   const handleDelete = async () => {
-    setConfirmDelete(false);
+    setDeleteError(null);
     const { error } = await deleteMsa(msa.id);
-    if (!error) {
-      playInteractionCue("saveSuccess");
-      onDelete(msa.id);
-      // onDelete unmounts this card - and the card holds the Delete button
-      // that focus was restored to when the dialog closed. That happens here,
-      // after an awaited request, far too late for the modal hook's own
-      // cleanup to help. Hand focus over once React has committed the
-      // removal, or it falls to <body> and the keyboard lands at the top.
-      requestAnimationFrame(() => restoreFocusTo?.current?.focus());
+    if (error) {
+      // Keep the dialog open and say why. This used to close the dialog before
+      // calling deleteMsa and then ignore the result, so a refused delete was
+      // indistinguishable from a successful one.
+      setDeleteError(error);
+      return;
     }
+
+    setConfirmDelete(false);
+    playInteractionCue("saveSuccess");
+    onDelete(msa.id);
+    // onDelete unmounts this card - and the card holds the Delete button
+    // that focus was restored to when the dialog closed. That happens here,
+    // after an awaited request, far too late for the modal hook's own
+    // cleanup to help. Hand focus over once React has committed the
+    // removal, or it falls to <body> and the keyboard lands at the top.
+    requestAnimationFrame(() => restoreFocusTo?.current?.focus());
   };
 
   const statusColor = (s: MsaStatus) =>
@@ -208,7 +216,10 @@ function MsaCard({
         </button>
         <button
           type="button"
-          onClick={() => setConfirmDelete(true)}
+          onClick={() => {
+            setDeleteError(null);
+            setConfirmDelete(true);
+          }}
           className={getAppButtonClass({
             variant: "destructive-lite",
             size: "sm",
@@ -232,9 +243,17 @@ function MsaCard({
           Delete this MSA?
         </h2>
         <p className="mt-2 type-body text-[color:var(--color-ink-2)]">
-          &ldquo;{msa.title}&rdquo; will be removed for good. Invoices already
-          shared under it keep the terms they were sent with.
+          &ldquo;{msa.title}&rdquo; will be removed for good. This cannot be
+          undone.
         </p>
+        {deleteError && (
+          <p
+            role="alert"
+            className="mt-3 rounded-[var(--radius-field)] border border-[color:var(--state-danger-bd)] bg-[color:var(--state-danger-bg)] px-3 py-2 type-body text-[color:var(--state-danger-text)]"
+          >
+            {deleteError}
+          </p>
+        )}
         <div className="mt-6 flex justify-end gap-2">
           <button
             type="button"
