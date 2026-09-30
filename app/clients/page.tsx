@@ -685,7 +685,6 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<ClientWithMsa[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -762,12 +761,6 @@ export default function ClientsPage() {
       return [merged, ...prev];
     });
     setShowForm(false);
-    setEditingClient(null);
-  };
-
-  const handleEdit = (client: SavedClient) => {
-    setEditingClient(client);
-    setShowForm(true);
   };
 
   const handleDeleteRequest = (clientId: string) => {
@@ -799,11 +792,9 @@ export default function ClientsPage() {
 
   const handleCancel = () => {
     setShowForm(false);
-    setEditingClient(null);
   };
 
   const handleAddNew = () => {
-    setEditingClient(null);
     setShowForm(true);
   };
 
@@ -883,12 +874,7 @@ export default function ClientsPage() {
         {/* Add / Edit Drawer */}
         <AnimatePresence>
           {showForm && (
-            <ClientForm
-              key={editingClient?.id ?? "new"}
-              initial={editingClient}
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
+            <ClientForm onSave={handleSave} onCancel={handleCancel} />
           )}
         </AnimatePresence>
 
@@ -1045,13 +1031,14 @@ export default function ClientsPage() {
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
+                          <Link
+                            href={`/clients/${client.id}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="p-1.5 rounded-[var(--radius-chip)] border-2 border-transparent group-hover:border-ink group-hover:bg-strong text-ink transition"
-                            title="Edit Client"
+                            title="Edit client"
                           >
                             <EditIcon className="h-4 w-4" />
-                          </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>

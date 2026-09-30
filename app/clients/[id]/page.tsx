@@ -304,6 +304,11 @@ export default function ClientDetailPage() {
   const [clientState, setClientState] = useState("");
   const [clientGstin, setClientGstin] = useState("");
   const [clientLocation, setClientLocation] = useState("domestic");
+  const [clientCity, setClientCity] = useState("");
+  const [clientCountry, setClientCountry] = useState("");
+  const [clientEntityType, setClientEntityType] = useState<
+    "agency" | "freelancer"
+  >("agency");
   const [msaEffectiveDate, setMsaEffectiveDate] = useState("");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
@@ -345,6 +350,11 @@ export default function ClientDetailPage() {
         setClientState(c.state);
         setClientGstin(c.gstin);
         setClientLocation(c.client_type);
+        setClientCity(c.city || "");
+        setClientCountry(c.country || "");
+        setClientEntityType(
+          (c.client_entity_type as "agency" | "freelancer") || "agency",
+        );
         setMsaEffectiveDate(c.msa_effective_date || "");
         setMsaPaymentTermsDays(c.msa_payment_terms_days);
         setMsaLateFeeRate(c.msa_late_fee_rate);
@@ -373,9 +383,12 @@ export default function ClientDetailPage() {
       clientName,
       clientEmail,
       clientAddress,
+      clientCity,
+      clientCountry: clientCountry as ClientDetails["clientCountry"],
       clientState: clientState as ClientDetails["clientState"],
       clientGstin,
       clientLocation: clientLocation as ClientDetails["clientLocation"],
+      clientType: clientEntityType,
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
@@ -530,7 +543,46 @@ export default function ClientDetailPage() {
                       <option value="international">International</option>
                     </select>
                   </div>
-                  {clientLocation === "domestic" && (
+                  <div>
+                    <label className={appFieldLabelClass}>City</label>
+                    <input
+                      type="text"
+                      value={clientCity}
+                      onChange={(e) => setClientCity(e.target.value)}
+                      placeholder="e.g. Mumbai"
+                      className={fc({ hasValue: Boolean(clientCity) })}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={appFieldLabelClass}>Entity type</label>
+                    <div className="flex gap-1 rounded-[var(--radius-field)] border border-[color:var(--color-soft)] p-1">
+                      <button
+                        type="button"
+                        onClick={() => setClientEntityType("agency")}
+                        className={cn(
+                          "flex-1 py-1.5 type-body font-bold transition",
+                          clientEntityType === "agency"
+                            ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
+                            : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
+                        )}
+                      >
+                        Agency / Biz
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setClientEntityType("freelancer")}
+                        className={cn(
+                          "flex-1 py-1.5 type-body font-bold transition",
+                          clientEntityType === "freelancer"
+                            ? "bg-paper-2 text-[color:var(--color-ink)] rounded-[var(--radius-chip)] shadow-sm border border-[color:var(--color-soft)]"
+                            : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
+                        )}
+                      >
+                        Individual
+                      </button>
+                    </div>
+                  </div>
+                  {clientLocation === "domestic" ? (
                     <>
                       <div>
                         <label className={appFieldLabelClass}>State</label>
@@ -563,6 +615,17 @@ export default function ClientDetailPage() {
                         />
                       </div>
                     </>
+                  ) : (
+                    <div>
+                      <label className={appFieldLabelClass}>Country</label>
+                      <input
+                        type="text"
+                        value={clientCountry}
+                        onChange={(e) => setClientCountry(e.target.value)}
+                        placeholder="e.g. United States"
+                        className={fc({ hasValue: Boolean(clientCountry) })}
+                      />
+                    </div>
                   )}
                 </div>
 
