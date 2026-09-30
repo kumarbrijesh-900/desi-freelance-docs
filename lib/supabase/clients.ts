@@ -101,7 +101,7 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
 
 /** Convert ClientDetails to DB row for upsert */
 export function clientDetailsToRow(
-  details: ClientDetails,
+  details: Partial<ClientDetails>,
 ): Record<string, unknown> {
   return {
     client_name: details.clientName,
@@ -132,6 +132,57 @@ export function clientDetailsToRow(
     extra_revision_fee_percent: details.extraRevisionFeePercent ?? 15,
     updated_at: new Date().toISOString(),
   };
+}
+
+/**
+ * The same mapping, but a field the caller did not supply is left out of the
+ * row entirely rather than coerced to "".
+ *
+ * clientDetailsToRow is right for an INSERT, where a missing field should take
+ * its default. It is wrong for an UPDATE: the client editors each show only
+ * part of the record, and the fields they do not show were arriving as "" and
+ * overwriting real data. Neither editor owns address_line_1, address_line_2,
+ * pin_code, client_postal_code or client_currency - those are written by the
+ * invoice flow - and saving a client was wiping all of them.
+ */
+export function clientDetailsToPartialRow(
+  details: Partial<ClientDetails>,
+): Record<string, unknown> {
+  const supplied: Record<string, unknown> = {
+    client_name: details.clientName,
+    client_email: details.clientEmail,
+    client_address: details.clientAddress,
+    address_line_1: details.clientAddressLine1,
+    address_line_2: details.clientAddressLine2,
+    city: details.clientCity,
+    pin_code: details.clientPinCode,
+    client_postal_code: details.clientPostalCode,
+    state: details.clientState,
+    country: details.clientCountry,
+    client_currency: details.clientCurrency,
+    gstin: details.clientGstin,
+    client_type: details.clientLocation,
+    client_entity_type: details.clientType,
+    sez_status: details.isClientSezUnit,
+    msa_effective_date: details.msaEffectiveDate,
+    msa_payment_terms_days: details.msaPaymentTermsDays,
+    msa_late_fee_rate: details.msaLateFeeRate,
+    msa_late_fee_unit: details.msaLateFeeUnit,
+    msa_ip_trigger_type: details.msaIpTriggerType,
+    msa_jurisdiction_city: details.msaJurisdictionCity,
+    msa_version_label: details.msaVersionLabel,
+    msa_notes_boilerplate: details.msaNotesBoilerplate,
+    free_revision_rounds: details.freeRevisionRounds,
+    extra_revision_fee_percent: details.extraRevisionFeePercent,
+  };
+
+  const row: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+  for (const [column, value] of Object.entries(supplied)) {
+    if (value !== undefined) row[column] = value;
+  }
+  return row;
 }
 
 async function getProfileMsaDefaults(userId: string) {
@@ -310,7 +361,7 @@ export async function getClient(
 /* ─── Upsert (by client name match or explicit ID) ── */
 
 export async function upsertClient(
-  details: ClientDetails,
+  details: Partial<ClientDetails>,
   existingId?: string,
 ): Promise<{ data: SavedClient | null; error: string | null }> {
   const {
@@ -321,10 +372,12 @@ export async function upsertClient(
   const row = clientDetailsToRow(details);
 
   if (existingId) {
-    // Update existing
+    // Partial on purpose: an editor that does not show a field must not blank
+    // it. The INSERT below still uses the full row so a new client gets its
+    // defaults.
     const { data, error } = await supabase
       .from("clients")
-      .update(row)
+      .update(clientDetailsToPartialRow(details))
       .eq("id", existingId)
       .eq("user_id", user.id)
       .select()
@@ -334,12 +387,20 @@ export async function upsertClient(
     return { data: data as SavedClient, error: null };
   }
 
+  // Past this point we are creating, not updating, so a name is required. It
+  // is optional on the type because an update may legitimately send only the
+  // handful of fields its editor owns.
+  const clientName = details.clientName?.trim();
+  if (!clientName) {
+    return { data: null, error: "Client name is required." };
+  }
+
   // Check if client with same name exists (for auto-save after invoice)
   const { data: existing } = await supabase
     .from("clients")
     .select("id")
     .eq("user_id", user.id)
-    .ilike("client_name", details.clientName.trim())
+    .ilike("client_name", clientName)
     .maybeSingle();
 
   if (existing) {
@@ -347,7 +408,7 @@ export async function upsertClient(
     const { data, error } = await supabase
       .from("clients")
       .update({
-        ...row,
+        ...clientDetailsToPartialRow(details),
         last_invoiced_at: new Date().toISOString(),
       })
       .eq("id", existing.id)

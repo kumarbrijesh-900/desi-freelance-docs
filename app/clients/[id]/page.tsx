@@ -367,21 +367,15 @@ export default function ClientDetailPage() {
     setSaveState("saving");
     playInteractionCue("stepComplete");
 
-    const details: ClientDetails = {
+    // Only the fields this page actually shows. Anything omitted is left
+    // untouched on an update rather than blanked - see clientDetailsToPartialRow.
+    const details: Partial<ClientDetails> = {
       clientName,
       clientEmail,
       clientAddress,
-      clientAddressLine1: "",
-      clientAddressLine2: "",
-      clientCity: "",
-      clientPinCode: "",
-      clientPostalCode: "",
       clientState: clientState as ClientDetails["clientState"],
-      clientCountry: "",
-      clientCurrency: "",
       clientGstin,
       clientLocation: clientLocation as ClientDetails["clientLocation"],
-      isClientSezUnit: "",
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),

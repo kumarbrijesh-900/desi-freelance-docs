@@ -128,22 +128,18 @@ function ClientForm({
     if (!name.trim()) return;
 
     setIsSaving(true);
-    const details: ClientDetails = {
+    // Only the fields this form actually shows. Anything omitted is left
+    // untouched on an update rather than blanked - see clientDetailsToPartialRow.
+    const details: Partial<ClientDetails> = {
       clientName: name.trim(),
       clientEmail: email.trim(),
       clientAddress: address.trim(),
-      clientAddressLine1: "",
-      clientAddressLine2: "",
       clientCity: city.trim(),
-      clientPinCode: "",
-      clientPostalCode: "",
       clientState: state as ClientDetails["clientState"],
       clientCountry: country as ClientDetails["clientCountry"],
-      clientCurrency: "",
       clientGstin: gstin.trim(),
       clientLocation: location as ClientDetails["clientLocation"],
       clientType: clientEntityType,
-      isClientSezUnit: "",
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
