@@ -68,6 +68,7 @@ function MsaCard({
   const [content, setContent] = useState(msa.content);
   const [status, setStatus] = useState<MsaStatus>(msa.status);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -77,13 +78,18 @@ function MsaCard({
 
   const handleSave = async () => {
     setIsSaving(true);
+    setSaveError(null);
     const { data, error } = await updateMsa(msa.id, { title, content, status });
-    if (data) {
-      onUpdate(data);
-      playInteractionCue("saveSuccess");
-      setIsEditing(false);
-    }
     setIsSaving(false);
+    if (error || !data) {
+      // Stay in edit mode and say why. The result used to be ignored, so a
+      // failed save left the form sitting there looking unchanged.
+      setSaveError(error || "Could not save the agreement. Please try again.");
+      return;
+    }
+    onUpdate(data);
+    playInteractionCue("saveSuccess");
+    setIsEditing(false);
   };
 
   const handleDelete = async () => {
@@ -155,6 +161,14 @@ function MsaCard({
             open the shared invoice link.
           </p>
         </div>
+        {saveError && (
+          <p
+            role="alert"
+            className="mt-3 rounded-[var(--radius-field)] border border-[color:var(--state-danger-bd)] bg-[color:var(--state-danger-bg)] px-3 py-2 type-body text-[color:var(--state-danger-text)]"
+          >
+            {saveError}
+          </p>
+        )}
         <div className="mt-4 flex items-center gap-2">
           <MotionButton
             onClick={handleSave}
@@ -293,9 +307,11 @@ export default function ClientDetailPage() {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
+  const [clientSaveError, setClientSaveError] = useState<string | null>(null);
   const [isAddingMsa, setIsAddingMsa] = useState(false);
   const [newMsaTitle, setNewMsaTitle] = useState("Master Service Agreement");
   const [newMsaContent, setNewMsaContent] = useState("");
+  const [addMsaError, setAddMsaError] = useState<string | null>(null);
 
   // Editable client fields
   const [clientName, setClientName] = useState("");
@@ -402,30 +418,42 @@ export default function ClientDetailPage() {
     };
 
     const { data, error } = await upsertClient(details, client.id);
-    if (data) {
-      setClient(data);
-      setSaveState("saved");
-      playInteractionCue("saveSuccess");
-      setTimeout(() => setSaveState("idle"), 2500);
-    } else {
+    if (error || !data) {
+      // The button used to drop straight back to idle on failure, which reads
+      // exactly like a successful save.
+      setClientSaveError(error || "Could not save this client. Please try again.");
       setSaveState("idle");
+      return;
     }
+    setClientSaveError(null);
+    setClient(data);
+    setSaveState("saved");
+    playInteractionCue("saveSuccess");
+    setTimeout(() => setSaveState("idle"), 2500);
   };
 
   const handleAddMsa = async () => {
     if (!clientId) return;
+    setAddMsaError(null);
     const { data, error } = await createMsa({
       clientId,
       title: newMsaTitle,
       content: newMsaContent,
     });
-    if (data) {
-      setMsas((prev) => [data, ...prev]);
-      setIsAddingMsa(false);
-      setNewMsaTitle("Master Service Agreement");
-      setNewMsaContent("");
-      playInteractionCue("saveSuccess");
+    if (error || !data) {
+      // Keep the form open and say why. The result used to be ignored
+      // entirely, so a failed save looked exactly like never having pressed
+      // the button.
+      setAddMsaError(
+        error || "Could not create the agreement. Please try again.",
+      );
+      return;
     }
+    setMsas((prev) => [data, ...prev]);
+    setIsAddingMsa(false);
+    setNewMsaTitle("Master Service Agreement");
+    setNewMsaContent("");
+    playInteractionCue("saveSuccess");
   };
 
   const handleUpdateMsa = (updated: ClientMsa) => {
@@ -495,6 +523,14 @@ export default function ClientDetailPage() {
         back="/clients"
         backLabel="All clients"
       >
+            {clientSaveError && (
+              <p
+                role="alert"
+                className="mt-5 rounded-[var(--radius-field)] border border-[color:var(--state-danger-bd)] bg-[color:var(--state-danger-bg)] px-4 py-3 type-body text-[color:var(--state-danger-text)]"
+              >
+                {clientSaveError}
+              </p>
+            )}
 
             {/* Client Details */}
             <MotionReveal preset="fade-up" delay={10}>
@@ -863,7 +899,10 @@ export default function ClientDetailPage() {
                   </div>
                   {!isAddingMsa && (
                     <MotionButton
-                      onClick={() => setIsAddingMsa(true)}
+                      onClick={() => {
+                        setAddMsaError(null);
+                        setIsAddingMsa(true);
+                      }}
                       className={getAppButtonClass({
                         variant: "secondary",
                         size: "sm",
@@ -903,6 +942,14 @@ export default function ClientDetailPage() {
                         })}
                       />
                     </div>
+                    {addMsaError && (
+                      <p
+                        role="alert"
+                        className="mb-3 rounded-[var(--radius-field)] border border-[color:var(--state-danger-bd)] bg-[color:var(--state-danger-bg)] px-3 py-2 type-body text-[color:var(--state-danger-text)]"
+                      >
+                        {addMsaError}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2">
                       <MotionButton
                         onClick={handleAddMsa}
@@ -915,7 +962,10 @@ export default function ClientDetailPage() {
                       </MotionButton>
                       <button
                         type="button"
-                        onClick={() => setIsAddingMsa(false)}
+                        onClick={() => {
+                          setAddMsaError(null);
+                          setIsAddingMsa(false);
+                        }}
                         className={getAppButtonClass({
                           variant: "ghost",
                           size: "sm",
