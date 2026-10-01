@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { AppPagination } from "@/components/ui/AppPagination";
 import {
@@ -677,6 +678,7 @@ function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
 /* ─── Main Page ───────────────────────────────────── */
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   // Focus lands here when a delete removes the card the trigger lived in.
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -926,22 +928,28 @@ export default function ClientsPage() {
         </div>
 
         {/* Table */}
-        {/* overflow-x-auto, NOT overflow-hidden: eight columns holding a 40-char
-            email, a GSTIN chip and two pills can demand more width than the
-            container gives, and overflow-hidden turns that into a silent clip off
-            the right edge — it was eating the ACTIONS column. Auto still clips to
-            the rounded corners but scrolls instead of hiding, and the min-width
-            stops the columns squashing below the point where they are readable. */}
+        {/* overflow-x-auto, NOT overflow-hidden: at lg the full eight columns
+            hold a 40-char email, a GSTIN chip and two pills, which can demand
+            more width than the container gives, and overflow-hidden turns that
+            into a silent clip off the right edge — it was eating the ACTIONS
+            column. Auto scrolls instead of hiding.
+
+            Below lg the optional columns are dropped rather than scrolled:
+            email and GSTIN go first, then type and city, then the invoice
+            count, leaving client, MSA and actions on a phone. Nothing is lost
+            - the client page carries every field - and a phone gets a table it
+            can read without dragging it sideways. The min-width only applies
+            once all eight are on screen. */}
         <div aria-busy={isLoading} className="border border-soft rounded-[var(--radius-box)] shadow-none bg-paper-2 overflow-x-auto mb-6">
-          <table className="w-full min-w-[980px] text-left border-collapse">
+          <table className="w-full text-left border-collapse lg:min-w-[980px]">
             <thead>
               <tr className="bg-paper-2 border-b border-soft type-label font-extrabold uppercase tracking-widest text-ink">
                 <th className="py-3 px-6 w-[240px] border-r border-soft">Client</th>
-                <th className="py-3 px-6 border-r border-soft">Email</th>
-                <th className="py-3 px-6 border-r border-soft">City</th>
-                <th className="py-3 px-6 border-r border-soft">GSTIN</th>
-                <th className="py-3 px-6 border-r border-soft">Type</th>
-                <th className="py-3 px-6 w-[80px] text-right border-r border-soft">Invoices</th>
+                <th className="hidden lg:table-cell py-3 px-6 border-r border-soft">Email</th>
+                <th className="hidden md:table-cell py-3 px-6 border-r border-soft">City</th>
+                <th className="hidden lg:table-cell py-3 px-6 border-r border-soft">GSTIN</th>
+                <th className="hidden md:table-cell py-3 px-6 border-r border-soft">Type</th>
+                <th className="hidden sm:table-cell py-3 px-6 w-[80px] text-right border-r border-soft">Invoices</th>
                 <th className="py-3 px-6 w-[120px] text-right border-r border-soft">MSA</th>
                 <th className="py-3 px-4 w-[120px] text-center">ACTIONS</th>
               </tr>
@@ -956,11 +964,11 @@ export default function ClientsPage() {
                         <AppSkeleton className="h-4 w-[140px]" />
                       </div>
                     </td>
-                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[180px]" /></td>
-                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[90px]" /></td>
-                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[120px]" /></td>
-                    <td className="py-4 px-6 border-r border-soft"><AppSkeleton shape="pill" className="h-6 w-[70px]" /></td>
-                    <td className="py-4 px-6 border-r border-soft text-right"><AppSkeleton className="h-4 w-[24px] ml-auto" /></td>
+                    <td className="hidden lg:table-cell py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[180px]" /></td>
+                    <td className="hidden md:table-cell py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[90px]" /></td>
+                    <td className="hidden lg:table-cell py-4 px-6 border-r border-soft"><AppSkeleton className="h-4 w-[120px]" /></td>
+                    <td className="hidden md:table-cell py-4 px-6 border-r border-soft"><AppSkeleton shape="pill" className="h-6 w-[70px]" /></td>
+                    <td className="hidden sm:table-cell py-4 px-6 border-r border-soft text-right"><AppSkeleton className="h-4 w-[24px] ml-auto" /></td>
                     <td className="py-4 px-6 border-r border-soft text-right"><AppSkeleton shape="pill" className="h-6 w-[88px] ml-auto" /></td>
                     <td className="py-4 px-4 text-center"><AppSkeleton className="h-4 w-[60px] mx-auto" /></td>
                   </tr>
@@ -979,7 +987,7 @@ export default function ClientsPage() {
                   const msaOk = client.has_msa;
 
                   return (
-                    <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
+                    <tr key={client.id} className="border-b border-soft last:border-b-0 is-interactive cursor-pointer group" onClick={() => router.push(`/clients/${client.id}`)}>
                       <td className="py-4 px-6 border-r border-soft">
                         <div className="flex items-center gap-3">
                           <div className={`shrink-0 w-[32px] h-[32px] rounded-full border border-ink flex items-center justify-center type-label font-black ${avatarStyle} shadow-none`}>
@@ -994,25 +1002,25 @@ export default function ClientsPage() {
                           </Link>
                         </div>
                       </td>
-                      <td className="py-4 px-6 border-r border-soft">
+                      <td className="hidden lg:table-cell py-4 px-6 border-r border-soft">
                         <span className="type-body font-bold uppercase tracking-widest text-ink/70">{client.client_email || "—"}</span>
                       </td>
-                      <td className="py-4 px-6 border-r border-soft">
+                      <td className="hidden md:table-cell py-4 px-6 border-r border-soft">
                         <span className="type-body font-bold uppercase tracking-widest text-ink/70">{client.city || client.state || "—"}</span>
                       </td>
-                      <td className="py-4 px-6 border-r border-soft">
+                      <td className="hidden lg:table-cell py-4 px-6 border-r border-soft">
                         {client.gstin ? (
                           <span className="inline-flex items-center whitespace-nowrap px-2 py-1 type-label font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
                         ) : (
                           <span className="type-body font-bold uppercase tracking-widest text-ink/40">—</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 border-r border-soft">
+                      <td className="hidden md:table-cell py-4 px-6 border-r border-soft">
                         <span className={`inline-flex items-center whitespace-nowrap px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft ${client.client_type === "international" ? "bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]" : "bg-transparent text-ink"}`}>
                           {client.client_type === "international" ? "INTL" : "INDIA"}
                         </span>
                       </td>
-                      <td className="py-4 px-6 border-r border-soft text-right">
+                      <td className="hidden sm:table-cell py-4 px-6 border-r border-soft text-right">
                         <span className="font-black type-body text-ink">{client.invoice_count || 0}</span>
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
