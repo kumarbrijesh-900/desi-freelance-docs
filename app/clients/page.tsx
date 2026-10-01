@@ -951,7 +951,7 @@ export default function ClientsPage() {
                 <th className="hidden md:table-cell py-3 px-6 border-r border-soft">Type</th>
                 <th className="hidden sm:table-cell py-3 px-6 w-[80px] text-right border-r border-soft">Invoices</th>
                 <th className="py-3 px-6 w-[120px] text-right border-r border-soft">MSA</th>
-                <th className="py-3 px-4 w-[120px] text-center">ACTIONS</th>
+                <th className="table-pin-right py-3 px-4 w-[120px] text-center">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -970,7 +970,7 @@ export default function ClientsPage() {
                     <td className="hidden md:table-cell py-4 px-6 border-r border-soft"><AppSkeleton shape="pill" className="h-6 w-[70px]" /></td>
                     <td className="hidden sm:table-cell py-4 px-6 border-r border-soft text-right"><AppSkeleton className="h-4 w-[24px] ml-auto" /></td>
                     <td className="py-4 px-6 border-r border-soft text-right"><AppSkeleton shape="pill" className="h-6 w-[88px] ml-auto" /></td>
-                    <td className="py-4 px-4 text-center"><AppSkeleton className="h-4 w-[60px] mx-auto" /></td>
+                    <td className="table-pin-right py-4 px-4 text-center"><AppSkeleton className="h-4 w-[60px] mx-auto" /></td>
                   </tr>
                 ))
               ) : clients.length === 0 ? (
@@ -1030,7 +1030,7 @@ export default function ClientsPage() {
                           <span className="inline-flex items-center whitespace-nowrap px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
                         )}
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="table-pin-right py-4 px-4 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 

@@ -550,6 +550,46 @@ a.is-interactive:active,
   [role="button"].is-interactive:active { transform: none; }
 }
 
+/* --- Pinned table column --------------------------------------------------
+   A roster wider than its container scrolls sideways, and the column holding
+   delete and edit is the one that scrolls out of reach. This pins it to the
+   right edge so the actions are always where the eye last left them.
+
+   Two things break if you write position:sticky and stop there.
+
+   A sticky cell needs an opaque background or the rows scrolling underneath
+   show through it. That background-color paints above the row's own, so the
+   `.is-interactive` overlay -- which rides on the ROW's background-image --
+   stops dead at the pin and the row lights up in two halves. The rules below
+   hand the same overlay to the cell so the row stays one row.
+
+   The divider is a box-shadow, not a border. Under border-collapse the only
+   line at the pin boundary is whichever neighbouring cell happens to be
+   underneath it, so at most scroll positions there is no line at all and the
+   content is sliced mid-pill. An inset shadow belongs to the cell and is
+   always there. ----------------------------------------------------------- */
+
+.table-pin-right {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background-color: var(--color-paper-2);
+  box-shadow: inset 1px 0 0 0 var(--color-soft);
+  transition: background-image var(--app-duration-fast) var(--app-ease-standard);
+}
+
+.is-interactive:hover > .table-pin-right {
+  background-image: linear-gradient(var(--state-hover), var(--state-hover));
+}
+
+.is-interactive:active > .table-pin-right {
+  background-image: linear-gradient(var(--state-press), var(--state-press));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-pin-right { transition: none; }
+}
+
 /* --- Dropzone --- */
 
 .app-dropzone-surface {
