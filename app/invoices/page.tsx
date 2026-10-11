@@ -10,10 +10,9 @@ import AppPageShell, {
 } from "@/components/ui/AppPageShell";
 import AppStatLine from "@/components/ui/AppStatLine";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
-import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
+import { isInvoiceRowDeletable, resolveInvoiceStatus } from "@/components/invoices/InvoiceEventRow";
 import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
-import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 import { useScrollLock } from "@/lib/use-scroll-lock";
@@ -52,7 +51,16 @@ export default function InvoicesPage() {
   );
   useScrollLock(bulkDeleteConfirm);
 
-  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Overdue", "Unanswered", "Settled", "Complete", "Offline"];
+  /**
+   * Every chip but All and Offline is the name of a status pill, so a count
+   * can never disagree with what the rows show. Two chips used to ask for
+   * words the database forbids - invoices_status_check allows only draft,
+   * finalized, partial, settled and cancelled, so "Sent" and "Complete"
+   * could never match anything and sat at 0 forever. Offline is a property
+   * of the invoice rather than a status, and is the one chip that cuts
+   * across the rest.
+   */
+  const filters = ["All", "Draft", "Awaiting", "Locked", "Revision", "Live", "Overdue", "Unanswered", "Partial", "Settled", "Cancelled", "Offline"];
 
   useEffect(() => {
     async function load() {
@@ -350,14 +358,46 @@ export default function InvoicesPage() {
     const cascadeIds = new Set<string>();
     for (const r of roots) for (const c of childrenOf(r.invoice.id)) cascadeIds.add(c.invoice.id);
 
+    // Why each skipped row was skipped, in the row's own words. The dialog
+    // used to assert "settled or partial, or holding a settled milestone",
+    // which is not the rule: isInvoiceRowDeletable allows draft and live and
+    // refuses everything else, so an overdue or unanswered invoice was
+    // skipped and then told it was settled.
+    const reasons = new Map<string, number>();
+    for (const i of selected) {
+      if (deletableIds.has(i.invoice.id)) continue;
+      const reason = canDelete(i)
+        ? "holding a protected milestone"
+        : resolveInvoiceStatus(i.invoice, i.masterMsaStatus, i.masterHasClientMsaNote).label;
+      reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
+    }
+
     return {
       roots,
       // Children that vanish without having been selected - the part the
       // operator cannot see from their own selection.
       cascadeCount: [...cascadeIds].filter(id => !selectedIds.has(id)).length,
       skipped: selected.length - deletable.length,
+      skippedReason: [...reasons.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([reason, n]) => `${n} ${reason}`)
+        .join(", "),
     };
   })();
+
+  /**
+   * One filter, one definition, used by both the list and the chip counts.
+   * Those were two copies of the same switch reading invoice.status, which
+   * is not what the row displays: the pill comes from resolveInvoiceStatus,
+   * which outranks the raw status with the MSA state and the derived overdue
+   * and unanswered flags. "Live" therefore counted finalized rows that were
+   * on screen as overdue or unanswered, and nothing selected partial at all.
+   */
+  const matchesFilter = (item: (typeof flattenedInvoices)[number], name: string) => {
+    if (name === "All") return true;
+    if (name === "Offline") return (item.invoice as any).is_offline === true;
+    return resolveInvoiceStatus(item.invoice, item.masterMsaStatus, item.masterHasClientMsaNote).label === name.toLowerCase();
+  };
 
   const filteredInvoices = flattenedInvoices.filter(item => {
     if (search) {
@@ -368,25 +408,7 @@ export default function InvoicesPage() {
       if (!num.includes(q) && !proj.includes(q) && !cli.includes(q)) return false;
     }
 
-    if (filter === "All") return true;
-
-    const status = (item.invoice.status || 'draft').toLowerCase();
-    const msaStatus = (item.masterMsaStatus || '').toLowerCase();
-    const hasNote = item.masterHasClientMsaNote;
-
-    switch (filter) {
-      case "Draft": return status === "draft";
-      case "Sent": return status === "sent";
-      case "MSA proposed": return msaStatus === "proposed" && !hasNote;
-      case "Revision": return msaStatus === "proposed" && hasNote;
-      case "Live": return status === "live" || status === "finalized";
-      case "Settled": return status === "settled";
-      case "Complete": return status === "complete";
-      case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
-      case "Unanswered": return isInvoiceUnanswered(item.invoice as any, item.masterMsaStatus);
-      case "Offline": return (item.invoice as any).is_offline === true;
-      default: return true;
-    }
+    return matchesFilter(item, filter);
   });
 
   // Group filtered invoices back under their project, master first then milestones.
@@ -513,25 +535,7 @@ export default function InvoicesPage() {
         {/* Filter tabs */}
         <div className="flex items-center gap-2 mb-4 flex-wrap shrink-0">
           {filters.map(f => {
-            const count = flattenedInvoices.filter(item => {
-              if (f === "All") return true;
-              const status = (item.invoice.status || 'draft').toLowerCase();
-              const msaStatus = (item.masterMsaStatus || '').toLowerCase();
-              const hasNote = item.masterHasClientMsaNote;
-              switch (f) {
-                case "Draft": return status === "draft";
-                case "Sent": return status === "sent";
-                case "MSA proposed": return msaStatus === "proposed" && !hasNote;
-                case "Revision": return msaStatus === "proposed" && hasNote;
-                case "Live": return status === "live" || status === "finalized";
-                case "Settled": return status === "settled";
-                case "Complete": return status === "complete";
-                case "Overdue": return isInvoiceOverdue(item.invoice as any, item.masterMsaStatus);
-                case "Unanswered": return isInvoiceUnanswered(item.invoice as any, item.masterMsaStatus);
-                case "Offline": return (item.invoice as any).is_offline === true;
-                default: return true;
-              }
-            }).length;
+            const count = flattenedInvoices.filter(item => matchesFilter(item, f)).length;
 
             let toneClass = "bg-paper-2 text-ink-2 border-soft hover:border-ink/30 hover:text-ink";
             if (filter === f) toneClass = "bg-acid text-acc-ink border-acid";
@@ -726,7 +730,7 @@ export default function InvoicesPage() {
                 <>Nothing here can be deleted.</>
               )}
               {bulkDeletePlan.skipped > 0 && (
-                <> {bulkDeletePlan.skipped} {bulkDeletePlan.skipped === 1 ? "is" : "are"} protected and skipped: settled or partial, or holding a settled milestone.</>
+                <> {bulkDeletePlan.skipped} {bulkDeletePlan.skipped === 1 ? "is" : "are"} protected and skipped ({bulkDeletePlan.skippedReason}): only draft and live invoices can be deleted.</>
               )}
               {bulkDeletePlan.roots.length > 0 && <> This cannot be undone.</>}
             </p>

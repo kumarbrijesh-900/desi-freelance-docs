@@ -28,11 +28,40 @@ export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, h
   return { side: 'bg-rule', pill: 'bg-rule text-ink', label: status };
 }
 
+/**
+ * The one place a row becomes a status.
+ *
+ * getStatusInfo takes the two derived flags as arguments so it stays a pure
+ * function of what it is handed. The cost is that every caller has to
+ * assemble the same six arguments identically, and nothing stops a caller
+ * skipping it. The /invoices filter chips skipped it: they read
+ * invoice.status directly, so they counted rows under names the pill never
+ * showed -- "Live" counted every finalized row, including the ones on screen
+ * as overdue or unanswered. Call this. Do not assemble the arguments again.
+ */
+export function resolveInvoiceStatus(
+  invoice: any,
+  masterMsaStatus?: string | null,
+  hasClientMsaNote?: boolean,
+) {
+  return getStatusInfo(
+    invoice?.status || "draft",
+    masterMsaStatus || null,
+    !!hasClientMsaNote,
+    !!invoice?.shared_at,
+    isInvoiceOverdue(invoice as any, masterMsaStatus),
+    isInvoiceUnanswered(invoice as any, masterMsaStatus),
+  );
+}
+
+/** Deletable means the pill reads draft or live. Nothing else may be deleted. */
+export const DELETABLE_LABELS: readonly string[] = ["draft", "live"];
+
 export function isInvoiceRowDeletable(
   invoice: any,
   masterMsaStatus?: string | null,
   hasClientMsaNote?: boolean,
 ) {
-  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at, isInvoiceOverdue(invoice as any, masterMsaStatus), isInvoiceUnanswered(invoice as any, masterMsaStatus));
-  return info.label === "draft" || info.label === "live";
+  const { label } = resolveInvoiceStatus(invoice, masterMsaStatus, hasClientMsaNote);
+  return DELETABLE_LABELS.includes(label);
 }

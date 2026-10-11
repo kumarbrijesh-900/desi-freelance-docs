@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { formatInr } from "@/lib/format-inr";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
-import { getStatusInfo, isInvoiceRowDeletable } from "./InvoiceEventRow";
-import { isInvoiceOverdue, isInvoiceUnanswered } from "@/lib/lifecycle/timing";
+import { resolveInvoiceStatus, isInvoiceRowDeletable } from "./InvoiceEventRow";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
 type Item = {
@@ -34,7 +33,7 @@ function invoiceTotal(invoice: any): number {
   return total;
 }
 
-// E status pill (soft tint) per status label from getStatusInfo.
+// E status pill (soft tint) per status label from resolveInvoiceStatus.
 const PILL: Record<string, string> = {
   settled: "bg-[#e4f1ea] text-grass border border-[#c7e4d4]",
   complete: "bg-[#e4f1ea] text-acid border border-[#c7e4d4]",
@@ -92,7 +91,7 @@ export function ProjectInvoiceGroup({
   const [expanded, setExpanded] = useState(true);
 
   const labels = items.map(it =>
-    getStatusInfo(it.invoice.status || "draft", it.masterMsaStatus || null, !!it.masterHasClientMsaNote, !!it.invoice.shared_at, isInvoiceOverdue(it.invoice as any, it.masterMsaStatus), isInvoiceUnanswered(it.invoice as any, it.masterMsaStatus)).label
+    resolveInvoiceStatus(it.invoice, it.masterMsaStatus, it.masterHasClientMsaNote).label
   );
 
   // Rolled-up status shown on the project header.
