@@ -1017,7 +1017,7 @@ export default function ClientDetailPage() {
                         <h3 className="type-body font-bold text-ink">
                           {agreementContext.globalMsa.title}
                         </h3>
-                        <span className="inline-flex itemsecenter whitespace-nowrap px-2 py-0.5 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]">
+                        <span className="inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]">
                           Default
                         </span>
                       </div>
