@@ -39,10 +39,12 @@ import {
 } from "@/lib/supabase/clients";
 import {
   listClientMsas,
+  getClientAgreementContext,
   createMsa,
   updateMsa,
   deleteMsa,
   type ClientMsa,
+  type ClientAgreementContext,
   type MsaStatus,
 } from "@/lib/supabase/msas";
 import { supabase } from "@/lib/supabase/client";
@@ -302,6 +304,15 @@ export default function ClientDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<SavedClient | null>(null);
   const [msas, setMsas] = useState<ClientMsa[]>([]);
+  // What covers this client when they have no agreement of their own.
+  const [agreementContext, setAgreementContext] = useState<ClientAgreementContext>({
+    globalMsa: null,
+    invoicesUnderGlobal: 0,
+  });
+  // Only an ACTIVE client agreement outranks the default - that is the test
+  // share-invoice applies at send time. A draft or expired one governs
+  // nothing, so it must not hide the default that actually does.
+  const hasOwnActiveMsa = msas.some((m) => m.status === "active");
   // Focus lands here when an MSA delete removes the card the trigger lived in.
   const msaSectionHeadingRef = useRef<HTMLHeadingElement>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
@@ -352,9 +363,10 @@ export default function ClientDetailPage() {
         return;
       }
 
-      const [clientRes, msaRes] = await Promise.all([
+      const [clientRes, msaRes, contextRes] = await Promise.all([
         getClient(clientId),
         listClientMsas(clientId),
+        getClientAgreementContext(clientId),
       ]);
 
       if (clientRes.data) {
@@ -383,6 +395,7 @@ export default function ClientDetailPage() {
         setExtraRevisionFeePercent(c.extra_revision_fee_percent ?? 15);
       }
       setMsas(msaRes.data);
+      setAgreementContext(contextRes.data);
       setIsLoading(false);
     }
     init();
@@ -893,8 +906,11 @@ export default function ClientDetailPage() {
                       Service Agreements
                     </h2>
                     <p className={`mt-1 ${appSectionDescriptionClass}`}>
-                      {msas.length} MSA{msas.length !== 1 ? "s" : ""} · Shown to
-                      clients on shared invoice links
+                      {hasOwnActiveMsa
+                        ? `${msas.length} agreement${msas.length !== 1 ? "s" : ""} of their own · overrides your default`
+                        : agreementContext.globalMsa
+                          ? "Covered by your default contract · shown to clients on shared invoice links"
+                          : "Nothing covers this client yet"}
                     </p>
                   </div>
                   {!isAddingMsa && (
@@ -988,11 +1004,56 @@ export default function ClientDetailPage() {
                       restoreFocusTo={msaSectionHeadingRef}
                     />
                   ))}
-                  {msas.length === 0 && !isAddingMsa && (
+                  {/* The default that governs this client when they have no
+                      active agreement of their own. Read-only: it belongs to
+                      the account, not to this client, and is edited in
+                      Profile. Shown in the same order share-invoice resolves
+                      it, so this page and the send path cannot disagree. */}
+                  {!hasOwnActiveMsa && agreementContext.globalMsa && (
+                    <div
+                      className={`${getAppPanelClass()} border-l-[3px] border-l-[color:var(--color-sky)]`}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="type-body font-bold text-ink">
+                          {agreementContext.globalMsa.title}
+                        </h3>
+                        <span className="inline-flex itemsecenter whitespace-nowrap px-2 py-0.5 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-soft bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]">
+                          Default
+                        </span>
+                      </div>
+                      <p className="mt-1 type-body text-[color:var(--color-ink-2)]">
+                        Your default contract, used for every client who has
+                        none of their own.{" "}
+                        <Link
+                          href="/profile"
+                          className="underline app-focus-ring rounded-[var(--radius-chip)]"
+                        >
+                          Edit in Profile
+                        </Link>
+                      </p>
+                      {agreementContext.invoicesUnderGlobal > 0 && (
+                        <p className="mt-1 type-label uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                          Governs {agreementContext.invoicesUnderGlobal} invoice
+                          {agreementContext.invoicesUnderGlobal === 1 ? "" : "s"} for
+                          this client
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {msas.length === 0 && !isAddingMsa && !agreementContext.globalMsa && (
                     <div className={`${getAppPanelClass("muted")} text-center`}>
                       <p className="type-body text-[color:var(--color-ink-2)]">
-                        No agreements yet. Add an MSA to gate invoice access for
-                        this client.
+                        Nothing covers this client, and you have no default
+                        contract. Sharing an invoice is blocked until one
+                        exists —{" "}
+                        <Link
+                          href="/profile"
+                          className="underline app-focus-ring rounded-[var(--radius-chip)]"
+                        >
+                          set one up in Profile
+                        </Link>
+                        , or add an agreement just for this client.
                       </p>
                     </div>
                   )}

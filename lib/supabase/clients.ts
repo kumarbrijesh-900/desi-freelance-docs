@@ -61,6 +61,13 @@ export type ClientRow = SavedClient;
  */
 export interface ClientWithMsa extends SavedClient {
   msa_accepted_at: string | null;
+  /**
+   * The client accepted through a share link. Distinct from has_msa, which is
+   * also true for terms the operator typed in, and distinct from
+   * msa_accepted_at, which can be null on an accepted invoice - acceptance is
+   * the fact, the timestamp is only its record.
+   */
+  msa_accepted: boolean;
   has_msa: boolean;
 }
 
@@ -337,6 +344,7 @@ export async function listClients(): Promise<{
     data: clients.map((c) => ({
       ...c,
       msa_accepted_at: acceptedAt.get(c.id) ?? null,
+      msa_accepted: acceptedAt.has(c.id),
       has_msa: acceptedAt.has(c.id) || Boolean(c.msa_effective_date),
     })),
     error: null,

@@ -38,6 +38,67 @@ export async function listClientMsas(
   return { data: (data ?? []) as ClientMsa[], error: null };
 }
 
+/* ─── What actually governs a client ──────────────── */
+
+export interface ClientAgreementContext {
+  /** The account's default contract. Edited in Profile, never here. */
+  globalMsa: ClientMsa | null;
+  /** This client's invoices already issued under that default. */
+  invoicesUnderGlobal: number;
+}
+
+/**
+ * The agreement that actually covers a client, resolved the way
+ * app/api/share-invoice resolves it at send time: an active client-specific
+ * MSA wins, otherwise the account's global default.
+ *
+ * listClientMsas cannot answer this. It filters `.eq("client_id", clientId)`,
+ * and in SQL `= <uuid>` never matches NULL, so a global default - which is
+ * stored with client_id NULL - is invisible to it. The client page therefore
+ * read "No agreements yet" for every client while the default governed all
+ * of their invoices. This is the missing half.
+ */
+export async function getClientAgreementContext(
+  clientId: string,
+): Promise<{ data: ClientAgreementContext; error: string | null }> {
+  const empty: ClientAgreementContext = { globalMsa: null, invoicesUnderGlobal: 0 };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { data: empty, error: "Not authenticated" };
+
+  // status 'active' matches the share-time lookup. A draft or expired default
+  // does not govern anything, so claiming it does on this page would be a
+  // different lie from the one being fixed.
+  const { data: global, error: globalError } = await supabase
+    .from("client_msas")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("client_id", null)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (globalError) return { data: empty, error: globalError.message };
+  if (!global) return { data: empty, error: null };
+
+  const globalMsa = global as ClientMsa;
+
+  const { count, error: countError } = await supabase
+    .from("invoices")
+    .select("id", { count: "exact", head: true })
+    .eq("client_id", clientId)
+    .eq("msa_id", globalMsa.id);
+
+  if (countError) {
+    // The agreement is the point; the count is colour. Surface the agreement
+    // rather than hiding it because a tally failed.
+    return { data: { globalMsa, invoicesUnderGlobal: 0 }, error: countError.message };
+  }
+
+  return { data: { globalMsa, invoicesUnderGlobal: count ?? 0 }, error: null };
+}
+
 /* ─── List all MSAs for current user (across clients) ─ */
 
 export async function listAllUserMsas(): Promise<{

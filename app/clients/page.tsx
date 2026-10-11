@@ -369,7 +369,7 @@ function ClientForm({
               )}
             </div>
 
-            <FormSectionLabel title="MSA DEFAULTS" />
+            <FormSectionLabel title="DEFAULT TERMS" />
             <div className="space-y-6">
               <div className="flex flex-wrap gap-4">
                 <div className="col-span-1">
@@ -754,10 +754,12 @@ export default function ClientsPage() {
       // Acceptance lives on the invoice, not on what this form saves. Editing
       // a client must not silently drop it.
       const acceptedAt = exists?.msa_accepted_at ?? null;
+      const accepted = exists?.msa_accepted ?? false;
       const merged: ClientWithMsa = {
         ...saved,
         msa_accepted_at: acceptedAt,
-        has_msa: Boolean(acceptedAt) || Boolean(saved.msa_effective_date),
+        msa_accepted: accepted,
+        has_msa: accepted || Boolean(saved.msa_effective_date),
       };
       if (exists) return prev.map((c) => (c.id === saved.id ? merged : c));
       return [merged, ...prev];
@@ -888,12 +890,12 @@ export default function ClientsPage() {
             isLoading
               ? [
                   { label: "Clients", value: <AppSkeleton className="h-5 w-10" />, sub: "in your roster" },
-                  { label: "MSAs signed", value: <AppSkeleton className="h-5 w-16" />, sub: "contracts on file" },
+                  { label: "Under terms", value: <AppSkeleton className="h-5 w-16" />, sub: "agreed or on record" },
                   { label: "Repeat clients", value: <AppSkeleton className="h-5 w-10" />, sub: "billed more than once" },
                 ]
               : [
                   { label: "Clients", value: `${clients.length}`, sub: "in your roster" },
-                  { label: "MSAs signed", value: `${clients.filter(c => c.has_msa).length} of ${clients.length}`, sub: "contracts on file" },
+                  { label: "Under terms", value: `${clients.filter(c => c.has_msa).length} of ${clients.length}`, sub: "agreed or on record" },
                   { label: "Repeat clients", value: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, sub: "billed more than once" },
                 ]
           }
@@ -984,6 +986,11 @@ export default function ClientsPage() {
                   const initial = (client.client_name || "U").slice(0, 2).toUpperCase();
                   const avatarStyles = ["bg-rose text-ink", "bg-grass text-[color:var(--color-acc-ink)]", "bg-sky text-[color:var(--color-acc-ink)]", "bg-lav text-[color:var(--color-acc-ink)]", "bg-butter text-[color:var(--color-acc-ink)]", "bg-coral text-[color:var(--color-acc-ink)]"];
                   const avatarStyle = avatarStyles[i % avatarStyles.length];
+                  // has_msa is two different facts wearing one badge: the
+                  // client accepted through a share link, or an effective
+                  // date was typed into the terms form. Both mean terms are
+                  // in force, but only one of them is the client's word.
+                  const msaAccepted = client.msa_accepted;
                   const msaOk = client.has_msa;
 
                   return (
@@ -1025,7 +1032,7 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
                         {msaOk ? (
-                          <span className="inline-flex items-center whitespace-nowrap gap-1 px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">✓ SIGNED</span>
+                          <span className="inline-flex items-center whitespace-nowrap gap-1 px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-grass bg-grass text-[color:var(--color-acc-ink)] shadow-none">{msaAccepted ? "✓ ACCEPTED" : "✓ ON RECORD"}</span>
                         ) : (
                           <span className="inline-flex items-center whitespace-nowrap px-2 py-1 rounded-[var(--radius-chip)] type-label font-extrabold uppercase tracking-widest border border-butter bg-butter text-[color:var(--color-acc-ink)] shadow-none">PENDING</span>
                         )}
