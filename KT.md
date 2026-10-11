@@ -351,7 +351,7 @@ tests/
 - **MSA gate screen:** `/share/[token]` shows MSA text with blurred invoice preview when MSA is attached but not accepted
 - **ShareLinkModal MSA section:** Lists all user MSAs, radio-select to attach/detach
 - **Service functions:** `attachMsaToInvoice`, `detachMsaFromInvoice`, `loadMsaForSharedInvoice`
-- **listAllUserMsas:** Cross-client MSA listing for the share modal
+- **listAllUserMsas:** Cross-client MSA listing for the share modal _(removed 2026-10-11 — it had no callers; the share flow resolves an MSA server-side in `app/api/share-invoice`)_
 - **Supabase migration:** `msa_id`, `msa_accepted_at` columns + RLS policies
 
 ### Phase 9b.2 — MSA Accept/Reject + Email-Only Sharing

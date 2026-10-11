@@ -99,27 +99,6 @@ export async function getClientAgreementContext(
   return { data: { globalMsa, invoicesUnderGlobal: count ?? 0 }, error: null };
 }
 
-/* ─── List all MSAs for current user (across clients) ─ */
-
-export async function listAllUserMsas(): Promise<{
-  data: ClientMsa[];
-  error: string | null;
-}> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { data: [], error: "Not authenticated" };
-
-  const { data, error } = await supabase
-    .from("client_msas")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
-
-  if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as ClientMsa[], error: null };
-}
-
 /* ─── Get Single MSA ──────────────────────────────── */
 
 export async function getMsa(
@@ -226,22 +205,4 @@ export async function deleteMsa(
     .eq("user_id", user.id);
 
   return { error: error?.message ?? null };
-}
-
-/* ─── Get active MSA for a client ─────────────────── */
-
-export async function getActiveMsa(
-  clientId: string,
-): Promise<{ data: ClientMsa | null; error: string | null }> {
-  const { data, error } = await supabase
-    .from("client_msas")
-    .select("*")
-    .eq("client_id", clientId)
-    .eq("status", "active")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) return { data: null, error: error.message };
-  return { data: data as ClientMsa | null, error: null };
 }
