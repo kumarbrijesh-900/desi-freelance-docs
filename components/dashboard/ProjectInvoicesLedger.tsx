@@ -2,31 +2,42 @@
 
 import React from "react";
 import Link from "next/link";
-import { ProjectWithInvoices } from "@/lib/supabase/projects";
+import { ProjectWithInvoices, type InvoiceRow } from "@/lib/supabase/projects";
 import { formatInr } from "@/lib/format-inr";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 import { getStatusTint, type StatusKind } from "@/lib/status-tint";
+import { resolveInvoiceStatus } from "@/components/invoices/InvoiceEventRow";
 import { resolveInvoicePayable } from "@/lib/invoice-calculations";
 
-function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
-  const status = (invoiceStatus || '').toLowerCase();
-  const msa = (msaStatus || '').toLowerCase();
+/**
+ * Presentation only. The dashboard has room for a fuller phrase than the
+ * roster's pill; these are the same states under longer names, not a second
+ * taxonomy. Anything unlisted renders its canonical label unchanged.
+ */
+const LEDGER_LABEL: Record<string, string> = {
+  revision: "revision requested",
+  awaiting: "awaiting client",
+};
 
-  let kind: StatusKind = "neutral";
-  let label = status;
-  if (status === 'cancelled') { kind = "cancelled"; label = "cancelled"; }
-  else if (status === 'overdue') { kind = "overdue"; label = "overdue"; }
-  else if (status === 'settled') { kind = "settled"; label = "settled"; }
-  else if (status === 'partial') { kind = "partial"; label = "partial"; }
-  else if (msa === 'proposed' && hasClientMsaNote) { kind = "revision"; label = "revision requested"; }
-  else if (msa === 'accepted' && status !== 'settled') { kind = "locked"; label = "locked"; }
-  else if (msa === 'proposed') { kind = "awaiting"; label = "awaiting client"; }
-  else if (msa === 'pending' && status === 'finalized') { kind = "awaiting"; label = "awaiting client"; }
-  else if (status === 'finalized' || status === 'sent' || status === 'live') { kind = "live"; label = "live"; }
-  else if (status === 'complete') { kind = "complete"; label = "complete"; }
-  else if (status === 'draft') { kind = "draft"; label = "draft"; }
-
-  return { ...getStatusTint(kind), label };
+/**
+ * One taxonomy, shared with /invoices.
+ *
+ * This component used to carry its own copy of the status ladder. It never
+ * received the derived overdue and unanswered flags, so a master invoice
+ * that had gone months without an answer read "awaiting client" here while
+ * the roster called it unanswered; and its locked guard was missing the
+ * finalized exclusion. Milestone invoices were worse: they were labelled
+ * from their MILESTONE row rather than their own status, so an invoice past
+ * its due date read "live" under a column headed Status.
+ *
+ * Both now resolve the same way the roster does. Child rows pass the
+ * MASTER's MSA state, which is what the overdue predicate requires.
+ */
+function getStatusPill(invoice: InvoiceRow, masterMsaStatus: string | null, hasClientMsaNote: boolean) {
+  const { label } = resolveInvoiceStatus(invoice, masterMsaStatus, hasClientMsaNote);
+  // Every label getStatusInfo produces is also a StatusKind. getStatusTint
+  // falls back to neutral for anything else, which is the fallback label.
+  return { ...getStatusTint(label as StatusKind), label: LEDGER_LABEL[label] ?? label };
 }
 
 export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoices }) {
@@ -70,17 +81,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                 : Number.isFinite(milestoneIndex)
                   ? `M${milestoneIndex} billing`
                   : "Milestone billing";
-              let statusInfo;
-              if (isMaster) {
-                statusInfo = getStatusPill(inv.status || "draft", master?.msa_status || null, !!master?.client_msa_note);
-              } else {
-                const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
-                const mStatus = (ms?.status || "").toLowerCase();
-                if (mStatus === "settled") statusInfo = { ...getStatusTint("settled"), label: 'settled' };
-                else if (mStatus === "live") statusInfo = { ...getStatusTint("live"), label: 'live' };
-                else if (mStatus === "cancelled") statusInfo = { ...getStatusTint("cancelled"), label: 'cancelled' };
-                else statusInfo = { ...getStatusTint("scheduled"), label: 'pending' };
-              }
+              const statusInfo = getStatusPill(inv, master?.msa_status || null, !!master?.client_msa_note);
 
               // Compute grand total
               let total = resolveInvoicePayable(inv);
